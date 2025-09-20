@@ -1,0 +1,98 @@
+.hero {
+  scroll-margin-top: 120px;
+  background: #ffffff;
+  border: 1px solid rgba(16, 22, 64, 0.08);
+  border-radius: 24px;
+  padding: clamp(2.5rem, 6vw, 3.75rem);
+  box-shadow: 0 30px 65px rgba(10, 14, 64, 0.08);
+  text-align: left;
+}
+
+.hero h1 {
+  margin-top: 0;
+  font-size: clamp(2.25rem, 4vw, 3.25rem);
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #43476a;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.primaryAction,
+.secondaryAction {
+  padding: 0.9rem 1.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primaryAction {
+  background: linear-gradient(120deg, #2739b5 0%, #5468ff 55%, #7f8dff 100%);
+  color: #ffffff;
+}
+
+.primaryAction:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(84, 104, 255, 0.4);
+}
+
+.secondaryAction {
+  background: rgba(39, 57, 181, 0.12);
+  color: #2730a6;
+}
+
+.secondaryAction:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(39, 57, 181, 0.2);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.columns article {
+  scroll-margin-top: 120px;
+  background: #ffffff;
+  border: 1px solid rgba(16, 22, 64, 0.08);
+  border-radius: 20px;
+  padding: 1.8rem;
+  box-shadow: 0 24px 55px rgba(10, 14, 64, 0.06);
+}
+
+.columns h2 {
+  margin-top: 0;
+}
+
+.columns p {
+  color: #4b4f73;
+  line-height: 1.5;
+}
+
+.inlineLink {
+  font-weight: 600;
+  text-decoration: none;
+  color: #5468ff;
+}
+
+.inlineLink:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 768px) {
+  .actions {
+    flex-direction: column;
+  }
+}

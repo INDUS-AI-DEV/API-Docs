@@ -1,0 +1,52 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* Global theming overrides for the Audio Platform docs */
+:root {
+  --ifm-color-primary: #5468ff;
+  --ifm-color-primary-dark: #4c5ee6;
+  --ifm-color-primary-darker: #4455cc;
+  --ifm-color-primary-darkest: #3846a6;
+  --ifm-color-primary-light: #6c7bff;
+  --ifm-color-primary-lighter: #7a86ff;
+  --ifm-color-primary-lightest: #9aa3ff;
+  --ifm-code-font-size: 95%;
+  --ifm-button-border-radius: 999px;
+  --docusaurus-highlighted-code-line-bg: rgba(84, 104, 255, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #93a1ff;
+  --ifm-color-primary-dark: #7f8dff;
+  --ifm-color-primary-darker: #6a77ff;
+  --ifm-color-primary-darkest: #4b57ff;
+  --ifm-color-primary-light: #a8b4ff;
+  --ifm-color-primary-lighter: #bcc5ff;
+  --ifm-color-primary-lightest: #dce1ff;
+  --docusaurus-highlighted-code-line-bg: rgba(147, 161, 255, 0.25);
+}
+
+.hero--primary {
+  background: linear-gradient(120deg, #2739b5 0%, #5468ff 55%, #7f8dff 100%);
+}
+
+.hero--primary .button--outline {
+  color: var(--ifm-color-primary-contrast-foreground, #fff);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.hero--primary .button--outline:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+/* Remove the default Docusaurus navbar (which showed only a theme toggle) */
+.navbar {
+  display: none !important;
+}
