@@ -4,7 +4,7 @@ import CodeBlock from '@theme/CodeBlock';
 
 import styles from './api.module.css';
 
-const STT_BASE_URL = 'http://164.52.214.239:8012';
+const STT_BASE_URL = 'https://voice.induslabs.io';
 
 const validationError = `{
   "detail": [
@@ -17,19 +17,36 @@ const validationError = `{
 }`;
 
 const sttInputs = [
-  {name: 'file', type: 'file', defaultValue: 'required', description: 'Audio upload. Provide MIME type (for example audio/mpeg).'},
-  {name: 'language', type: 'string', defaultValue: '-', description: 'Optional ISO language code to override detection.'},
-  {name: 'secret_key', type: 'string', defaultValue: 'required', description: 'Credential string authorising the request.'},
-  {name: 'deduct_url', type: 'string', defaultValue: '-', description: 'Optional callback URL for metering or billing hooks.'},
+  {name: 'file', type: 'file', defaultValue: 'required', description: 'Audio file to transcribe (binary).'},
+  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
+  {name: 'language', type: 'string', defaultValue: '-', description: "Optional ISO code (e.g., 'en', 'hi') for forced language detection."},
+  {name: 'chunk_length_s', type: 'number', defaultValue: '-', description: 'Chunk length in seconds (1.0–30.0).'},
+  {name: 'stride_s', type: 'number', defaultValue: '-', description: 'Stride in seconds between chunks (1.0–29.0).'},
+  {name: 'overlap_words', type: 'integer', defaultValue: '-', description: 'Number of overlapping words for deduplication (0–20).'},
 ];
 
 const sttOutputs = [
-  {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Transcription text returned as a JSON string.'},
+  {name: '200 OK', type: 'application/json / text/event-stream', defaultValue: '-', description: 'Successful response: SSE stream (for /v1/audio/transcribe) or JSON (for /file).'},
   {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
 ];
 
 const responseExamples = [
-  {label: '200 OK', language: 'json', code: '"Call transcript appears here."'},
+  {
+    label: '200 OK (SSE stream)',
+    language: 'json',
+    code: `{"type":"partial","word":"hello","provisional":true,"chunk_start":0.0,"chunk_end":6.0}
+{"type":"chunk_final","text":"full chunk text","chunk_start":0.0,"chunk_end":6.0}
+{"type":"final","text":"final transcript","audio_duration_seconds":10.5,"processing_time_seconds":2.1}`,
+  },
+  {
+    label: '200 OK (JSON)',
+    language: 'json',
+    code: `{
+  "text": "full transcript here",
+  "audio_duration_seconds": 10.5,
+  "processing_time_seconds": 2.1
+}`,
+  },
   {label: '422 Validation Error', language: 'json', code: validationError},
 ];
 
@@ -40,13 +57,15 @@ const quickIntegrationLanguages = [
     language: 'python',
     code: `import requests
 
-url = "${STT_BASE_URL}/stt/transcribe"
-with open("synthetic_0038.mp3", "rb") as audio_file:
-    files = {"file": ("synthetic_0038.mp3", audio_file, "audio/mpeg")}
+url = "${STT_BASE_URL}/v1/audio/transcribe/file"
+with open("audio.mp3", "rb") as audio_file:
+    files = {"file": ("audio.mp3", audio_file, "audio/mpeg")}
     data = {
-        "language": "",
-        "secret_key": "YOUR_SECRET_KEY",
-        "deduct_url": ""
+        "api_key": "YOUR_API_KEY",
+        "language": "en",
+        "chunk_length_s": 15.0,
+        "stride_s": 5.0,
+        "overlap_words": 3,
     }
     response = requests.post(url, files=files, data=data)
 response.raise_for_status()
@@ -62,12 +81,14 @@ import FormData from 'form-data';
 import fetch from 'node-fetch';
 
 const form = new FormData();
-form.append('file', fs.createReadStream('synthetic_0038.mp3'));
-form.append('language', '');
-form.append('secret_key', 'YOUR_SECRET_KEY');
-form.append('deduct_url', '');
+form.append('file', fs.createReadStream('audio.mp3'));
+form.append('api_key', 'YOUR_API_KEY');
+form.append('language', 'en');
+form.append('chunk_length_s', '15.0');
+form.append('stride_s', '5.0');
+form.append('overlap_words', '3');
 
-const response = await fetch('${STT_BASE_URL}/stt/transcribe', {
+const response = await fetch('${STT_BASE_URL}/v1/audio/transcribe/file', {
   method: 'POST',
   body: form,
   headers: form.getHeaders(),
@@ -81,20 +102,23 @@ console.log(transcript);
     id: 'curl',
     label: 'cURL',
     language: 'bash',
-    code: `curl -X POST "${STT_BASE_URL}/stt/transcribe" \\
+    code: `curl -X POST "${STT_BASE_URL}/v1/audio/transcribe/file" \\
   -H "accept: application/json" \\
   -H "Content-Type: multipart/form-data" \\
-  -F "file=@synthetic_0038.mp3;type=audio/mpeg" \\
-  -F "language=" \\
-  -F "secret_key=YOUR_SECRET_KEY" \\
-  -F "deduct_url="
+  -F "file=@audio.mp3;type=audio/mpeg" \\
+  -F "api_key=YOUR_API_KEY" \\
+  -F "language=en" \\
+  -F "chunk_length_s=15.0" \\
+  -F "stride_s=5.0" \\
+  -F "overlap_words=3"
 `,
   },
 ];
 
-function SttEndpoint() {
+// Generic section renderer
+function EndpointSection({id, method, path, title, description, examples}) {
   const [copied, setCopied] = useState(false);
-  const copyValue = `POST ${STT_BASE_URL}/stt/transcribe`;
+  const copyValue = `${method} ${STT_BASE_URL}${path}`;
 
   const handleCopy = async () => {
     try {
@@ -107,19 +131,16 @@ function SttEndpoint() {
   };
 
   return (
-    <section id="stt-post-stt-transcribe" className={styles.endpointSection}>
+    <section id={id} className={styles.endpointSection}>
       <div className={styles.endpointHeader}>
-        <MethodBadge method="POST" />
-        <code className={styles.endpointPath}>/stt/transcribe</code>
+        <MethodBadge method={method} />
+        <code className={styles.endpointPath}>{path}</code>
         <button type="button" className={styles.copyButton} onClick={handleCopy}>
           {copied ? 'Copied!' : 'Copy API'}
         </button>
       </div>
-      <h3 className={styles.anchorTitle}>Upload Audio for Transcription</h3>
-      <p>
-        Submit audio via multipart form data. The service transcribes the file and responds with text suitable for
-        analytics, captions, or downstream workflows.
-      </p>
+      <h3 className={styles.anchorTitle}>{title}</h3>
+      <p>{description}</p>
       <div className={styles.ioGrid}>
         <div className={styles.tableCard}>
           <h4>Form Fields</h4>
@@ -151,7 +172,6 @@ function SttEndpoint() {
               <tr>
                 <th>Status</th>
                 <th>Type</th>
-                <th>Default</th>
                 <th>Description</th>
               </tr>
             </thead>
@@ -160,7 +180,6 @@ function SttEndpoint() {
                 <tr key={output.name}>
                   <td><code>{output.name}</code></td>
                   <td>{output.type}</td>
-                  <td>{output.defaultValue}</td>
                   <td>{output.description}</td>
                 </tr>
               ))}
@@ -169,7 +188,7 @@ function SttEndpoint() {
         </div>
       </div>
       <div className={styles.responseExamples}>
-        {responseExamples.map(example => (
+        {examples.map(example => (
           <div key={example.label} className={styles.responseExampleCard}>
             <h4>{example.label}</h4>
             <CodeBlock language={example.language}>{example.code}</CodeBlock>
@@ -187,11 +206,12 @@ export default function SttPage() {
       description="Speech-to-text service overview"
       sidebarSections={[
         {
-          title: 'Overview',
+          title: 'STT Service',
           links: [
-            {label: 'Introduction', to: '/'},
-            {label: 'Text-to-Speech', to: '/tts'},
-            {label: 'Speech-to-Text', to: '/stt'},
+            {label: 'Introduction', targetId: 'stt-introduction'},
+            {label: 'POST /v1/audio/transcribe', targetId: 'stt-post-v1-audio-transcribe', method: 'POST'},
+            {label: 'POST /v1/audio/transcribe/file', targetId: 'stt-post-v1-audio-transcribe-file', method: 'POST'},
+            {label: 'GET /v1/audio/transcribe/config', targetId: 'stt-get-v1-audio-transcribe-config', method: 'GET'},
           ],
         },
         {
@@ -202,13 +222,6 @@ export default function SttPage() {
             {label: 'POST /v1/audio/speech', to: '/tts'},
             {label: 'POST /v1/audio/speech/file', to: '/tts'},
             {label: 'POST /v1/audio/speech/preview', to: '/tts'},
-          ],
-        },
-        {
-          title: 'STT Service',
-          links: [
-            {label: 'Introduction', targetId: 'stt-introduction'},
-            {label: 'POST /stt/transcribe', targetId: 'stt-post-stt-transcribe', method: 'POST'},
           ],
         },
       ]}
@@ -222,11 +235,45 @@ export default function SttPage() {
       <section id="stt-introduction" className={styles.pageIntro}>
         <h1>Speech-to-Text Service</h1>
         <p>
-          Convert spoken audio into accurate transcripts using a single multipart endpoint. Provide the file, optional
-          language hints, and your secret key to obtain text ready for analysis or storage.
+          Convert spoken audio into accurate transcripts using flexible endpoints.  
+          Use <code>/v1/audio/transcribe</code> for streaming SSE results, or <code>/v1/audio/transcribe/file</code> for complete JSON output.
         </p>
       </section>
-      <SttEndpoint />
+
+      <EndpointSection
+        id="stt-post-v1-audio-transcribe"
+        method="POST"
+        path="/v1/audio/transcribe"
+        title="Transcribe Audio (Streaming)"
+        description="Transcribe audio file to text with streaming results via Server-Sent Events (SSE)."
+        examples={[
+          responseExamples[0],
+          responseExamples[2] || {label: '422 Validation Error', language: 'json', code: validationError},
+        ]}
+      />
+
+      <EndpointSection
+        id="stt-post-v1-audio-transcribe-file"
+        method="POST"
+        path="/v1/audio/transcribe/file"
+        title="Transcribe Audio File (JSON)"
+        description="Transcribe audio file and return complete transcript as JSON (non-streaming)."
+        examples={[
+          responseExamples[1],
+          {label: '422 Validation Error', language: 'json', code: validationError},
+        ]}
+      />
+
+      <EndpointSection
+        id="stt-get-v1-audio-transcribe-config"
+        method="GET"
+        path="/v1/audio/transcribe/config"
+        title="Get STT Config"
+        description="Retrieve STT configuration and supported options."
+        examples={[
+          {label: '200 OK', language: 'json', code: `{"supported_languages": ["en", "hi"], "max_chunk_length": 30}`},
+        ]}
+      />
     </DocsLayout>
   );
 }

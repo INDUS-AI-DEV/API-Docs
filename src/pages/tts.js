@@ -4,7 +4,7 @@ import CodeBlock from '@theme/CodeBlock';
 
 import styles from './api.module.css';
 
-const TTS_BASE_URL = 'https://<host>';
+const TTS_BASE_URL = 'https://voice.induslabs.io';
 
 const sharedPayload = `{
   "text": "string",
@@ -263,11 +263,15 @@ export default function TtsPage() {
             {label: 'POST /v1/audio/speech/preview', targetId: 'tts-post-v1-audio-speech-preview', method: 'POST'},
           ],
         },
+       
+       
         {
           title: 'STT Service',
           links: [
             {label: 'Introduction', to: '/stt'},
-            {label: 'POST /stt/transcribe', to: '/stt'},
+            {label: 'POST /v1/audio/transcribe',  to: '/stt'},
+            {label: 'POST /v1/audio/transcribe/file',  to: '/stt'},
+            {label: 'GET /v1/audio/transcribe/config',  to: '/stt'},
           ],
         },
       ]}
@@ -293,6 +297,7 @@ response = requests.post(url, json=payload)
 response.raise_for_status()
 with open("hello.mp3", "wb") as audio_file:
     audio_file.write(response.content)
+print("Saved to hello.mp3")
 `,
           },
           {
@@ -317,6 +322,7 @@ const response = await fetch('${TTS_BASE_URL}/v1/audio/speech', {
 if (!response.ok) throw new Error('Request failed');
 const audioBuffer = Buffer.from(await response.arrayBuffer());
 await writeFile('hello.mp3', audioBuffer);
+console.log("Saved to hello.mp3");
 `,
           },
           {
@@ -325,7 +331,8 @@ await writeFile('hello.mp3', audioBuffer);
             language: 'bash',
             code: `curl -X POST "${TTS_BASE_URL}/v1/audio/speech" \\
   -H "Content-Type: application/json" \\
-  -d '{"text": "Hello world from INDUSLABS", "voice": "tara"}'
+  -d '{"text": "Hello world from INDUSLABS", "voice": "tara", "response_format": "mp3"}' \\
+  --output hello.mp3
 `,
           },
         ],
