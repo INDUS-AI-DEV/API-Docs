@@ -17,16 +17,21 @@ const validationError = `{
 }`;
 
 const sttInputs = [
-  {name: 'file', type: 'file', defaultValue: 'required', description: 'Audio file to transcribe (binary).'},
-  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
-  {name: 'language', type: 'string', defaultValue: '-', description: "Optional ISO code (e.g., 'en', 'hi') for forced language detection."},
-  {name: 'chunk_length_s', type: 'number', defaultValue: '-', description: 'Chunk length in seconds (1.0–30.0).'},
-  {name: 'stride_s', type: 'number', defaultValue: '-', description: 'Stride in seconds between chunks (1.0–29.0).'},
-  {name: 'overlap_words', type: 'integer', defaultValue: '-', description: 'Number of overlapping words for deduplication (0–20).'},
+  {name: 'file', type: 'file', defaultValue: 'req', description: 'Audio file to transcribe.'},
+  {name: 'api_key', type: 'string', defaultValue: 'req', description: 'Authentication API key.'},
+  {name: 'language', type: 'string', defaultValue: '-', description: 'Language code (e.g., "en", "hi") for forced detection.'},
+  {name: 'chunk_length_s', type: 'number', defaultValue: '-', description: 'Length of each chunk in seconds (1–30).'},
+  {name: 'stride_s', type: 'number', defaultValue: '-', description: 'Stride between chunks in seconds (1–29).'},
+  {name: 'overlap_words', type: 'integer', defaultValue: '-', description: 'Number of overlapping words for context handling (0–20).'},
 ];
 
-const sttOutputs = [
-  {name: '200 OK', type: 'application/json / text/event-stream', defaultValue: '-', description: 'Successful response: SSE stream (for /v1/audio/transcribe) or JSON (for /file).'},
+const streamingOutputs = [
+  {name: '200 OK', type: 'text/event-stream', defaultValue: '-', description: 'Returns transcription results in JSON (streamed via SSE).'},
+  {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
+];
+
+const fileOutputs = [
+  {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns the complete transcript and metrics as JSON.'},
   {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
 ];
 
@@ -34,18 +39,32 @@ const responseExamples = [
   {
     label: '200 OK (SSE stream)',
     language: 'json',
-    code: `{"type":"partial","word":"hello","provisional":true,"chunk_start":0.0,"chunk_end":6.0}
-{"type":"chunk_final","text":"full chunk text","chunk_start":0.0,"chunk_end":6.0}
-{"type":"final","text":"final transcript","audio_duration_seconds":10.5,"processing_time_seconds":2.1}`,
+    code: `{
+  "type": "partial",
+  "word": "hello",
+  "provisional": true,
+  "chunk_start": 0.0,
+  "chunk_end": 6.0
+}
+
+{
+  "type": "chunk_final",
+  "text": "full chunk text",
+  "chunk_start": 0.0,
+  "chunk_end": 6.0
+}
+
+{
+  "type": "final",
+  "text": "final transcript",
+  "audio_duration_seconds": 10.5,
+  "processing_time_seconds": 2.1
+}`,
   },
   {
     label: '200 OK (JSON)',
     language: 'json',
-    code: `{
-  "text": "full transcript here",
-  "audio_duration_seconds": 10.5,
-  "processing_time_seconds": 2.1
-}`,
+    code: `"string"`,
   },
   {label: '422 Validation Error', language: 'json', code: validationError},
 ];
@@ -116,9 +135,21 @@ console.log(transcript);
 ];
 
 // Generic section renderer
-function EndpointSection({id, method, path, title, description, examples}) {
+function EndpointSection({
+  id,
+  method,
+  path,
+  title,
+  description,
+  examples,
+  inputs = sttInputs,
+  outputs = streamingOutputs,
+  notes = [],
+}) {
   const [copied, setCopied] = useState(false);
   const copyValue = `${method} ${STT_BASE_URL}${path}`;
+  const inputHeaders = ['Name', 'Type', 'Default', 'Description'];
+  const outputHeaders = ['Status', 'Type', 'Description'];
 
   const handleCopy = async () => {
     try {
@@ -141,50 +172,76 @@ function EndpointSection({id, method, path, title, description, examples}) {
       </div>
       <h3 className={styles.anchorTitle}>{title}</h3>
       <p>{description}</p>
+      {notes.length > 0 && (
+        <div className={styles.callout}>
+          <strong>Functionality</strong>
+          <ul>
+            {notes.map(note => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className={styles.ioGrid}>
         <div className={styles.tableCard}>
           <h4>Form Fields</h4>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Default</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sttInputs.map(input => (
-                <tr key={input.name}>
-                  <td><code>{input.name}</code></td>
-                  <td>{input.type}</td>
-                  <td>{input.defaultValue}</td>
-                  <td>{input.description}</td>
+          <div className={styles.tableScroll}>
+            <table>
+              <thead>
+                <tr>
+                  {inputHeaders.map(label => (
+                    <th key={label}>{label}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {inputs.map(input => {
+                  const isreq = input.defaultValue === 'req';
+                  return (
+                    <tr key={input.name}>
+                      <td data-label={inputHeaders[0]}>
+                        <code>{input.name}</code>
+                        {isreq && <span className={styles.reqBadgeMobile} aria-hidden="true">*</span>}
+                      </td>
+                      <td data-label={inputHeaders[1]}>{input.type}</td>
+                      <td
+                        data-label={inputHeaders[2]}
+                        data-req={isreq ? 'true' : 'false'}
+                      >
+                        {isreq ? (
+                          <span className={styles.reqBadge} aria-label="req">req</span>
+                        ) : input.defaultValue}
+                      </td>
+                      <td data-label={inputHeaders[3]}>{input.description}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
         <div className={styles.tableCard}>
           <h4>Outputs</h4>
-          <table>
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>Type</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sttOutputs.map(output => (
-                <tr key={output.name}>
-                  <td><code>{output.name}</code></td>
-                  <td>{output.type}</td>
-                  <td>{output.description}</td>
+          <div className={styles.tableScroll}>
+            <table>
+              <thead>
+                <tr>
+                  {outputHeaders.map(label => (
+                    <th key={label}>{label}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {outputs.map(output => (
+                  <tr key={output.name}>
+                    <td data-label={outputHeaders[0]}><code>{output.name}</code></td>
+                    <td data-label={outputHeaders[1]}>{output.type}</td>
+                    <td data-label={outputHeaders[2]}>{output.description}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <div className={styles.responseExamples}>
@@ -211,7 +268,6 @@ export default function SttPage() {
             {label: 'Introduction', targetId: 'stt-introduction'},
             {label: 'POST /v1/audio/transcribe', targetId: 'stt-post-v1-audio-transcribe', method: 'POST'},
             {label: 'POST /v1/audio/transcribe/file', targetId: 'stt-post-v1-audio-transcribe-file', method: 'POST'},
-            {label: 'GET /v1/audio/transcribe/config', targetId: 'stt-get-v1-audio-transcribe-config', method: 'GET'},
           ],
         },
         {
@@ -245,11 +301,13 @@ export default function SttPage() {
         method="POST"
         path="/v1/audio/transcribe"
         title="Transcribe Audio (Streaming)"
-        description="Transcribe audio file to text with streaming results via Server-Sent Events (SSE)."
-        examples={[
-          responseExamples[0],
-          responseExamples[2] || {label: '422 Validation Error', language: 'json', code: validationError},
+        description="This endpoint is used to transcribe audio files into text with streaming results via Server-Sent Events (SSE)."
+        notes={[
+          'Accepts an audio file and returns real-time transcription results.',
+          'Outputs partial, chunk-level, and final transcripts as the audio is processed.',
+          'Suitable for low-latency transcription where results are streamed back continuously.',
         ]}
+        examples={[responseExamples[0], responseExamples[2]]}
       />
 
       <EndpointSection
@@ -257,22 +315,13 @@ export default function SttPage() {
         method="POST"
         path="/v1/audio/transcribe/file"
         title="Transcribe Audio File (JSON)"
-        description="Transcribe audio file and return complete transcript as JSON (non-streaming)."
-        examples={[
-          responseExamples[1],
-          {label: '422 Validation Error', language: 'json', code: validationError},
+        description="This endpoint is used to transcribe an audio file and return the complete transcript as JSON (non-streaming)."
+        notes={[
+          'Accepts an audio file and returns the full transcription result after processing.',
+          'Provides metrics in the JSON response (non-streaming, unlike the /v1/audio/transcribe endpoint).',
         ]}
-      />
-
-      <EndpointSection
-        id="stt-get-v1-audio-transcribe-config"
-        method="GET"
-        path="/v1/audio/transcribe/config"
-        title="Get STT Config"
-        description="Retrieve STT configuration and supported options."
-        examples={[
-          {label: '200 OK', language: 'json', code: `{"supported_languages": ["en", "hi"], "max_chunk_length": 30}`},
-        ]}
+        examples={[responseExamples[1], responseExamples[2]]}
+        outputs={fileOutputs}
       />
     </DocsLayout>
   );

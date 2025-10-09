@@ -2,9 +2,9 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Audio Platform API',
+  title: 'API Docs',
   tagline: 'Complete reference for speech synthesis and transcription endpoints',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/image.jpeg',
 
   future: {
     v4: true,
@@ -38,9 +38,13 @@ const config = {
   ],
 
   themeConfig: {
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
+    },
     prism: {
       theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
     },
   },
 };

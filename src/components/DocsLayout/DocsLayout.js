@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
 import CodeBlock from '@theme/CodeBlock';
-import {useColorMode} from '@docusaurus/theme-common';
 
 import styles from './DocsLayout.module.css';
 import logoImage from '../../../transparent-background-with-black-text.png';
@@ -15,20 +14,21 @@ const methodBadgeClass = {
   DELETE: styles.methodDelete,
 };
 
-function ThemeToggle() {
-  const {colorMode, setColorMode} = useColorMode();
-  const isDark = colorMode === 'dark';
-
-  return (
-    <button
-      type="button"
-      className={styles.themeButton}
-      onClick={() => setColorMode(isDark ? 'light' : 'dark')}
-      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-    >
-      <span className={styles.themeIcon}>{isDark ? '☀️' : '🌙'}</span>
-    </button>
-  );
+function scrollToTarget(targetId, onNavigate) {
+  if (typeof window === 'undefined' || !targetId) {
+    return;
+  }
+  const element = document.getElementById(targetId);
+  if (element) {
+    element.scrollIntoView({behavior: 'smooth', block: 'start'});
+    if (typeof history !== 'undefined' && history.replaceState) {
+      const url = `${window.location.pathname}#${targetId}`;
+      history.replaceState(null, '', url);
+    }
+    if (onNavigate) {
+      onNavigate(targetId);
+    }
+  }
 }
 
 export function MethodBadge({method = 'POST'}) {
@@ -42,23 +42,6 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
   if (!links?.length) {
     return null;
   }
-
-  const handleScroll = targetId => {
-    if (typeof window === 'undefined' || !targetId) {
-      return;
-    }
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({behavior: 'smooth', block: 'start'});
-      if (typeof history !== 'undefined' && history.replaceState) {
-        const url = `${window.location.pathname}#${targetId}`;
-        history.replaceState(null, '', url);
-      }
-      if (onNavigate) {
-        onNavigate(targetId);
-      }
-    }
-  };
 
   return (
     <details open className={styles.sidebarGroup}>
@@ -94,7 +77,7 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
               <button
                 type="button"
                 className={clsx(styles.sidebarLink, styles.sidebarButton, isActive && styles.sidebarLinkActive)}
-                onClick={() => handleScroll(link.targetId)}
+                onClick={() => scrollToTarget(link.targetId, onNavigate)}
               >
                 {content}
               </button>
@@ -163,6 +146,12 @@ export default function DocsLayout({
 }) {
   const hasSidebar = sidebarSections.some(section => section?.links?.length);
   const hasIntegration = Boolean(integration?.languages?.length);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef(null);
+  const mobileToggleRef = useRef(null);
+  const [isHeaderElevated, setIsHeaderElevated] = useState(false);
+  const headerRef = useRef(null);
 
   const trackedIds = useMemo(
     () =>
@@ -176,6 +165,50 @@ export default function DocsLayout({
   const [activeId, setActiveId] = useState(() => trackedIds[0] ?? null);
   const activeRef = useRef(activeId);
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    const query = window.matchMedia('(max-width: 960px)');
+    const handleChange = event => {
+      setIsMobile(event.matches);
+    };
+    setIsMobile(query.matches);
+    if (query.addEventListener) {
+      query.addEventListener('change', handleChange);
+      return () => query.removeEventListener('change', handleChange);
+    }
+    query.addListener(handleChange);
+    return () => query.removeListener(handleChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return undefined;
+    }
+
+    const updateHeaderMetrics = () => {
+      if (!headerRef.current) {
+        return;
+      }
+      const height = headerRef.current.offsetHeight ?? 0;
+      const offset = height + 16;
+      document.documentElement.style.setProperty('--docs-header-height', `${height}px`);
+      document.documentElement.style.setProperty('--docs-header-offset', `${offset}px`);
+    };
+
+    updateHeaderMetrics();
+
+    window.addEventListener('resize', updateHeaderMetrics);
+    return () => window.removeEventListener('resize', updateHeaderMetrics);
+  }, []);
 
   useEffect(() => {
     const initial = trackedIds[0] ?? null;
@@ -240,7 +273,9 @@ export default function DocsLayout({
     }
 
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
+      const scrollY = window.scrollY ?? 0;
+      setShowScrollTop(scrollY > 300);
+      setIsHeaderElevated(scrollY > 4);
     };
 
     handleScroll();
@@ -249,6 +284,37 @@ export default function DocsLayout({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      return undefined;
+    }
+
+    const handleOutside = event => {
+      const menuEl = mobileMenuRef.current;
+      const toggleEl = mobileToggleRef.current;
+      if (menuEl?.contains(event.target) || toggleEl?.contains(event.target)) {
+        return;
+      }
+      setIsMobileMenuOpen(false);
+    };
+
+    const handleEscape = event => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isMobileMenuOpen]);
+
   const scrollToTop = () => {
     if (typeof window === 'undefined') {
       return;
@@ -256,33 +322,124 @@ export default function DocsLayout({
     window.scrollTo({top: 0, behavior: 'smooth'});
   };
 
+  const headerText = title;
+  const mobileMenuId = 'docs-mobile-menu';
+  const mobileMenuToggleId = 'docs-mobile-menu-toggle';
+  const isSidebarVisible = hasSidebar && !isMobile;
+
   return (
     <Layout noNavbar noFooter title={title} description={description}>
       <div className={styles.wrapper}>
-        <header className={styles.header}>
+        <header
+          className={clsx(styles.header, isHeaderElevated && styles.headerScrolled)}
+          ref={headerRef}
+        >
           <div className={styles.headerInner}>
             <a className={styles.logo} href="https://induslabs.io/">
               <img src={logoImage} alt="Induslabs" className={styles.logoImage} />
             </a>
             <div className={styles.headerCopy}>
-              <p className={styles.headerTitle}>{title}</p>
-              {description && <p className={styles.headerTagline}>{description}</p>}
+              <Link to="/" className={styles.headerTitleLink}>
+                {headerText}
+              </Link>
             </div>
             <div className={styles.headerControls}>
-              <ThemeToggle />
+              {hasSidebar && isMobile && (
+                <div className={styles.mobileMenuContainer}>
+                  <button
+                    type="button"
+                    className={clsx(styles.mobileMenuButton, isMobileMenuOpen && styles.mobileMenuButtonActive)}
+                    id={mobileMenuToggleId}
+                    aria-expanded={isMobileMenuOpen}
+                    aria-controls={mobileMenuId}
+                    aria-haspopup="true"
+                    aria-label="Toggle documentation navigation"
+                    onClick={() => setIsMobileMenuOpen(prev => !prev)}
+                    ref={mobileToggleRef}
+                  >
+                    <span className={styles.hamburger} aria-hidden="true">
+                      <span />
+                      <span />
+                      <span />
+                    </span>
+                  </button>
+                  {isMobileMenuOpen && (
+                    <div
+                      id={mobileMenuId}
+                      role="menu"
+                      className={styles.mobileMenu}
+                      aria-labelledby={mobileMenuToggleId}
+                      ref={mobileMenuRef}
+                    >
+                      {sidebarSections.map(section => (
+                        <div key={section.title} className={styles.mobileMenuSection}>
+                          <p className={styles.mobileMenuHeading}>{section.title}</p>
+                          <ul className={styles.mobileMenuList}>
+                            {(section.links ?? []).map(link => {
+                              const key = `${section.title}-${link.label}`;
+                              const method = link.method?.toUpperCase?.();
+                              const content = (
+                                <>
+                                  {method && <MethodBadge method={method} />}
+                                  <span className={styles.mobileMenuLabel}>{link.label}</span>
+                                </>
+                              );
+
+                              if (link.to) {
+                                return (
+                                  <li key={key}>
+                                    <Link
+                                      to={link.to}
+                                      className={styles.mobileMenuLink}
+                                      role="menuitem"
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                      {content}
+                                    </Link>
+                                  </li>
+                                );
+                              }
+
+                              return (
+                                <li key={key}>
+                                  <button
+                                    type="button"
+                                    className={clsx(
+                                      styles.mobileMenuLink,
+                                      styles.mobileMenuAction,
+                                      link.targetId === activeId && styles.mobileMenuLinkActive,
+                                    )}
+                                    role="menuitem"
+                                    onClick={() => {
+                                      scrollToTarget(link.targetId, setActiveId);
+                                      setIsMobileMenuOpen(false);
+                                    }}
+                                  >
+                                    {content}
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </header>
         <div
           className={clsx(
             styles.body,
-            hasSidebar && hasIntegration && styles.bodyThreeColumn,
-            hasSidebar && !hasIntegration && styles.bodyTwoColumn,
-            !hasSidebar && !hasIntegration && styles.bodySingleColumn,
-            !hasSidebar && hasIntegration && styles.bodyTwoColumnNoSidebar,
+            isSidebarVisible && hasIntegration && styles.bodyThreeColumn,
+            isSidebarVisible && !hasIntegration && styles.bodyTwoColumn,
+            !isSidebarVisible && !hasIntegration && styles.bodySingleColumn,
+            !isSidebarVisible && hasIntegration && styles.bodyTwoColumnNoSidebar,
           )}
         >
-          {hasSidebar && (
+          {isSidebarVisible && (
             <aside className={styles.sidebar}>
               {sidebarSections.map(section => (
                 <SidebarGroup
@@ -306,7 +463,7 @@ export default function DocsLayout({
           onClick={scrollToTop}
           aria-label="Scroll to top"
         >
-          Top
+          <span aria-hidden="true" className={styles.scrollTopIcon}>^</span>
         </button>
       )}
     </Layout>

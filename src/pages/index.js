@@ -9,8 +9,8 @@ const sidebarSections = [
     title: 'Overview',
     links: [
       {label: 'Introduction', targetId: 'home-introduction'},
-      {label: 'Text-to-Speech', targetId: 'home-tts'},
-      {label: 'Speech-to-Text', targetId: 'home-stt'},
+      {label: 'Text-to-Speech', to: '/tts'},
+      {label: 'Speech-to-Text', to: '/stt'},
     ],
   },
   {
@@ -31,7 +31,7 @@ export default function HomePage() {
   return (
     <DocsLayout
       title="Audio Platform API"
-      description="Central hub for text-to-speech and speech-to-text integration"
+      description=""
       sidebarSections={sidebarSections}
     >
       <section id="home-introduction" className={styles.hero}>
@@ -50,7 +50,7 @@ export default function HomePage() {
         </div>
       </section>
       <section className={styles.columns}>
-        <article id="home-tts">
+        <article id="tts">
           <h2>Text-to-Speech</h2>
           <p>
             Convert text into natural speech using streaming or file-based modes. Learn about the shared payload,
@@ -60,7 +60,7 @@ export default function HomePage() {
             View TTS APIs →
           </Link>
         </article>
-        <article id="home-stt">
+        <article id="stt">
           <h2>Speech-to-Text</h2>
           <p>
             Upload audio with multipart form data to receive accurate transcripts. Review supported inputs,

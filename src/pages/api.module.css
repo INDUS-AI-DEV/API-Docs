@@ -44,12 +44,28 @@
   box-shadow: 0 22px 48px rgba(10, 14, 64, 0.06);
 }
 
-.tableCard table {
-  width: 100%;
-  border-collapse: collapse;
+.tableScroll {
   margin-top: 1.1rem;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.tableScroll table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
   font-size: 0.9rem;
-  table-layout: auto;
+  table-layout: fixed;
+}
+
+.tableScroll thead th {
+  position: sticky;
+  top: 0;
+  background: #eef1ff;
+  z-index: 2;
+  box-shadow: 0 1px 0 rgba(16, 22, 64, 0.12);
 }
 
 .tableCard th,
@@ -64,10 +80,41 @@
 .tableCard th {
   background: rgba(84, 104, 255, 0.08);
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tableCard td {
   line-height: 1.45;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.requiredBadge,
+.requiredBadgeMobile {
+  color: #d93025;
+  font-weight: 700;
+}
+
+.requiredBadge {
+  display: inline;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.requiredBadgeMobile {
+  display: none;
+  font-size: 0.95rem;
+  margin-left: 0.35rem;
+  color: #d93025;
 }
 
 .endpointSection {
@@ -171,5 +218,73 @@
 
   .ioGrid {
     grid-template-columns: 1fr;
+  }
+
+  .tableScroll table {
+    min-width: 480px;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .tableScroll {
+    overflow-x: visible;
+  }
+
+  .tableScroll table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tableScroll thead {
+    display: none;
+  }
+
+  .tableScroll tbody {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .tableScroll tr {
+    display: grid;
+    gap: 0.6rem;
+    background: #ffffff;
+    border: 1px solid rgba(16, 22, 64, 0.12);
+    border-radius: 14px;
+    padding: 0.95rem 1rem;
+  }
+
+  .tableCard td {
+    border: none;
+    padding: 0;
+  }
+
+  .tableCard td + td {
+    margin-top: 0.55rem;
+  }
+
+  .tableCard td::before {
+    content: attr(data-label);
+    display: block;
+    font-weight: 600;
+    color: #2730a6;
+    margin-bottom: 0.25rem;
+  }
+
+  .requiredBadge {
+    display: none;
+  }
+
+  .requiredBadgeMobile {
+    display: inline-block;
+    color: #d93025 !important;
+  }
+
+  .tableCard td[data-label='Default'] {
+    display: none;
+  }
+
+  .tableCard td[data-label='Default']::before {
+    display: none;
   }
 }
