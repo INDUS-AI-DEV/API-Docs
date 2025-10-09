@@ -28,12 +28,12 @@ const validationError = `{
 }`;
 
 const sharedInputs = [
-  {name: 'text', type: 'string', defaultValue: 'req', description: 'The text to be synthesized into speech.'},
+  {name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.'},
   {name: 'voice', type: 'string', defaultValue: '-', description: 'The voice model to be used (e.g., "Indus-hi-urvashi").'},
   {name: 'output_format', type: 'string', defaultValue: '-', description: 'Audio format for output (e.g., "pcm").'},
   {name: 'stereo', type: 'boolean', defaultValue: 'false', description: 'Whether the output should be stereo (default: false).'},
   {name: 'model', type: 'string', defaultValue: '-', description: 'The TTS model to use (e.g., "oryphus-3b").'},
-  {name: 'api_key', type: 'string', defaultValue: 'req', description: 'Authentication API key.'},
+  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
   {name: 'normalize', type: 'boolean', defaultValue: 'false', description: 'Whether to normalize text before synthesis (default: false).'},
   {name: 'read_urls_as', type: 'string', defaultValue: '-', description: 'Option to handle URLs in the text (e.g., "verbatim").'},
 ];
@@ -44,6 +44,18 @@ const streamInput = {
   defaultValue: 'false',
   description: 'Whether to stream the output (default: false).',
 };
+
+const voiceListExample = `{
+  "voices": [
+    {
+      "id": "Indus-hi-urvashi",
+      "language": "hi",
+      "gender": "female",
+      "description": "Conversational Hindi voice",
+      "tags": ["hi", "female", "neural"]
+    }
+  ]
+}`;
 
 const endpoints = [
   {
@@ -118,9 +130,33 @@ const endpoints = [
       {label: '422 Validation Error', language: 'json', code: validationError},
     ],
   },
+  {
+    anchor: 'tts-get-v1-voice-get-voices',
+    method: 'GET',
+    path: '/v1/voice/get-voices',
+    title: 'List Available Voices',
+    description:
+      'Retrieves the catalog of voices available for speech synthesis.',
+    notes: [
+      'Proxies the Indus AI voice registry and returns structured metadata for each supported voice.',
+      'No request payload is required; the endpoint streams the latest catalog on every call.',
+    ],
+    inputs: null,
+    outputs: [
+      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Collection of voice definitions with language, gender, and identifiers.'},
+      {name: '500 Internal Server Error', type: 'application/json', defaultValue: '-', description: 'Returned when the upstream voice service is unavailable.'},
+    ],
+    examples: [
+      {label: '200 OK', language: 'json', code: voiceListExample},
+    ],
+  },
 ];
 
 function TableCard({title, rows, headerLabels}) {
+  if (!rows || rows.length === 0) {
+    return null;
+  }
+
   return (
     <div className={styles.tableCard}>
       <h4>{title}</h4>
@@ -135,18 +171,18 @@ function TableCard({title, rows, headerLabels}) {
           </thead>
           <tbody>
             {rows.map(row => {
-              const isreq = row.defaultValue === 'req';
+              const normalizedDefault =
+                typeof row.defaultValue === 'string' ? row.defaultValue.toLowerCase() : row.defaultValue;
+              const isRequired = normalizedDefault === 'required';
               return (
                 <tr key={row.name}>
                   <td data-label={headerLabels[0]}>
                     <code>{row.name}</code>
-                    {isreq && <span className={styles.reqBadgeMobile} aria-hidden="true">*</span>}
+                    {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
                   </td>
                   <td data-label={headerLabels[1]}>{row.type}</td>
-                  <td data-label={headerLabels[2]} data-req={isreq ? 'true' : 'false'}>
-                    {isreq ? (
-                      <span className={styles.reqBadge} aria-label="req">req</span>
-                    ) : row.defaultValue}
+                  <td data-label={headerLabels[2]} data-required={isRequired ? 'true' : 'false'}>
+                    {isRequired ? 'required' : row.defaultValue}
                   </td>
                   <td data-label={headerLabels[3]}>{row.description}</td>
                 </tr>
@@ -192,7 +228,7 @@ function OutputCard({rows, headerLabels = outputHeaderLabels}) {
 
 function EndpointSection({endpoint}) {
   const [copied, setCopied] = useState(false);
-  const copyValue = `${endpoint.method} ${TTS_BASE_URL}${endpoint.path}`;
+  const copyValue = `${TTS_BASE_URL}${endpoint.path}`;
 
   const handleCopy = async () => {
     try {
@@ -269,6 +305,7 @@ export default function TtsPage() {
             {label: 'POST /v1/audio/speech', targetId: 'tts-post-v1-audio-speech', method: 'POST'},
             {label: 'POST /v1/audio/speech/file', targetId: 'tts-post-v1-audio-speech-file', method: 'POST'},
             {label: 'POST /v1/audio/speech/preview', targetId: 'tts-post-v1-audio-speech-preview', method: 'POST'},
+            {label: 'GET /v1/voice/get-voices', targetId: 'tts-get-v1-voice-get-voices', method: 'GET'},
           ],
         },
        
@@ -379,27 +416,27 @@ console.log(apiResult);
               </tr>
             </thead>
             <tbody>
-              {sharedInputs.map(field => {
-                const isreq = field.defaultValue === 'req';
-                return (
-                  <tr key={field.name}>
-                    <td data-label="Name">
-                      <code>{field.name}</code>
-                      {isreq && <span className={styles.reqBadgeMobile} aria-hidden="true">*</span>}
-                    </td>
-                    <td data-label="Type">{field.type}</td>
-                    <td
-                      data-label="Default"
-                      data-req={isreq ? 'true' : 'false'}
-                    >
-                      {isreq ? (
-                        <span className={styles.reqBadge} aria-label="req">req</span>
-                      ) : field.defaultValue}
-                    </td>
-                    <td data-label="Description">{field.description}</td>
-                  </tr>
-                );
-              })}
+            {sharedInputs.map(field => {
+              const normalizedDefault =
+                typeof field.defaultValue === 'string' ? field.defaultValue.toLowerCase() : field.defaultValue;
+              const isRequired = normalizedDefault === 'required';
+              return (
+                <tr key={field.name}>
+                  <td data-label="Name">
+                    <code>{field.name}</code>
+                    {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
+                  </td>
+                  <td data-label="Type">{field.type}</td>
+                  <td
+                    data-label="Default"
+                    data-required={isRequired ? 'true' : 'false'}
+                  >
+                    {isRequired ? 'required' : field.defaultValue}
+                  </td>
+                  <td data-label="Description">{field.description}</td>
+                </tr>
+              );
+            })}
             </tbody>
           </table>
         </div>

@@ -147,7 +147,7 @@ function EndpointSection({
   notes = [],
 }) {
   const [copied, setCopied] = useState(false);
-  const copyValue = `${method} ${STT_BASE_URL}${path}`;
+  const copyValue = `${STT_BASE_URL}${path}`;
   const inputHeaders = ['Name', 'Type', 'Default', 'Description'];
   const outputHeaders = ['Status', 'Type', 'Description'];
 
@@ -196,21 +196,21 @@ function EndpointSection({
               </thead>
               <tbody>
                 {inputs.map(input => {
-                  const isreq = input.defaultValue === 'req';
+                  const normalizedDefault =
+                    typeof input.defaultValue === 'string' ? input.defaultValue.toLowerCase() : input.defaultValue;
+                  const isRequired = normalizedDefault === 'required';
                   return (
                     <tr key={input.name}>
                       <td data-label={inputHeaders[0]}>
                         <code>{input.name}</code>
-                        {isreq && <span className={styles.reqBadgeMobile} aria-hidden="true">*</span>}
+                        {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
                       </td>
                       <td data-label={inputHeaders[1]}>{input.type}</td>
                       <td
                         data-label={inputHeaders[2]}
-                        data-req={isreq ? 'true' : 'false'}
+                        data-required={isRequired ? 'true' : 'false'}
                       >
-                        {isreq ? (
-                          <span className={styles.reqBadge} aria-label="req">req</span>
-                        ) : input.defaultValue}
+                        {isRequired ? 'required' : input.defaultValue}
                       </td>
                       <td data-label={inputHeaders[3]}>{input.description}</td>
                     </tr>
@@ -278,6 +278,7 @@ export default function SttPage() {
             {label: 'POST /v1/audio/speech', to: '/tts'},
             {label: 'POST /v1/audio/speech/file', to: '/tts'},
             {label: 'POST /v1/audio/speech/preview', to: '/tts'},
+            {label: 'GET /v1/voice/get-voices', to: '/tts'},
           ],
         },
       ]}
