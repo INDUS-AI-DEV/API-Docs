@@ -6,6 +6,7 @@ import CodeBlock from '@theme/CodeBlock';
 import {useColorMode} from '@docusaurus/theme-common';
 
 import styles from './DocsLayout.module.css';
+import logoImage from '../../../transparent-background-with-black-text.png';
 
 const methodBadgeClass = {
   GET: styles.methodGet,
@@ -174,6 +175,7 @@ export default function DocsLayout({
 
   const [activeId, setActiveId] = useState(() => trackedIds[0] ?? null);
   const activeRef = useRef(activeId);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const initial = trackedIds[0] ?? null;
@@ -232,14 +234,36 @@ export default function DocsLayout({
     return () => observer.disconnect();
   }, [trackedIds]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, {passive: true});
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  };
+
   return (
     <Layout noNavbar noFooter title={title} description={description}>
       <div className={styles.wrapper}>
         <header className={styles.header}>
           <div className={styles.headerInner}>
-            <Link className={styles.logo} to="/">
-              INDUSLABS
-            </Link>
+            <a className={styles.logo} href="https://induslabs.io/">
+              <img src={logoImage} alt="Induslabs" className={styles.logoImage} />
+            </a>
             <div className={styles.headerCopy}>
               <p className={styles.headerTitle}>{title}</p>
               {description && <p className={styles.headerTagline}>{description}</p>}
@@ -275,6 +299,16 @@ export default function DocsLayout({
           {hasIntegration && <IntegrationPanel integration={integration} />}
         </div>
       </div>
+      {showScrollTop && (
+        <button
+          type="button"
+          className={styles.scrollTopButton}
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+        >
+          Top
+        </button>
+      )}
     </Layout>
   );
 }

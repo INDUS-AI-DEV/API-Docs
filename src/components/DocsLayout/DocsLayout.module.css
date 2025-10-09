@@ -26,15 +26,15 @@
 }
 
 .logo {
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: 0.08em;
-  color: #2730a6;
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
 }
 
-[data-theme='dark'] .logo {
-  color: #d7dcff;
+.logoImage {
+  display: block;
+  height: 36px;
+  width: auto;
 }
 
 .headerCopy {
@@ -121,6 +121,38 @@
 
 .bodySingleColumn {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.scrollTopButton {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 400;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  background: #5468ff;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(84, 104, 255, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.scrollTopButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px rgba(84, 104, 255, 0.45);
+}
+
+[data-theme='dark'] .scrollTopButton {
+  background: #7586ff;
+  box-shadow: 0 12px 24px rgba(10, 14, 64, 0.45);
+}
+
+.scrollTopButton:focus-visible {
+  outline: 2px solid rgba(84, 104, 255, 0.4);
+  outline-offset: 3px;
 }
 
 .sidebar {
