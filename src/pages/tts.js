@@ -295,6 +295,7 @@ export default function TtsPage() {
             {label: 'Introduction', to: '/'},
             {label: 'Text-to-Speech', to: '/tts'},
             {label: 'Speech-to-Text', to: '/stt'},
+            {label: 'Python SDK', to: '/sdk'},
           ],
         },
         {

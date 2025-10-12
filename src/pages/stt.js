@@ -281,6 +281,12 @@ export default function SttPage() {
             {label: 'GET /v1/voice/get-voices', to: '/tts'},
           ],
         },
+        {
+          title: 'SDK',  // ADD THIS SECTION
+          links: [
+            {label: 'Python SDK', to: '/sdk'},
+          ],
+        },
       ]}
       integration={{
         title: 'Quick Integration',

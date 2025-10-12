@@ -11,6 +11,7 @@ const sidebarSections = [
       {label: 'Introduction', targetId: 'home-introduction'},
       {label: 'Text-to-Speech', to: '/tts'},
       {label: 'Speech-to-Text', to: '/stt'},
+      {label: 'Python SDK', to: '/sdk'},  // NEW: Add SDK link
     ],
   },
   {
@@ -25,51 +26,75 @@ const sidebarSections = [
       {label: 'API Reference', to: '/stt'},
     ],
   },
+  {
+    title: 'SDK',  // NEW: Add SDK section
+    links: [
+      {label: 'Python SDK', to: '/sdk'},
+    ],
+  },
 ];
 
 export default function HomePage() {
   return (
     <DocsLayout
-      title="Audio Platform API"
-      description=""
+      title="API Documentation"
+      description="Speech services with REST and SDK interfaces"
       sidebarSections={sidebarSections}
     >
-      <section id="home-introduction" className={styles.hero}>
-        <h1>API Documentation</h1>
-        <p>
+      <section id="home-introduction" className={styles.pageIntro}>
+        <h1 className={styles.heroTitle}>API Documentation</h1>
+        <p className={styles.heroDescription}>
           Discover how to launch expressive voice experiences and reliable transcription with a consistent REST
           interface. Choose one of the services below to get started.
         </p>
-        <div className={styles.actions}>
-          <Link className={styles.primaryAction} to="/tts">
+        <div className={styles.heroActions}>
+          <Link to="/tts" className={styles.primaryButton}>
             Explore TTS Service
           </Link>
-          <Link className={styles.secondaryAction} to="/stt">
+          <Link to="/stt" className={styles.secondaryButton}>
             Explore STT Service
+          </Link>
+          {/* NEW: Add SDK button */}
+          <Link to="/sdk" className={styles.secondaryButton}>
+            Python SDK
           </Link>
         </div>
       </section>
-      <section className={styles.columns}>
-        <article id="tts">
-          <h2>Text-to-Speech</h2>
-          <p>
+
+      <section className={styles.servicesGrid}>
+        <div className={styles.serviceCard}>
+          <h2 className={styles.serviceTitle}>Text-to-Speech</h2>
+          <p className={styles.serviceDescription}>
             Convert text into natural speech using streaming or file-based modes. Learn about the shared payload,
             chunking preview, and metadata-rich file generation.
           </p>
-          <Link to="/tts" className={styles.inlineLink}>
+          <Link to="/tts" className={styles.serviceLink}>
             View TTS APIs →
           </Link>
-        </article>
-        <article id="stt">
-          <h2>Speech-to-Text</h2>
-          <p>
+        </div>
+
+        <div className={styles.serviceCard}>
+          <h2 className={styles.serviceTitle}>Speech-to-Text</h2>
+          <p className={styles.serviceDescription}>
             Upload audio with multipart form data to receive accurate transcripts. Review supported inputs,
             authentication requirements, and integration snippets.
           </p>
-          <Link to="/stt" className={styles.inlineLink}>
+          <Link to="/stt" className={styles.serviceLink}>
             View STT API →
           </Link>
-        </article>
+        </div>
+
+        {/* NEW: Add SDK card */}
+        <div className={styles.serviceCard}>
+          <h2 className={styles.serviceTitle}>Python SDK</h2>
+          <p className={styles.serviceDescription}>
+            Official Python SDK for seamless integration. Features synchronous and asynchronous APIs, streaming
+            support, and comprehensive error handling for production use.
+          </p>
+          <Link to="/sdk" className={styles.serviceLink}>
+            View SDK Docs →
+          </Link>
+        </div>
       </section>
     </DocsLayout>
   );
