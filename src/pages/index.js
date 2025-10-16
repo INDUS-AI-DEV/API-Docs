@@ -48,14 +48,14 @@ export default function HomePage() {
           interface. Choose one of the services below to get started.
         </p>
         <div className={styles.heroActions}>
-          <Link to="/tts" className={styles.primaryButton}>
+          <Link to="/tts" className={styles.heroButton}>
             Explore TTS Service
           </Link>
-          <Link to="/stt" className={styles.secondaryButton}>
+          <Link to="/stt" className={styles.heroButton}>
             Explore STT Service
           </Link>
           {/* NEW: Add SDK button */}
-          <Link to="/sdk" className={styles.secondaryButton}>
+          <Link to="/sdk" className={styles.heroButton}>
             Python SDK
           </Link>
         </div>
