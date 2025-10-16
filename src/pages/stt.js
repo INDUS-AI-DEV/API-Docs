@@ -301,6 +301,22 @@ export default function SttPage() {
           Convert spoken audio into accurate transcripts using flexible endpoints.  
           Use <code>/v1/audio/transcribe</code> for streaming SSE results, or <code>/v1/audio/transcribe/file</code> for complete JSON output.
         </p>
+        <details className={styles.languageDropdown}>
+          <summary>Available languages</summary>
+          <ul>
+            <li>English</li>
+            <li>Hindi</li>
+            <li>Urdu</li>
+            <li>Tamil</li>
+            <li>Malayalam</li>
+            <li>Telugu</li>
+            <li>Bengali</li>
+            <li>Nepali</li>
+            <li>Kannada</li>
+            <li>Marathi</li>
+            <li>Punjabi</li>
+          </ul>
+        </details>
       </section>
 
       <EndpointSection
