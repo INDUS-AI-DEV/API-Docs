@@ -1,0 +1,28 @@
+.wrapper {
+  position: relative;
+}
+
+.copyBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  border: none;
+  background: rgba(84, 104, 255, 0.12);
+  color: #2730a6;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.copyBtn:hover {
+  background: rgba(84, 104, 255, 0.18);
+}
+
+/* Hide the default Docusaurus copy button within this wrapper */
+.wrapper :global(.theme-code-block .clean-btn) {
+  display: none !important;
+}
+

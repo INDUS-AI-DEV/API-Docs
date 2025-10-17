@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
-import CodeBlock from '@theme/CodeBlock';
+import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
 
 import styles from './api.module.css';
 
@@ -460,9 +460,9 @@ console.log(\`Message: \${voicesData.message}\`);
           </button>
         ))}
       </div>
-      <CodeBlock language={activeTab === "curl" ? "bash" : activeTab}>
+      <CopyableCode language={activeTab === "curl" ? "bash" : activeTab}>
         {examples[activeTab]}
-      </CodeBlock>
+      </CopyableCode>
     </div>
   );
 }
@@ -515,7 +515,7 @@ function EndpointSection({endpoint}) {
           {endpoint.examples.map(example => (
             <div key={example.label} className={styles.responseExampleCard}>
               <h4>{example.label}</h4>
-              <CodeBlock language={example.language}>{example.code}</CodeBlock>
+              <CopyableCode language={example.language}>{example.code}</CopyableCode>
             </div>
           ))}
         </div>
@@ -601,7 +601,7 @@ export default function TtsPage() {
         </p>
       </section>
       <div className={styles.payloadCard}>
-        <CodeBlock language="json">{sharedPayload}</CodeBlock>
+        <CopyableCode language="json">{sharedPayload}</CopyableCode>
       </div>
       <div className={styles.tableCard}>
         <h3>Payload Fields</h3>

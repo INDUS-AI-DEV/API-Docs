@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
-import CodeBlock from '@theme/CodeBlock';
+import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
 
 import styles from './DocsLayout.module.css';
 import logoImage from '../../../transparent-background-with-black-text.png';
@@ -131,7 +131,7 @@ function IntegrationPanel({integration}) {
             </option>
           ))}
         </select>
-        <CodeBlock language={selected.language}>{selected.code}</CodeBlock>
+        <CopyableCode language={selected.language}>{selected.code}</CopyableCode>
       </div>
     </aside>
   );

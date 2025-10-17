@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DocsLayout from '@site/src/components/DocsLayout/DocsLayout';
-import CodeBlock from '@theme/CodeBlock';
+import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
 
 const styles = {
   pageIntro: {
@@ -251,7 +251,7 @@ export default function SdkPage() {
           Install the SDK using pip. Requires Python 3.7 or higher.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="bash">pip install induslabs</CodeBlock>
+          <CopyableCode language="bash">pip install induslabs</CopyableCode>
         </div>
       </section>
 
@@ -261,7 +261,7 @@ export default function SdkPage() {
           Initialize the client with your API key and start making requests immediately.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`from induslabs import Client
+          <CopyableCode language="python">{`from induslabs import Client
 
 # Initialize with API key
 client = Client(api_key="your_api_key_here")
@@ -280,7 +280,7 @@ response.save("output.wav")
 # Speech-to-Text
 result = client.stt.transcribe("audio.wav", language="hi")
 print(result.text)
-print(f"Detected: {result.language_detected}")`}</CodeBlock>
+print(f"Detected: {result.language_detected}")`}</CopyableCode>
         </div>
       </section>
 
@@ -332,7 +332,7 @@ print(f"Detected: {result.language_detected}")`}</CodeBlock>
           Convert text to speech with simple method calls. The SDK handles all API communication and response parsing.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`from induslabs import Client
+          <CopyableCode language="python">{`from induslabs import Client
 
 client = Client(api_key="your_api_key")
 
@@ -349,7 +349,7 @@ response.save("output.wav")
 print(f"Sample Rate: {response.sample_rate}Hz")
 print(f"Channels: {response.channels}")
 print(f"Format: {response.format}")
-print(f"Request ID: {response.request_id}")`}</CodeBlock>
+print(f"Request ID: {response.request_id}")`}</CopyableCode>
         </div>
       </section>
 
@@ -359,7 +359,7 @@ print(f"Request ID: {response.request_id}")`}</CodeBlock>
           Enable streaming to receive audio chunks as they're generated, reducing latency for real-time applications.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`
+          <CopyableCode language="python">{`
 """
 Streaming Text-to-Speech Example
 
@@ -515,7 +515,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()`}</CodeBlock>
+    main()`}</CopyableCode>
         </div>
       </section>
 
@@ -525,7 +525,7 @@ if __name__ == "__main__":
           Process audio in memory without saving to disk. Useful for temporary processing or immediate playback.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`response = client.tts.speak(
+          <CopyableCode language="python">{`response = client.tts.speak(
     text="In-memory audio",
     voice="Indus-hi-maya"
 )
@@ -539,7 +539,7 @@ audio_bytes = response.get_audio_data()
 # Pass to other libraries
 import wave
 with wave.open(audio_file, 'rb') as wf:
-    frames = wf.readframes(wf.getnframes())`}</CodeBlock>
+    frames = wf.readframes(wf.getnframes())`}</CopyableCode>
         </div>
       </section>
 
@@ -549,7 +549,7 @@ with wave.open(audio_file, 'rb') as wf:
           Choose between WAV, MP3, or PCM formats based on your needs.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`# WAV format (default, best quality)
+          <CopyableCode language="python">{`# WAV format (default, best quality)
 wav_response = client.tts.speak(
     text="WAV format audio",
     voice="Indus-hi-maya",
@@ -568,7 +568,7 @@ pcm_response = client.tts.speak(
     text="PCM format audio",
     voice="Indus-hi-maya",
     output_format="pcm"
-)`}</CodeBlock>
+)`}</CopyableCode>
         </div>
         <div style={styles.callout}>
           <strong>Format Details</strong>
@@ -586,7 +586,7 @@ pcm_response = client.tts.speak(
           Fine-tune speech generation with advanced parameters.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`response = client.tts.speak(
+          <CopyableCode language="python">{`response = client.tts.speak(
     text="Advanced TTS example",
     voice="Indus-hi-maya",
     language="hi-IN",
@@ -595,7 +595,7 @@ pcm_response = client.tts.speak(
     model="indus-tts-v1",      # TTS model
     temperature=0.7,         # Control randomness (0.0-1.0)
     max_tokens=2000          # Limit generation length
-)`}</CodeBlock>
+)`}</CopyableCode>
         </div>
         <div style={styles.methodSection}>
           <h3 style={styles.methodTitle}>Method: client.tts.speak()</h3>
@@ -668,7 +668,7 @@ pcm_response = client.tts.speak(
           Transcribe audio files with automatic language detection and detailed metrics.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`from induslabs import Client
+          <CopyableCode language="python">{`from induslabs import Client
 
 client = Client(api_key="your_api_key")
 
@@ -683,7 +683,7 @@ print(f"Detected: {result.language_detected}")
 print(f"Duration: {result.audio_duration_seconds}s")
 print(f"Processing: {result.processing_time_seconds}s")
 print(f"Credits: {result.credits_used}")
-print(f"Request ID: {result.request_id}")`}</CodeBlock>
+print(f"Request ID: {result.request_id}")`}</CopyableCode>
         </div>
       </section>
 
@@ -693,7 +693,7 @@ print(f"Request ID: {result.request_id}")`}</CodeBlock>
           Transcribe audio from memory without saving to disk first.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`from io import BytesIO
+          <CopyableCode language="python">{`from io import BytesIO
 
 # From file handle
 with open("audio.wav", "rb") as f:
@@ -703,7 +703,7 @@ with open("audio.wav", "rb") as f:
 # From BytesIO
 audio_buffer = BytesIO(audio_bytes)
 result = client.stt.transcribe(audio_buffer, language="hi")
-print(result.text)`}</CodeBlock>
+print(result.text)`}</CopyableCode>
         </div>
       </section>
 
@@ -713,7 +713,7 @@ print(result.text)`}</CodeBlock>
           Control chunking and overlap parameters for optimal transcription quality.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`result = client.stt.transcribe(
+          <CopyableCode language="python">{`result = client.stt.transcribe(
     file="audio.wav",
     language="hi",
     chunk_length_s=6,      # Chunk length in seconds (1-30)
@@ -722,7 +722,7 @@ print(result.text)`}</CodeBlock>
 )
 
 # Get detailed response
-raw_data = result.to_dict()`}</CodeBlock>
+raw_data = result.to_dict()`}</CopyableCode>
         </div>
         <div style={styles.methodSection}>
           <h3 style={styles.methodTitle}>Method: client.stt.transcribe()</h3>
@@ -777,7 +777,7 @@ raw_data = result.to_dict()`}</CodeBlock>
           Use async methods for better performance with concurrent requests and non-blocking operations.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`import asyncio
+          <CopyableCode language="python">{`import asyncio
 from induslabs import Client
 
 async def main():
@@ -802,7 +802,7 @@ async def main():
         )
         print(result.text)
 
-asyncio.run(main())`}</CodeBlock>
+asyncio.run(main())`}</CopyableCode>
         </div>
         <div style={styles.callout}>
           <strong>Note:</strong> When using async methods, always close the client properly using 
@@ -818,7 +818,7 @@ asyncio.run(main())`}</CodeBlock>
         
         <h3>Synchronous Concurrency</h3>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`from concurrent.futures import ThreadPoolExecutor
+          <CopyableCode language="python">{`from concurrent.futures import ThreadPoolExecutor
 from induslabs import Client
 
 client = Client(api_key="your_api_key")
@@ -834,12 +834,12 @@ with ThreadPoolExecutor(max_workers=4) as executor:
 
 # Save all responses
 for i, response in enumerate(responses):
-    response.save(f"output_{i}.wav")`}</CodeBlock>
+    response.save(f"output_{i}.wav")`}</CopyableCode>
         </div>
 
         <h3>Async Concurrency</h3>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`import asyncio
+          <CopyableCode language="python">{`import asyncio
 from induslabs import Client
 
 async def main():
@@ -862,7 +862,7 @@ async def main():
     
     await client.close()
 
-asyncio.run(main())`}</CodeBlock>
+asyncio.run(main())`}</CopyableCode>
         </div>
       </section>
 
@@ -872,7 +872,7 @@ asyncio.run(main())`}</CodeBlock>
           List and filter available voices programmatically.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`# List all voices
+          <CopyableCode language="python">{`# List all voices
 voices = client.voices.list()
 
 # Iterate through voices
@@ -894,7 +894,7 @@ voice = voices.get_voice_by_id("Indus-hi-Indus-hi-maya")
 voice_ids = voices.list_voice_ids()
 
 # Async version
-voices = await client.voices.list_async()`}</CodeBlock>
+voices = await client.voices.list_async()`}</CopyableCode>
         </div>
       </section>
 
@@ -904,7 +904,7 @@ voices = await client.voices.list_async()`}</CodeBlock>
           Handle errors gracefully with comprehensive exception handling.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`from induslabs import Client
+          <CopyableCode language="python">{`from induslabs import Client
 import requests
 
 client = Client(api_key="your_api_key")
@@ -932,7 +932,7 @@ except FileNotFoundError as e:
     
 except Exception as e:
     # Other errors
-    print(f"Error occurred: {e}")`}</CodeBlock>
+    print(f"Error occurred: {e}")`}</CopyableCode>
         </div>
         <div style={styles.callout}>
           <strong>Common Error Codes:</strong>
@@ -953,7 +953,7 @@ except Exception as e:
         
         <h3>TTSResponse</h3>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-maya")
+          <CopyableCode language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-maya")
 
 # Properties
 response.content          # bytes: Raw audio data
@@ -967,12 +967,12 @@ response.format           # str: Audio format (wav/mp3/pcm)
 # Methods
 response.save(filepath)              # Save to file
 response.get_audio_data()            # Get raw bytes
-response.to_file_object()            # Get BytesIO object`}</CodeBlock>
+response.to_file_object()            # Get BytesIO object`}</CopyableCode>
         </div>
 
         <h3>TTSStreamResponse</h3>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-maya", stream=True)
+          <CopyableCode language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-maya", stream=True)
 
 # Properties (same as TTSResponse)
 response.sample_rate
@@ -985,12 +985,12 @@ for chunk in response.iter_bytes(chunk_size=8192):
     pass
 
 response.save(filepath)              # Save streamed audio
-response.to_file_object()            # Convert to BytesIO`}</CodeBlock>
+response.to_file_object()            # Convert to BytesIO`}</CopyableCode>
         </div>
 
         <h3>STTResponse</h3>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`result = client.stt.transcribe("audio.wav", language="hi")
+          <CopyableCode language="python">{`result = client.stt.transcribe("audio.wav", language="hi")
 
 # Properties
 result.text                          # str: Transcribed text
@@ -1003,12 +1003,12 @@ result.credits_used                  # float: Credits consumed
 
 # Methods
 result.to_dict()                     # Get raw response dict
-str(result)                          # Returns result.text`}</CodeBlock>
+str(result)                          # Returns result.text`}</CopyableCode>
         </div>
 
         <h3>VoiceResponse</h3>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`voices = client.voices.list()
+          <CopyableCode language="python">{`voices = client.voices.list()
 
 # Properties
 voices.voices                        # List[Voice]: All available voices
@@ -1020,7 +1020,7 @@ voices.get_voices_by_language("hindi")     # Filter by language
 voices.get_voices_by_gender("female")      # Filter by gender
 voices.get_voice_by_id("voice_id")         # Get specific voice
 voices.list_voice_ids()                    # List all IDs
-voices.to_dict()                           # Raw response data`}</CodeBlock>
+voices.to_dict()                           # Raw response data`}</CopyableCode>
         </div>
       </section>
 
@@ -1030,17 +1030,17 @@ voices.to_dict()                           # Raw response data`}</CodeBlock>
           Configure the SDK using environment variables for better security.
         </p>
         <div style={styles.codeExample}>
-          <CodeBlock language="bash">{`# Set API key
+          <CopyableCode language="bash">{`# Set API key
 export INDUSLABS_API_KEY="your_api_key_here"
 
 # Now initialize without passing api_key
 python -c "from induslabs import Client; client = Client()"
 
 # Or in your .env file
-INDUSLABS_API_KEY=your_api_key_here`}</CodeBlock>
+INDUSLABS_API_KEY=your_api_key_here`}</CopyableCode>
         </div>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`import os
+          <CopyableCode language="python">{`import os
 from induslabs import Client
 
 # Load from environment
@@ -1050,7 +1050,7 @@ client = Client()
 from dotenv import load_dotenv
 load_dotenv()
 
-client = Client()  # Automatically uses INDUSLABS_API_KEY`}</CodeBlock>
+client = Client()  # Automatically uses INDUSLABS_API_KEY`}</CopyableCode>
         </div>
       </section>
 
@@ -1105,31 +1105,31 @@ client = Client()  # Automatically uses INDUSLABS_API_KEY`}</CodeBlock>
           <div style={{marginTop: '1rem'}}>
             <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>Authentication Errors</h4>
             <div style={styles.codeExample}>
-              <CodeBlock language="python">{`# Error: API key must be provided
+              <CopyableCode language="python">{`# Error: API key must be provided
 # Solution: Set API key via parameter or environment variable
 export INDUSLABS_API_KEY="your_api_key"
 
 # Or
-client = Client(api_key="your_api_key")`}</CodeBlock>
+client = Client(api_key="your_api_key")`}</CopyableCode>
             </div>
           </div>
 
           <div style={{marginTop: '1.5rem'}}>
             <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>Import Errors</h4>
             <div style={styles.codeExample}>
-              <CodeBlock language="bash">{`# Error: No module named 'induslabs'
+              <CopyableCode language="bash">{`# Error: No module named 'induslabs'
 # Solution: Install the package
 pip install induslabs
 
 # Or upgrade to latest version
-pip install --upgrade induslabs`}</CodeBlock>
+pip install --upgrade induslabs`}</CopyableCode>
             </div>
           </div>
 
           <div style={{marginTop: '1.5rem'}}>
             <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>Async Session Warnings</h4>
             <div style={styles.codeExample}>
-              <CodeBlock language="python">{`# Warning: Unclosed client session
+              <CopyableCode language="python">{`# Warning: Unclosed client session
 # Solution: Use context manager or explicit close
 async with Client(api_key="key") as client:
     # Your code here
@@ -1141,20 +1141,20 @@ try:
     # Your code here
     pass
 finally:
-    await client.close()`}</CodeBlock>
+    await client.close()`}</CopyableCode>
             </div>
           </div>
 
           <div style={{marginTop: '1.5rem'}}>
             <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>File Format Errors</h4>
             <div style={styles.codeExample}>
-              <CodeBlock language="python">{`# Error: ValueError: output_format must be 'wav', 'mp3', or 'pcm'
+              <CopyableCode language="python">{`# Error: ValueError: output_format must be 'wav', 'mp3', or 'pcm'
 # Solution: Use valid format
 response = client.tts.speak(
     text="Test",
     voice="Indus-hi-maya",
     output_format="wav"  # Must be: wav, mp3, or pcm
-)`}</CodeBlock>
+)`}</CopyableCode>
             </div>
           </div>
         </div>
