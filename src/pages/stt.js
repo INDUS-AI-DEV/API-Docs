@@ -317,6 +317,55 @@ export default function SttPage() {
               https://playground.induslabs.io/register
             </a>
           </p>
+        <details className={styles.languageDropdown}>
+          <summary>Available languages</summary>
+          <ul>
+            <li>
+              <span>English</span>
+              <code>en</code>
+            </li>
+            <li>
+              <span>Hindi</span>
+              <code>hi</code>
+            </li>
+            <li>
+              <span>Urdu</span>
+              <code>ur</code>
+            </li>
+            <li>
+              <span>Tamil</span>
+              <code>ta</code>
+            </li>
+            <li>
+              <span>Malayalam</span>
+              <code>ml</code>
+            </li>
+            <li>
+              <span>Telugu</span>
+              <code>te</code>
+            </li>
+            <li>
+              <span>Bengali</span>
+              <code>bn</code>
+            </li>
+            <li>
+              <span>Nepali</span>
+              <code>ne</code>
+            </li>
+            <li>
+              <span>Kannada</span>
+              <code>kn</code>
+            </li>
+            <li>
+              <span>Marathi</span>
+              <code>mr</code>
+            </li>
+            <li>
+              <span>Punjabi</span>
+              <code>pa</code>
+            </li>
+          </ul>
+        </details>
       </section>
 
       <EndpointSection

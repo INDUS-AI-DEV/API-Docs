@@ -28,6 +28,14 @@
   margin-top: 2rem;
 }
 
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+}
+
 .primaryAction,
 .secondaryAction {
   padding: 0.9rem 1.8rem;
@@ -57,13 +65,89 @@
   box-shadow: 0 12px 28px rgba(39, 57, 181, 0.2);
 }
 
-.columns {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
+.heroButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  background: linear-gradient(140deg, #0f1729 0%, #1f2945 60%, #2d3a66 100%);
+  color: #ffffff;
+  box-shadow: 0 16px 32px rgba(10, 14, 64, 0.35);
 }
 
-.columns article {
+.heroButton:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(140deg, #1a2238 0%, #2b3656 60%, #3a4b7a 100%);
+  box-shadow: 0 20px 36px rgba(10, 14, 64, 0.45);
+  color: #ffffff;
+}
+
+.heroButton:focus-visible {
+  outline: 3px solid rgba(84, 104, 255, 0.6);
+  outline-offset: 2px;
+  color: #ffffff;
+}
+
+.heroButton:active {
+  transform: translateY(-1px);
+  color: #ffffff;
+}
+
+.heroButton:visited {
+  color: #ffffff;
+}
+.serviceLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 999px;
+  background: linear-gradient(140deg, #141b2d 0%, #1f2a45 55%, #2a3a60 100%);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 18px 32px rgba(10, 14, 64, 0.28);
+}
+
+.serviceLink:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(140deg, #1d2538 0%, #2a3857 55%, #364a78 100%);
+  box-shadow: 0 22px 36px rgba(10, 14, 64, 0.36);
+  color: #ffffff;
+}
+
+.serviceLink:focus-visible {
+  outline: 3px solid rgba(84, 104, 255, 0.5);
+  outline-offset: 2px;
+  color: #ffffff;
+}
+
+.serviceLink:active {
+  transform: translateY(0);
+  box-shadow: 0 12px 26px rgba(10, 14, 64, 0.34);
+  color: #ffffff;
+}
+
+.serviceLink:visited {
+  color: #ffffff;
+}
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.75rem;
+  margin-top: 3rem;
+}
+
+.serviceCard {
   scroll-margin-top: 120px;
   background: #ffffff;
   border: 1px solid rgba(16, 22, 64, 0.08);
@@ -72,11 +156,11 @@
   box-shadow: 0 24px 55px rgba(10, 14, 64, 0.06);
 }
 
-.columns h2 {
+.serviceTitle {
   margin-top: 0;
 }
 
-.columns p {
+.serviceDescription {
   color: #4b4f73;
   line-height: 1.5;
 }
@@ -92,7 +176,8 @@
 }
 
 @media screen and (max-width: 768px) {
-  .actions {
+  .actions,
+  .heroActions {
     flex-direction: column;
   }
 }
