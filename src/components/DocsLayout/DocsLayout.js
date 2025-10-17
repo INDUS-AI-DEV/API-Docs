@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
@@ -14,13 +14,36 @@ const methodBadgeClass = {
   DELETE: styles.methodDelete,
 };
 
+function getHeaderOffset() {
+  if (typeof window === 'undefined') {
+    return 0;
+  }
+  const root = document.documentElement;
+  if (!root) {
+    return 0;
+  }
+  const inlineValue = root.style.getPropertyValue('--docs-header-offset');
+  let candidate = inlineValue;
+  if (!candidate && typeof window.getComputedStyle === 'function') {
+    candidate = window.getComputedStyle(root).getPropertyValue('--docs-header-offset');
+  }
+  const parsed = parseFloat(candidate);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 function scrollToTarget(targetId, onNavigate) {
   if (typeof window === 'undefined' || !targetId) {
     return;
   }
-  const element = document.getElementById(targetId);
-  if (element) {
-    element.scrollIntoView({behavior: 'smooth', block: 'start'});
+  window.requestAnimationFrame(() => {
+    const element = document.getElementById(targetId);
+    if (!element) {
+      return;
+    }
+    const offset = getHeaderOffset();
+    const elementTop = element.getBoundingClientRect().top + window.scrollY - offset;
+    const targetTop = Math.max(0, elementTop);
+    window.scrollTo({top: targetTop, behavior: 'smooth'});
     if (typeof history !== 'undefined' && history.replaceState) {
       const url = `${window.location.pathname}#${targetId}`;
       history.replaceState(null, '', url);
@@ -28,7 +51,7 @@ function scrollToTarget(targetId, onNavigate) {
     if (onNavigate) {
       onNavigate(targetId);
     }
-  }
+  });
 }
 
 export function MethodBadge({method = 'POST'}) {
@@ -38,14 +61,14 @@ export function MethodBadge({method = 'POST'}) {
   );
 }
 
-function SidebarGroup({title, links, activeId, onNavigate}) {
+function SidebarGroup({title, links, activeId, onNavigate, onFocusGroup, groupRef, groupIndex}) {
   if (!links?.length) {
     return null;
   }
 
   return (
-    <details open className={styles.sidebarGroup}>
-      <summary>{title}</summary>
+    <div className={styles.sidebarGroup} ref={groupRef}>
+      <p className={styles.sidebarGroupTitle}>{title}</p>
       <ul className={styles.sidebarList}>
         {links.map(link => {
           const key = `${title}-${link.label}`;
@@ -64,6 +87,11 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
               <li key={key}>
                 <Link
                   className={clsx(styles.sidebarLink, isActive && styles.sidebarLinkActive)}
+                  onClick={() => {
+                    if (onFocusGroup) {
+                      onFocusGroup(groupIndex);
+                    }
+                  }}
                   to={link.to}
                 >
                   {content}
@@ -77,7 +105,12 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
               <button
                 type="button"
                 className={clsx(styles.sidebarLink, styles.sidebarButton, isActive && styles.sidebarLinkActive)}
-                onClick={() => scrollToTarget(link.targetId, onNavigate)}
+                onClick={() => {
+                  scrollToTarget(link.targetId, onNavigate);
+                  if (onFocusGroup) {
+                    onFocusGroup(groupIndex);
+                  }
+                }}
               >
                 {content}
               </button>
@@ -85,7 +118,7 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
           );
         })}
       </ul>
-    </details>
+    </div>
   );
 }
 
@@ -152,15 +185,16 @@ export default function DocsLayout({
   const mobileToggleRef = useRef(null);
   const [isHeaderElevated, setIsHeaderElevated] = useState(false);
   const headerRef = useRef(null);
+  const sidebarRef = useRef(null);
+  const groupRefs = useRef([]);
 
-  const trackedIds = useMemo(
-    () =>
-      sidebarSections
-        .flatMap(section => section.links ?? [])
-        .map(link => link.targetId)
-        .filter(Boolean),
-    [sidebarSections],
-  );
+  const trackedIds = useMemo(() => {
+    const ids = sidebarSections
+      .flatMap(section => section.links ?? [])
+      .map(link => link.targetId)
+      .filter(Boolean);
+    return Array.from(new Set(ids));
+  }, [sidebarSections]);
 
   const [activeId, setActiveId] = useState(() => trackedIds[0] ?? null);
   const activeRef = useRef(activeId);
@@ -188,6 +222,10 @@ export default function DocsLayout({
       setIsMobileMenuOpen(false);
     }
   }, [isMobile]);
+
+  useEffect(() => {
+    groupRefs.current = groupRefs.current.slice(0, sidebarSections.length);
+  }, [sidebarSections]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -322,6 +360,23 @@ export default function DocsLayout({
     window.scrollTo({top: 0, behavior: 'smooth'});
   };
 
+  const focusGroupAtIndex = useCallback(index => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const sidebarEl = sidebarRef.current;
+    const groupEl = groupRefs.current[index];
+    if (!sidebarEl || !groupEl) {
+      return;
+    }
+    window.requestAnimationFrame(() => {
+      const sidebarRect = sidebarEl.getBoundingClientRect();
+      const groupRect = groupEl.getBoundingClientRect();
+      const offsetTop = groupRect.top - sidebarRect.top + sidebarEl.scrollTop;
+      sidebarEl.scrollTo({top: Math.max(0, offsetTop), behavior: 'smooth'});
+    });
+  }, []);
+
   const headerText = title;
   const mobileMenuId = 'docs-mobile-menu';
   const mobileMenuToggleId = 'docs-mobile-menu-toggle';
@@ -440,14 +495,19 @@ export default function DocsLayout({
           )}
         >
           {isSidebarVisible && (
-            <aside className={styles.sidebar}>
-              {sidebarSections.map(section => (
+            <aside className={styles.sidebar} ref={sidebarRef}>
+              {sidebarSections.map((section, index) => (
                 <SidebarGroup
                   key={section.title}
                   title={section.title}
                   links={section.links}
                   activeId={activeId}
                   onNavigate={setActiveId}
+                  onFocusGroup={focusGroupAtIndex}
+                  groupIndex={index}
+                  groupRef={element => {
+                    groupRefs.current[index] = element;
+                  }}
                 />
               ))}
             </aside>

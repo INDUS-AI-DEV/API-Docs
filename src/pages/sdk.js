@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DocsLayout from '@site/src/components/DocsLayout/DocsLayout';
+import {getSidebarSections} from '@site/src/config/sidebarSections';
 import CodeBlock from '@theme/CodeBlock';
 
 const styles = {
@@ -165,55 +166,13 @@ asyncio.run(main())`,
 ];
 
 export default function SdkPage() {
+  const sidebarSections = getSidebarSections('sdk');
+
   return (
     <DocsLayout
       title="Python SDK Documentation"
       description="Official Python SDK for IndusLabs Voice API"
-      sidebarSections={[
-        {
-          title: 'SDK Documentation',
-          links: [
-            { label: 'Introduction', targetId: 'sdk-introduction' },
-            { label: 'Installation', targetId: 'sdk-installation' },
-            { label: 'Quick Start', targetId: 'sdk-quick-start' },
-            { label: 'Features', targetId: 'sdk-features' },
-          ],
-        },
-        {
-          title: 'Text-to-Speech',
-          links: [
-            { label: 'Basic Usage', targetId: 'tts-basic' },
-            { label: 'Streaming Audio', targetId: 'tts-streaming' },
-            { label: 'File Objects', targetId: 'tts-file-objects' },
-            { label: 'Audio Formats', targetId: 'tts-formats' },
-            // { label: 'Advanced Options', targetId: 'tts-advanced' },
-          ],
-        },
-        {
-          title: 'Speech-to-Text',
-          links: [
-            { label: 'Basic Usage', targetId: 'stt-basic' },
-            { label: 'File Objects', targetId: 'stt-file-objects' },
-            // { label: 'Advanced Options', targetId: 'stt-advanced' },
-          ],
-        },
-        // {
-        //   title: 'Advanced Usage',
-        //   links: [
-        //     { label: 'Async API', targetId: 'async-api' },
-        //     { label: 'Concurrent Requests', targetId: 'concurrent-requests' },
-        //     { label: 'Voice Management', targetId: 'voice-management' },
-        //     { label: 'Error Handling', targetId: 'error-handling' },
-        //   ],
-        // },
-        {
-          title: 'API Reference',
-          links: [
-            { label: 'TTS API', to: '/tts' },
-            { label: 'STT API', to: '/stt' },
-          ],
-        },
-      ]}
+      sidebarSections={sidebarSections}
       integration={{
         title: 'Quick Integration',
         description: 'Get started with the Python SDK in seconds.',
@@ -313,27 +272,11 @@ print(f"Detected: {result.language_detected}")`}</CodeBlock>
       <section id="tts-basic" style={styles.sectionCard}>
         <h2 style={styles.sectionTitle}>Text-to-Speech: Basic Usage</h2>
         <p style={styles.sectionDescription}>
-          Convert text to speech with simple method calls. The SDK handles all API communication and response parsing.
+          Convert text to speech with simple method calls. Select <strong>Basic Usage</strong> from the Quick
+          Integration panel to copy the Python SDK example, complete with saving and metadata access.
         </p>
-        <div style={styles.codeExample}>
-          <CodeBlock language="python">{`from induslabs import Client
-
-client = Client(api_key="your_api_key")
-
-# Simple synthesis
-response = client.tts.speak(
-    text="Hello, this is a test",
-    voice="Indus-hi-Urvashi"
-)
-
-# Save to file
-response.save("output.wav")
-
-# Access metadata
-print(f"Sample Rate: {response.sample_rate}Hz")
-print(f"Channels: {response.channels}")
-print(f"Format: {response.format}")
-print(f"Request ID: {response.request_id}")`}</CodeBlock>
+        <div style={styles.callout}>
+          Access the dropdown on the right-hand side and choose “Basic Usage” to view the ready-to-run snippet.
         </div>
       </section>
 

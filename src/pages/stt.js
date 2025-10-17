@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
+import {getSidebarSections} from '@site/src/config/sidebarSections';
 import CodeBlock from '@theme/CodeBlock';
 
 import styles from './api.module.css';
@@ -15,6 +16,121 @@ const validationError = `{
     }
   ]
 }`;
+
+const sttConfig = {
+  path: '/v1/audio/transcribe/config',
+  supportedFormats: ['wav', 'mp3', 'mp4', 'm4a', 'flac', 'ogg'],
+  maxFileSizeMb: 25,
+  defaults: {
+    chunk_length_s: 6,
+    stride_s: 5.9,
+    overlap_words: 7,
+  },
+  limits: {
+    chunk_length_range: [1, 30],
+    stride_range: [1, 29],
+    overlap_words_range: [0, 20],
+    timeout_seconds: 30,
+  },
+  supportedLanguages: [
+    'en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh',
+    'ar', 'hi', 'tr', 'pl', 'nl', 'sv', 'da', 'no', 'fi', 'cs',
+    'sk', 'hu', 'ro', 'bg', 'hr', 'sl', 'et', 'lv', 'lt', 'mt',
+    'ga', 'cy', 'is', 'mk', 'sq', 'az', 'kk', 'ky', 'uz', 'tg',
+    'am', 'my', 'km', 'lo', 'si', 'ne', 'bn', 'as', 'or', 'pa',
+    'gu', 'ta', 'te', 'kn', 'ml', 'th', 'vi', 'id', 'ms', 'tl',
+  ],
+  outputFormats: {
+    streaming: 'Server-Sent Events (SSE) with real-time partial results',
+    file: 'Complete JSON response with final transcript',
+  },
+  creditSystem: {
+    unit: '1 credit = 1 minute of audio',
+    billing: 'Based on actual audio duration, not processing time',
+  },
+};
+
+const languageDisplayNames =
+  typeof Intl !== 'undefined' && typeof Intl.DisplayNames === 'function'
+    ? new Intl.DisplayNames(['en'], {type: 'language'})
+    : null;
+
+function resolveLanguageLabel(code) {
+  if (languageDisplayNames) {
+    try {
+      const result = languageDisplayNames.of(code);
+      if (result) {
+        return result.charAt(0).toUpperCase() + result.slice(1);
+      }
+    } catch (error) {
+      // Fallback handled below.
+    }
+  }
+  return code.toUpperCase();
+}
+
+const introLanguages = [
+  {name: 'English', code: 'en'},
+  {name: 'Spanish', code: 'es'},
+  {name: 'French', code: 'fr'},
+  {name: 'German', code: 'de'},
+  {name: 'Italian', code: 'it'},
+  {name: 'Portuguese', code: 'pt'},
+  {name: 'Russian', code: 'ru'},
+  {name: 'Japanese', code: 'ja'},
+  {name: 'Korean', code: 'ko'},
+  {name: 'Chinese', code: 'zh'},
+  {name: 'Arabic', code: 'ar'},
+  {name: 'Hindi', code: 'hi'},
+  {name: 'Turkish', code: 'tr'},
+  {name: 'Polish', code: 'pl'},
+  {name: 'Dutch', code: 'nl'},
+  {name: 'Swedish', code: 'sv'},
+  {name: 'Danish', code: 'da'},
+  {name: 'Norwegian', code: 'no'},
+  {name: 'Finnish', code: 'fi'},
+  {name: 'Czech', code: 'cs'},
+  {name: 'Slovak', code: 'sk'},
+  {name: 'Hungarian', code: 'hu'},
+  {name: 'Romanian', code: 'ro'},
+  {name: 'Bulgarian', code: 'bg'},
+  {name: 'Croatian', code: 'hr'},
+  {name: 'Slovenian', code: 'sl'},
+  {name: 'Estonian', code: 'et'},
+  {name: 'Latvian', code: 'lv'},
+  {name: 'Lithuanian', code: 'lt'},
+  {name: 'Maltese', code: 'mt'},
+  {name: 'Irish', code: 'ga'},
+  {name: 'Welsh', code: 'cy'},
+  {name: 'Icelandic', code: 'is'},
+  {name: 'Macedonian', code: 'mk'},
+  {name: 'Albanian', code: 'sq'},
+  {name: 'Azerbaijani', code: 'az'},
+  {name: 'Kazakh', code: 'kk'},
+  {name: 'Kyrgyz', code: 'ky'},
+  {name: 'Uzbek', code: 'uz'},
+  {name: 'Tajik', code: 'tg'},
+  {name: 'Amharic', code: 'am'},
+  {name: 'Burmese', code: 'my'},
+  {name: 'Khmer', code: 'km'},
+  {name: 'Lao', code: 'lo'},
+  {name: 'Sinhala', code: 'si'},
+  {name: 'Nepali', code: 'ne'},
+  {name: 'Bengali', code: 'bn'},
+  {name: 'Assamese', code: 'as'},
+  {name: 'Odia', code: 'or'},
+  {name: 'Punjabi', code: 'pa'},
+  {name: 'Gujarati', code: 'gu'},
+  {name: 'Tamil', code: 'ta'},
+  {name: 'Telugu', code: 'te'},
+  {name: 'Kannada', code: 'kn'},
+  {name: 'Malayalam', code: 'ml'},
+  {name: 'Thai', code: 'th'},
+  {name: 'Vietnamese', code: 'vi'},
+  {name: 'Indonesian', code: 'id'},
+  {name: 'Malay', code: 'ms'},
+  {name: 'Filipino / Tagalog', code: 'tl'},
+];
 
 const sttInputs = [
   {name: 'file', type: 'file', defaultValue: 'req', description: 'Audio file to transcribe.'},
@@ -71,8 +187,27 @@ const responseExamples = [
 
 const quickIntegrationLanguages = [
   {
+    id: 'python-sdk',
+    label: 'Python SDK (Basic Usage)',
+    language: 'python',
+    code: `from induslabs import Client
+
+client = Client(api_key="your_api_key")
+
+result = client.stt.transcribe(
+    "audio.mp3",
+    language="en",
+    chunk_length_s=6,
+    stride_s=5.9,
+    overlap_words=7,
+)
+
+print(result.text)
+print(f"Detected language: {result.language_detected}")`,
+  },
+  {
     id: 'python',
-    label: 'Python',
+    label: 'Python (REST API)',
     language: 'python',
     code: `import requests
 
@@ -131,6 +266,13 @@ console.log(transcript);
   -F "stride_s=5.0" \\
   -F "overlap_words=3"
 `,
+  },
+  {
+    id: 'curl-config',
+    label: 'cURL (Config)',
+    language: 'bash',
+    code: `curl -X GET "${STT_BASE_URL}/v1/audio/transcribe/config" \\
+  -H "accept: application/json"`
   },
 ];
 
@@ -256,42 +398,218 @@ function EndpointSection({
   );
 }
 
+function ConfigSection() {
+  const [copied, setCopied] = useState(false);
+  const copyValue = `${STT_BASE_URL}${sttConfig.path}`;
+  const languageEntries = sttConfig.supportedLanguages.map(code => ({
+    code,
+    label: resolveLanguageLabel(code),
+  }));
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(copyValue);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      setCopied(false);
+    }
+  };
+
+  return (
+    <section id="stt-get-v1-audio-transcribe-config" className={styles.endpointSection}>
+      <div className={styles.endpointHeader}>
+        <MethodBadge method="GET" />
+        <code className={styles.endpointPath}>{sttConfig.path}</code>
+        <button type="button" className={styles.copyButton} onClick={handleCopy}>
+          {copied ? 'Copied!' : 'Copy API'}
+        </button>
+      </div>
+      <h3 className={styles.anchorTitle}>Retrieve STT Configuration</h3>
+      <p>
+        Use this endpoint to inspect current defaults, limits, supported formats, and language coverage for the
+        speech-to-text service. Call it before uploads to keep your client-side validation in sync with server rules.
+      </p>
+      <div className={styles.callout}>
+        <strong>Highlights</strong>
+        <ul>
+          <li>No authentication payload beyond your API key is required.</li>
+          <li>Returns upload constraints (including the 25&nbsp;MB file cap) and recommended chunking values.</li>
+          <li>Lists every language, audio format, and output mode supported by the STT runtime.</li>
+        </ul>
+      </div>
+      <div className={styles.ioGrid}>
+        <div className={styles.tableCard}>
+          <h4>Default Parameters</h4>
+          <div className={styles.tableScroll}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Value</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Name"><code>chunk_length_s</code></td>
+                  <td data-label="Value">{sttConfig.defaults.chunk_length_s}</td>
+                  <td data-label="Description">Seconds of audio processed per chunk when chunking is enabled.</td>
+                </tr>
+                <tr>
+                  <td data-label="Name"><code>stride_s</code></td>
+                  <td data-label="Value">{sttConfig.defaults.stride_s}</td>
+                  <td data-label="Description">Overlap between consecutive chunks for smoother stitching.</td>
+                </tr>
+                <tr>
+                  <td data-label="Name"><code>overlap_words</code></td>
+                  <td data-label="Value">{sttConfig.defaults.overlap_words}</td>
+                  <td data-label="Description">Word-level overlap used to preserve context between chunk boundaries.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className={styles.tableCard}>
+          <h4>Limits &amp; Constraints</h4>
+          <div className={styles.tableScroll}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Rule</th>
+                  <th>Value</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Rule"><code>max_file_size_mb</code></td>
+                  <td data-label="Value">{sttConfig.maxFileSizeMb} MB</td>
+                  <td data-label="Notes">Maximum upload size per request.</td>
+                </tr>
+                <tr>
+                  <td data-label="Rule"><code>chunk_length_range</code></td>
+                  <td data-label="Value">{sttConfig.limits.chunk_length_range[0]}&ndash;{sttConfig.limits.chunk_length_range[1]} s</td>
+                  <td data-label="Notes">Customize chunk length within this window.</td>
+                </tr>
+                <tr>
+                  <td data-label="Rule"><code>stride_range</code></td>
+                  <td data-label="Value">{sttConfig.limits.stride_range[0]}&ndash;{sttConfig.limits.stride_range[1]} s</td>
+                  <td data-label="Notes">Stride must remain smaller than the chunk length.</td>
+                </tr>
+                <tr>
+                  <td data-label="Rule"><code>overlap_words_range</code></td>
+                  <td data-label="Value">{sttConfig.limits.overlap_words_range[0]}&ndash;{sttConfig.limits.overlap_words_range[1]}</td>
+                  <td data-label="Notes">Keep overlaps modest to avoid repetition.</td>
+                </tr>
+                <tr>
+                  <td data-label="Rule"><code>timeout_seconds</code></td>
+                  <td data-label="Value">{sttConfig.limits.timeout_seconds}</td>
+                  <td data-label="Notes">Server-side processing timeout per transcription request.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div className={styles.tableCard}>
+        <h4>Supported Audio Formats</h4>
+        <ul>
+          {sttConfig.supportedFormats.map(format => (
+            <li key={format}>
+              <code>{format}</code>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className={styles.tableCard}>
+        <h4>Output Modes</h4>
+        <ul>
+          <li>
+            <strong>Streaming:</strong> {sttConfig.outputFormats.streaming}
+          </li>
+          <li>
+            <strong>File:</strong> {sttConfig.outputFormats.file}
+          </li>
+        </ul>
+      </div>
+      <div className={styles.tableCard}>
+        <h4>Credit System</h4>
+        <ul>
+          <li>{sttConfig.creditSystem.unit}</li>
+          <li>{sttConfig.creditSystem.billing}</li>
+        </ul>
+      </div>
+      <details className={styles.languageDropdown}>
+        <summary>Supported languages</summary>
+        <ul>
+          {languageEntries.map(({code, label}) => (
+            <li key={code}>
+              <span>{label}</span>
+              <code>{code}</code>
+            </li>
+          ))}
+        </ul>
+      </details>
+      <div className={styles.responseExamples}>
+        <div className={styles.responseExampleCard}>
+          <h4>Sample Response</h4>
+          <CodeBlock language="json">{`{
+  "supported_formats": [
+    "wav",
+    "mp3",
+    "mp4",
+    "m4a",
+    "flac",
+    "ogg"
+  ],
+  "max_file_size_mb": 25,
+  "defaults": {
+    "chunk_length_s": 6,
+    "stride_s": 5.9,
+    "overlap_words": 7
+  },
+  "limits": {
+    "chunk_length_range": [1, 30],
+    "stride_range": [1, 29],
+    "overlap_words_range": [0, 20],
+    "timeout_seconds": 30
+  },
+  "supported_languages": [
+    "en",
+    "es",
+    "fr",
+    "de",
+    "it",
+    "pt"
+  ],
+  "output_formats": {
+    "streaming": "Server-Sent Events (SSE) with real-time partial results",
+    "file": "Complete JSON response with final transcript"
+  },
+  "credit_system": {
+    "unit": "1 credit = 1 minute of audio",
+    "billing": "Based on actual audio duration, not processing time"
+  }
+}`}</CodeBlock>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function SttPage() {
+  const sidebarSections = getSidebarSections('stt');
+
   return (
     <DocsLayout
       title="Audio Platform API"
       description="Speech-to-text service overview"
-      sidebarSections={[
-        {
-          title: 'STT Service',
-          links: [
-            {label: 'Introduction', targetId: 'stt-introduction'},
-            {label: 'POST /v1/audio/transcribe', targetId: 'stt-post-v1-audio-transcribe', method: 'POST'},
-            {label: 'POST /v1/audio/transcribe/file', targetId: 'stt-post-v1-audio-transcribe-file', method: 'POST'},
-          ],
-        },
-        {
-          title: 'TTS Service',
-          links: [
-            {label: 'Introduction', to: '/tts'},
-            {label: 'Shared Payload', to: '/tts'},
-            {label: 'POST /v1/audio/speech', to: '/tts'},
-            {label: 'POST /v1/audio/speech/file', to: '/tts'},
-            {label: 'POST /v1/audio/speech/preview', to: '/tts'},
-            {label: 'GET /v1/voice/get-voices', to: '/tts'},
-          ],
-        },
-        {
-          title: 'SDK',  // ADD THIS SECTION
-          links: [
-            {label: 'Python SDK', to: '/sdk'},
-          ],
-        },
-      ]}
+      sidebarSections={sidebarSections}
       integration={{
         title: 'Quick Integration',
         description: 'Upload an audio file and retrieve the transcription using your favourite language.',
-        defaultLanguage: 'python',
+        defaultLanguage: 'python-sdk',
         languages: quickIntegrationLanguages,
       }}
     >
@@ -304,50 +622,12 @@ export default function SttPage() {
         <details className={styles.languageDropdown}>
           <summary>Available languages</summary>
           <ul>
-            <li>
-              <span>English</span>
-              <code>en</code>
-            </li>
-            <li>
-              <span>Hindi</span>
-              <code>hi</code>
-            </li>
-            <li>
-              <span>Urdu</span>
-              <code>ur</code>
-            </li>
-            <li>
-              <span>Tamil</span>
-              <code>ta</code>
-            </li>
-            <li>
-              <span>Malayalam</span>
-              <code>ml</code>
-            </li>
-            <li>
-              <span>Telugu</span>
-              <code>te</code>
-            </li>
-            <li>
-              <span>Bengali</span>
-              <code>bn</code>
-            </li>
-            <li>
-              <span>Nepali</span>
-              <code>ne</code>
-            </li>
-            <li>
-              <span>Kannada</span>
-              <code>kn</code>
-            </li>
-            <li>
-              <span>Marathi</span>
-              <code>mr</code>
-            </li>
-            <li>
-              <span>Punjabi</span>
-              <code>pa</code>
-            </li>
+            {introLanguages.map(({code, name}) => (
+              <li key={code}>
+                <span>{name}</span>
+                <code>{code}</code>
+              </li>
+            ))}
           </ul>
         </details>
       </section>
@@ -379,6 +659,7 @@ export default function SttPage() {
         examples={[responseExamples[1], responseExamples[2]]}
         outputs={fileOutputs}
       />
+      <ConfigSection />
     </DocsLayout>
   );
 }

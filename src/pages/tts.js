@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
+import {getSidebarSections} from '@site/src/config/sidebarSections';
 import CodeBlock from '@theme/CodeBlock';
 
 import styles from './api.module.css';
@@ -284,50 +285,44 @@ function EndpointSection({endpoint}) {
 }
 
 export default function TtsPage() {
+  const sidebarSections = getSidebarSections('tts');
+
   return (
     <DocsLayout
       title="Audio Platform API"
       description="Text-to-speech service overview"
-      sidebarSections={[
-        {
-          title: 'Overview',
-          links: [
-            {label: 'Introduction', to: '/'},
-            {label: 'Text-to-Speech', to: '/tts'},
-            {label: 'Speech-to-Text', to: '/stt'},
-            {label: 'Python SDK', to: '/sdk'},
-          ],
-        },
-        {
-          title: 'TTS Service',
-          links: [
-            {label: 'Introduction', targetId: 'tts-introduction'},
-            {label: 'Shared Payload', targetId: 'tts-shared-payload'},
-            {label: 'POST /v1/audio/speech', targetId: 'tts-post-v1-audio-speech', method: 'POST'},
-            {label: 'POST /v1/audio/speech/file', targetId: 'tts-post-v1-audio-speech-file', method: 'POST'},
-            {label: 'POST /v1/audio/speech/preview', targetId: 'tts-post-v1-audio-speech-preview', method: 'POST'},
-            {label: 'GET /v1/voice/get-voices', targetId: 'tts-get-v1-voice-get-voices', method: 'GET'},
-          ],
-        },
-       
-       
-        {
-          title: 'STT Service',
-          links: [
-            {label: 'Introduction', to: '/stt'},
-            {label: 'POST /v1/audio/transcribe',  to: '/stt'},
-            {label: 'POST /v1/audio/transcribe/file',  to: '/stt'},
-          ],
-        },
-      ]}
+      sidebarSections={sidebarSections}
       integration={{
         title: 'Quick Integration',
-        description: 'Authenticate and send your first synthesis request with a language of your choice.',
-        defaultLanguage: 'python',
+        description: 'Choose a ready-to-run example, including the Python SDK basic usage snippet.',
+        defaultLanguage: 'python-sdk',
         languages: [
           {
+            id: 'python-sdk',
+            label: 'Python SDK (Basic Usage)',
+            language: 'python',
+            code: `from induslabs import Client
+
+client = Client(api_key="your_api_key")
+
+# Simple synthesis
+response = client.tts.speak(
+    text="Hello, this is a test",
+    voice="Indus-hi-Urvashi"
+)
+
+# Save to file
+response.save("output.wav")
+
+# Access metadata
+print(f"Sample Rate: {response.sample_rate}Hz")
+print(f"Channels: {response.channels}")
+print(f"Format: {response.format}")
+print(f"Request ID: {response.request_id}")`,
+          },
+          {
             id: 'python',
-            label: 'Python',
+            label: 'Python (REST API)',
             language: 'python',
             code: `import requests
 
