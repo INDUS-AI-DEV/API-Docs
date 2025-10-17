@@ -8,9 +8,9 @@ const TTS_BASE_URL = 'https://voice.induslabs.io';
 
 const sharedPayload = `{
   "text": "I am pleased to introduce our voice models.",
-  "voice": "Indus-hi-Urvashi",
+  "voice": "Indus-hi-maya",
   "output_format": "wav",
-  "model": "indus-tts-v3",
+  "model": "indus-tts-v1",
   "api_key": "YOUR_API_KEY",
   "normalize": true,
 }`;
@@ -27,9 +27,9 @@ const validationError = `{
 
 const sharedInputs = [
   {name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.'},
-  {name: 'voice', type: 'string', defaultValue: 'Indus-hi-Urvashi', description: 'The voice model to be used (e.g., "Indus-hi-Urvashi").'},
+  {name: 'voice', type: 'string', defaultValue: 'Indus-hi-maya', description: 'The voice model to be used (e.g., "Indus-hi-maya").'},
   {name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3", "pcm").'},
-  {name: 'model', type: 'string', defaultValue: '-', description: 'The TTS model to use (e.g., "indus-tts-v3").'},
+  {name: 'model', type: 'string', defaultValue: '-', description: 'The TTS model to use (e.g., "indus-tts-v1").'},
   {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
   {name: 'normalize', type: 'boolean', defaultValue: 'true', description: 'Whether to normalize text before synthesis (default: true).'},
 ];
@@ -54,7 +54,7 @@ const voiceListExample = `{
       },
       {
         "name": "Urvashi",
-        "voice_id": "Indus-hi-Urvashi",
+        "voice_id": "Indus-hi-maya",
         "gender": "female"
       },
       {
@@ -203,7 +203,7 @@ const endpoints = [
   },
   {
     anchor: 'tts-get-v1-voice-get-voices',
-    method: 'POST',
+    method: 'GET',
     path: '/api/voice/get-voices',
     title: 'List Available Voices',
     description:
@@ -351,16 +351,16 @@ function IntegrationExamples({ endpoint }) {
     python: `import requests
 
 url = "${TTS_BASE_URL}${endpoint.path}"
-payload = {
+params = {
     "text": "I am pleased to introduce our voice models.",
-    "voice": "Indus-hi-Urvashi",
+    "voice": "Indus-hi-maya",
     "output_format": "wav",
-    "model": "indus-tts-v3",
+    "model": "indus-tts-v1",
     "api_key": "YOUR_API_KEY",
     "normalize": True${endpoint.path !== "/api/voice/get-voices" ? ",\n    \"stream\": True" : ""}
 }
 
-response = requests.post(url, json=payload)
+response = requests.get(url, params=params)
 response.raise_for_status()
 
 with open("output.${ext}", "wb") as f:
@@ -371,19 +371,18 @@ print("✅ Audio saved as output.${ext}")
     javascript: `import fetch from "node-fetch";
 import fs from "fs";
 
-const payload = {
+const params = new URLSearchParams({
   text: "I am pleased to introduce our voice models.",
-  voice: "Indus-hi-Urvashi",
+  voice: "Indus-hi-maya",
   output_format: "wav",
-  model: "indus-tts-v3",
+  model: "indus-tts-v1",
   api_key: "YOUR_API_KEY",
   normalize: true${endpoint.path !== "/api/voice/get-voices" ? ",\n  stream: true" : ""}
-};
+});
 
-const response = await fetch("${TTS_BASE_URL}${endpoint.path}", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload),
+const response = await fetch("${TTS_BASE_URL}${endpoint.path}?" + params, {
+  method: "GET",
+  headers: { "accept": "application/json" },
 });
 
 if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
@@ -393,41 +392,45 @@ fs.writeFileSync("output.${ext}", buffer);
 console.log("✅ Audio saved as output.${ext}");
 `,
 
-    curl: `curl -X POST "${TTS_BASE_URL}${endpoint.path}" \\
-  -H "Content-Type: application/json" \\
-  -d '{"text": "I am pleased to introduce our voice models.", "voice": "Indus-hi-Urvashi", "output_format": "wav", "model": "indus-tts-v3", "api_key": "YOUR_API_KEY", "normalize": true${endpoint.path !== "/api/voice/get-voices" ? ', "stream": true' : ""}}' \\
+    curl: `curl -X 'GET' \\
+  "${TTS_BASE_URL}${endpoint.path}?text=I%20am%20pleased%20to%20introduce%20our%20voice%20models.&voice=Indus-hi-maya&output_format=wav&model=indus-tts-v1&api_key=YOUR_API_KEY&normalize=true${endpoint.path !== "/api/voice/get-voices" ? '&stream=true' : ""}" \\
+  -H "accept: application/json" \\
   -o "output.${ext}"`,
   };
 
-  // For get-voices endpoint, also POST (to stay consistent with cURL)
+  // For get-voices endpoint, use GET request
   if (endpoint.path === "/api/voice/get-voices") {
     examples.python = `import requests
 
 url = "https://api.indusai.app${endpoint.path}"
-response = requests.post(url)
+headers = {"accept": "application/json"}
+response = requests.get(url, headers=headers)
 response.raise_for_status()
 
-with open("voices.json", "wb") as f:
-    f.write(response.content)
-print("✅ Voices saved to voices.json")
+voices_data = response.json()
+print("✅ Voices fetched successfully")
+print(f"Status: {voices_data['status_code']}")
+print(f"Message: {voices_data['message']}")
 `;
 
     examples.javascript = `import fetch from "node-fetch";
-import fs from "fs";
 
 const response = await fetch("https://api.indusai.app${endpoint.path}", {
-  method: "POST",
+  method: "GET",
+  headers: { "accept": "application/json" },
 });
 
 if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
 
-const buffer = Buffer.from(await response.arrayBuffer());
-fs.writeFileSync("voices.json", buffer);
-console.log("✅ Voices saved to voices.json");
+const voicesData = await response.json();
+console.log("✅ Voices fetched successfully");
+console.log(\`Status: \${voicesData.status_code}\`);
+console.log(\`Message: \${voicesData.message}\`);
 `;
 
-    examples.curl = `curl -X POST "https://api.indusai.app${endpoint.path}" \\
-  -o "voices.json"`;
+    examples.curl = `curl -X 'GET' \\
+  'https://api.indusai.app${endpoint.path}' \\
+  -H 'accept: application/json'`;
   }
 
   return (
@@ -466,7 +469,7 @@ console.log("✅ Voices saved to voices.json");
 
 function EndpointSection({endpoint}) {
   const [copied, setCopied] = useState(false);
-  const copyValue = `${TTS_BASE_URL}${endpoint.path}`;
+  const copyValue = `https://api.indusai.app${endpoint.path}`;
 
   const handleCopy = async () => {
     try {

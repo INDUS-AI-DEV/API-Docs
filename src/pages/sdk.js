@@ -128,7 +128,7 @@ client = Client(api_key="your_api_key_here")
 # Text-to-Speech
 response = client.tts.speak(
     text="नमस्ते, यह एक टेस्ट है",
-    voice="Indus-hi-Urvashi",
+    voice="Indus-hi-maya",
     language="hi-IN"
 )
 response.save("output.wav")
@@ -149,7 +149,7 @@ async def main():
         # Async TTS
         response = await client.tts.speak_async(
             text="Async speech synthesis",
-            voice="Indus-hi-Urvashi"
+            voice="Indus-hi-maya"
         )
         response.save("output.wav")
         
@@ -273,7 +273,7 @@ client = Client()
 # Text-to-Speech
 response = client.tts.speak(
     text="Hello, this is a test",
-    voice="Indus-hi-Urvashi"
+    voice="Indus-hi-maya"
 )
 response.save("output.wav")
 
@@ -339,7 +339,7 @@ client = Client(api_key="your_api_key")
 # Simple synthesis
 response = client.tts.speak(
     text="Hello, this is a test",
-    voice="Indus-hi-Urvashi"
+    voice="Indus-hi-maya"
 )
 
 # Save to file
@@ -498,7 +498,7 @@ def main():
     # Create streaming response
     response = client.tts.speak(
         text=text,
-        voice="Indus-hi-Urvashi",
+        voice="Indus-hi-maya",
         stream=True  # Enable streaming
     )
     
@@ -527,7 +527,7 @@ if __name__ == "__main__":
         <div style={styles.codeExample}>
           <CodeBlock language="python">{`response = client.tts.speak(
     text="In-memory audio",
-    voice="Indus-hi-Urvashi"
+    voice="Indus-hi-maya"
 )
 
 # Get as file-like object (BytesIO)
@@ -552,21 +552,21 @@ with wave.open(audio_file, 'rb') as wf:
           <CodeBlock language="python">{`# WAV format (default, best quality)
 wav_response = client.tts.speak(
     text="WAV format audio",
-    voice="Indus-hi-Urvashi",
+    voice="Indus-hi-maya",
     output_format="wav"
 )
 
 # MP3 format (smaller file size)
 mp3_response = client.tts.speak(
     text="MP3 format audio",
-    voice="Indus-hi-Urvashi",
+    voice="Indus-hi-maya",
     output_format="mp3"
 )
 
 # PCM format (raw audio data)
 pcm_response = client.tts.speak(
     text="PCM format audio",
-    voice="Indus-hi-Urvashi",
+    voice="Indus-hi-maya",
     output_format="pcm"
 )`}</CodeBlock>
         </div>
@@ -588,11 +588,11 @@ pcm_response = client.tts.speak(
         <div style={styles.codeExample}>
           <CodeBlock language="python">{`response = client.tts.speak(
     text="Advanced TTS example",
-    voice="Indus-hi-Urvashi",
+    voice="Indus-hi-maya",
     language="hi-IN",
     output_format="wav",
     stream=True,
-    model="orpheus-3b",      # TTS model
+    model="indus-tts-v1",      # TTS model
     temperature=0.7,         # Control randomness (0.0-1.0)
     max_tokens=2000          # Limit generation length
 )`}</CodeBlock>
@@ -618,7 +618,7 @@ pcm_response = client.tts.speak(
               <tr>
                 <td style={styles.tableCell}><code>voice</code></td>
                 <td style={styles.tableCell}>str</td>
-                <td style={styles.tableCell}>"Indus-hi-Urvashi"</td>
+                <td style={styles.tableCell}>"Indus-hi-maya"</td>
                 <td style={styles.tableCell}>Voice model to use</td>
               </tr>
               <tr>
@@ -642,7 +642,7 @@ pcm_response = client.tts.speak(
               <tr>
                 <td style={styles.tableCell}><code>model</code></td>
                 <td style={styles.tableCell}>str</td>
-                <td style={styles.tableCell}>"orpheus-3b"</td>
+                <td style={styles.tableCell}>"indus-tts-v1"</td>
                 <td style={styles.tableCell}>TTS model to use</td>
               </tr>
               <tr>
@@ -786,7 +786,7 @@ async def main():
         # Async TTS
         response = await client.tts.speak_async(
             text="Async speech synthesis",
-            voice="Indus-hi-Urvashi",
+            voice="Indus-hi-maya",
             stream=True
         )
         
@@ -826,7 +826,7 @@ client = Client(api_key="your_api_key")
 texts = ["Text 1", "Text 2", "Text 3", "Text 4"]
 
 def generate_speech(text):
-    return client.tts.speak(text=text, voice="Indus-hi-Urvashi")
+    return client.tts.speak(text=text, voice="Indus-hi-maya")
 
 # Generate multiple files concurrently
 with ThreadPoolExecutor(max_workers=4) as executor:
@@ -849,7 +849,7 @@ async def main():
     
     # Create tasks
     tasks = [
-        client.tts.speak_async(text=text, voice="Indus-hi-Urvashi")
+        client.tts.speak_async(text=text, voice="Indus-hi-maya")
         for text in texts
     ]
     
@@ -888,7 +888,7 @@ hindi_voices = voices.get_voices_by_language("hindi")
 female_voices = voices.get_voices_by_gender("female")
 
 # Get specific voice
-voice = voices.get_voice_by_id("Indus-hi-Indus-hi-Urvashi")
+voice = voices.get_voice_by_id("Indus-hi-Indus-hi-maya")
 
 # Get all voice IDs
 voice_ids = voices.list_voice_ids()
@@ -912,7 +912,7 @@ client = Client(api_key="your_api_key")
 try:
     response = client.tts.speak(
         text="Test audio",
-        voice="Indus-hi-Urvashi"
+        voice="Indus-hi-maya"
     )
     response.save("output.wav")
     
@@ -953,7 +953,7 @@ except Exception as e:
         
         <h3>TTSResponse</h3>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-Urvashi")
+          <CodeBlock language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-maya")
 
 # Properties
 response.content          # bytes: Raw audio data
@@ -972,7 +972,7 @@ response.to_file_object()            # Get BytesIO object`}</CodeBlock>
 
         <h3>TTSStreamResponse</h3>
         <div style={styles.codeExample}>
-          <CodeBlock language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-Urvashi", stream=True)
+          <CodeBlock language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-maya", stream=True)
 
 # Properties (same as TTSResponse)
 response.sample_rate
@@ -1152,7 +1152,7 @@ finally:
 # Solution: Use valid format
 response = client.tts.speak(
     text="Test",
-    voice="Indus-hi-Urvashi",
+    voice="Indus-hi-maya",
     output_format="wav"  # Must be: wav, mp3, or pcm
 )`}</CodeBlock>
             </div>
