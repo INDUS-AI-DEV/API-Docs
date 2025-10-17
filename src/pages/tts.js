@@ -7,12 +7,16 @@ import styles from './api.module.css';
 const TTS_BASE_URL = 'https://voice.induslabs.io';
 
 const sharedPayload = `{
-  "text": "I am pleased to introduce our voice models.",
+  "text": "Hello, this is a test request.",
   "voice": "Indus-hi-maya",
   "output_format": "wav",
   "model": "indus-tts-v1",
   "api_key": "YOUR_API_KEY",
   "normalize": true,
+  "stream": true,
+  "speed": 1,
+  "pitch_shift": 0,
+  "loudness_db": 0
 }`;
 
 const validationError = `{
@@ -25,21 +29,79 @@ const validationError = `{
   ]
 }`;
 
+const previewResponse = `{
+  "analysis": {
+    "total_characters": 30,
+    "total_words": 6,
+    "estimated_duration_seconds": 2.4,
+    "estimated_credits": 0.04,
+    "chunking_strategy": {
+      "total_chunks": 1,
+      "max_words_per_chunk": 15,
+      "overlap_words": 0,
+      "chunks": [
+        {
+          "index": 0,
+          "word_count": 6,
+          "text_preview": "Hello, this is a test request.",
+          "is_final": true
+        }
+      ]
+    }
+  },
+  "configuration": {
+    "voice": "Indus-hi-maya",
+    "model": "indus-tts-v1",
+    "output_format": "wav",
+    "stream": true,
+    "temperature": 0.6,
+    "max_tokens": 1800,
+    "top_p": 0.8,
+    "repetition_penalty": 1.1,
+    "bitrate": null
+  },
+  "user_info": {
+    "user_id": "USR_A3E785AF",
+    "credits_remaining": 399.58,
+    "tts_unit_cost": 1,
+    "sufficient_credits": true
+  },
+  "output_settings": {
+    "format": "wav",
+    "voice": "Indus-hi-maya",
+    "model": "indus-tts-v1",
+    "streaming": true,
+    "sample_rate": 24000,
+    "channels": 1,
+    "bit_depth": 16
+  },
+  "text_processing": {
+    "original_text": "Hello, this is a test request.",
+    "processed_text": null,
+    "normalization_applied": false,
+    "normalize_setting": true,
+    "character_change": 0
+  },
+  "size_estimates": {
+    "pcm_bytes": 115200,
+    "wav_bytes": 115244,
+    "mp3_bytes": 38400,
+    "target_format_bytes": 115244
+  }
+}`;
+
 const sharedInputs = [
   {name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.'},
   {name: 'voice', type: 'string', defaultValue: 'Indus-hi-maya', description: 'The voice model to be used (e.g., "Indus-hi-maya").'},
   {name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3", "pcm").'},
-  {name: 'model', type: 'string', defaultValue: '-', description: 'The TTS model to use (e.g., "indus-tts-v1").'},
+  {name: 'model', type: 'string', defaultValue: 'indus-tts-v1', description: 'The TTS model to use (e.g., "indus-tts-v1").'},
   {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
   {name: 'normalize', type: 'boolean', defaultValue: 'true', description: 'Whether to normalize text before synthesis (default: true).'},
+  {name: 'stream', type: 'boolean', defaultValue: 'true', description: 'Whether to stream the output (default: true).'},
+  {name: 'speed', type: 'number', defaultValue: '1', description: 'Speed of speech synthesis (default: 1).'},
+  {name: 'pitch_shift', type: 'number', defaultValue: '0', description: 'Pitch shift adjustment (default: 0).'},
+  {name: 'loudness_db', type: 'number', defaultValue: '0', description: 'Loudness adjustment in decibels (default: 0).'},
 ];
-
-const streamInput = {
-  name: 'stream',
-  type: 'boolean',
-  defaultValue: 'true',
-  description: 'Whether to stream the output (default: true).',
-};
 
 const voiceListExample = `{
   "status_code": 200,
@@ -131,23 +193,23 @@ const endpoints = [
     path: '/v1/audio/speech',
     title: 'Synthesize Speech',
     description:
-      'This endpoint is used to synthesize speech (TTS - Text-to-Speech).',
+      'This endpoint is used to synthesize speech (TTS - Text-to-Speech) and stream the audio data.',
     notes: [
       'Converts input text into speech audio.',
       'Uses credit system authentication.',
-      'Provides a simplified request model with environment-based defaults.',
+      'Returns audio data directly in the response body.',
       'Supports streaming for real-time audio playback.',
     ],
-    inputs: [...sharedInputs, streamInput],
+    inputs: sharedInputs,
     outputs: [
-      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns synthesized speech audio or related metadata.'},
+      {name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns synthesized speech audio as binary data.'},
       {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
     ],
     examples: [
       {
         label: '200 OK',
-        language: 'json',
-        code: `"string"`,
+        language: 'text',
+        code: `Binary audio data (WAV format)`,
       },
       {label: '422 Validation Error', language: 'json', code: validationError},
     ],
@@ -162,18 +224,19 @@ const endpoints = [
       'This endpoint is used to synthesize speech (TTS - Text-to-Speech) and return the complete audio file as a downloadable file.',
     notes: [
       'Converts input text into speech audio.',
-      'Returns the synthesized audio as a file download (unlike /v1/audio/speech which may provide metadata or stream results).',
+      'Returns the synthesized audio as a complete file download.',
+      'Unlike /v1/audio/speech, this endpoint returns the full audio file at once.',
     ],
-    inputs: [...sharedInputs, streamInput],
+    inputs: sharedInputs,
     outputs: [
-      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns the synthesized speech audio as a downloadable file.'},
+      {name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns the synthesized speech audio as a downloadable file.'},
       {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
     ],
     examples: [
       {
         label: '200 OK',
-        language: 'json',
-        code: `"string"`,
+        language: 'text',
+        code: `Binary audio data (WAV format)`,
       },
       {label: '422 Validation Error', language: 'json', code: validationError},
     ],
@@ -188,15 +251,16 @@ const endpoints = [
       'This endpoint provides a preview of how text will be processed for speech synthesis without actually generating audio.',
     notes: [
       'Accepts input text and parameters, then shows how the text would be processed by the TTS system.',
-      'Does not generate audio, only returns metadata/processed form of the input.',
+      'Does not generate audio, only returns metadata and analysis of the input.',
+      'Useful for estimating credits, duration, and validating parameters before synthesis.',
     ],
-    inputs: [...sharedInputs, streamInput],
+    inputs: sharedInputs,
     outputs: [
-      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns processed text preview as JSON.'},
+      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns detailed analysis including character count, word count, estimated duration, credit cost, and configuration details.'},
       {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
     ],
     examples: [
-      {label: '200 OK', language: 'json', code: `"string"`},
+      {label: '200 OK', language: 'json', code: previewResponse},
       {label: '422 Validation Error', language: 'json', code: validationError},
     ],
     outputFormat: 'json',
@@ -348,54 +412,9 @@ function IntegrationExamples({ endpoint }) {
   };
 
   const examples = {
-    python: `import requests
-
-url = "${TTS_BASE_URL}${endpoint.path}"
-params = {
-    "text": "I am pleased to introduce our voice models.",
-    "voice": "Indus-hi-maya",
-    "output_format": "wav",
-    "model": "indus-tts-v1",
-    "api_key": "YOUR_API_KEY",
-    "normalize": True${endpoint.path !== "/api/voice/get-voices" ? ",\n    \"stream\": True" : ""}
-}
-
-response = requests.get(url, params=params)
-response.raise_for_status()
-
-with open("output.${ext}", "wb") as f:
-    f.write(response.content)
-print("✅ Audio saved as output.${ext}")
-`,
-
-    javascript: `import fetch from "node-fetch";
-import fs from "fs";
-
-const params = new URLSearchParams({
-  text: "I am pleased to introduce our voice models.",
-  voice: "Indus-hi-maya",
-  output_format: "wav",
-  model: "indus-tts-v1",
-  api_key: "YOUR_API_KEY",
-  normalize: true${endpoint.path !== "/api/voice/get-voices" ? ",\n  stream: true" : ""}
-});
-
-const response = await fetch("${TTS_BASE_URL}${endpoint.path}?" + params, {
-  method: "GET",
-  headers: { "accept": "application/json" },
-});
-
-if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
-
-const buffer = Buffer.from(await response.arrayBuffer());
-fs.writeFileSync("output.${ext}", buffer);
-console.log("✅ Audio saved as output.${ext}");
-`,
-
-    curl: `curl -X 'GET' \\
-  "${TTS_BASE_URL}${endpoint.path}?text=I%20am%20pleased%20to%20introduce%20our%20voice%20models.&voice=Indus-hi-maya&output_format=wav&model=indus-tts-v1&api_key=YOUR_API_KEY&normalize=true${endpoint.path !== "/api/voice/get-voices" ? '&stream=true' : ""}" \\
-  -H "accept: application/json" \\
-  -o "output.${ext}"`,
+    python: ``,
+    javascript: ``,
+    curl: ``
   };
 
   // For get-voices endpoint, use GET request
@@ -431,6 +450,112 @@ console.log(\`Message: \${voicesData.message}\`);
     examples.curl = `curl -X 'GET' \\
   'https://api.indusai.app${endpoint.path}' \\
   -H 'accept: application/json'`;
+  } else {
+    // For TTS endpoints, use POST with JSON body
+    const jsonPayload = {
+      text: "Hello, this is a test request.",
+      voice: "Indus-hi-maya",
+      output_format: "wav",
+      stream: true,
+      model: "indus-tts-v1",
+      api_key: "YOUR_API_KEY",
+      normalize: true,
+      speed: 1,
+      pitch_shift: 0,
+      loudness_db: 0
+    };
+
+    examples.python = `import requests
+import json
+
+url = "${TTS_BASE_URL}${endpoint.path}"
+headers = {
+    "accept": "application/json",
+    "Content-Type": "application/json"
+}
+payload = {
+    "text": "Hello, this is a test request.",
+    "voice": "Indus-hi-maya",
+    "output_format": "wav",
+    "stream": True,
+    "model": "indus-tts-v1",
+    "api_key": "YOUR_API_KEY",
+    "normalize": True,
+    "speed": 1,
+    "pitch_shift": 0,
+    "loudness_db": 0
+}
+
+response = requests.post(url, headers=headers, json=payload)
+response.raise_for_status()
+
+${endpoint.outputFormat === 'json' ? `# For preview endpoint, parse JSON response
+result = response.json()
+print("✅ Preview generated successfully")
+print(f"Total characters: {result['analysis']['total_characters']}")
+print(f"Estimated duration: {result['analysis']['estimated_duration_seconds']}s")
+print(f"Estimated credits: {result['analysis']['estimated_credits']}")` : `# Save audio file
+with open("output.${ext}", "wb") as f:
+    f.write(response.content)
+print("✅ Audio saved as output.${ext}")`}
+`;
+
+    examples.javascript = `import fetch from "node-fetch";
+import fs from "fs";
+
+const url = "${TTS_BASE_URL}${endpoint.path}";
+const payload = {
+  text: "Hello, this is a test request.",
+  voice: "Indus-hi-maya",
+  output_format: "wav",
+  stream: true,
+  model: "indus-tts-v1",
+  api_key: "YOUR_API_KEY",
+  normalize: true,
+  speed: 1,
+  pitch_shift: 0,
+  loudness_db: 0
+};
+
+const response = await fetch(url, {
+  method: "POST",
+  headers: {
+    "accept": "application/json",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(payload)
+});
+
+if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+
+${endpoint.outputFormat === 'json' ? `// For preview endpoint, parse JSON response
+const result = await response.json();
+console.log("✅ Preview generated successfully");
+console.log(\`Total characters: \${result.analysis.total_characters}\`);
+console.log(\`Estimated duration: \${result.analysis.estimated_duration_seconds}s\`);
+console.log(\`Estimated credits: \${result.analysis.estimated_credits}\`);` : `// Save audio file
+const buffer = Buffer.from(await response.arrayBuffer());
+fs.writeFileSync("output.${ext}", buffer);
+console.log("✅ Audio saved as output.${ext}");`}
+`;
+
+    examples.curl = `curl -X 'POST' \\
+  '${TTS_BASE_URL}${endpoint.path}' \\
+  -H 'accept: application/json' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "text": "Hello, this is a test request.",
+  "voice": "Indus-hi-maya",
+  "output_format": "wav",
+  "stream": true,
+  "model": "indus-tts-v1",
+  "api_key": "YOUR_API_KEY",
+  "normalize": true,
+  "speed": 1,
+  "pitch_shift": 0,
+  "loudness_db": 0
+}'${endpoint.outputFormat === 'wav' ? ` \\
+  -o "output.${ext}"` : ''}`;
   }
 
   return (
@@ -469,7 +594,7 @@ console.log(\`Message: \${voicesData.message}\`);
 
 function EndpointSection({endpoint}) {
   const [copied, setCopied] = useState(false);
-  const copyValue = `https://api.indusai.app${endpoint.path}`;
+  const copyValue = `${TTS_BASE_URL}${endpoint.path}`;
 
   const handleCopy = async () => {
     try {
@@ -548,7 +673,7 @@ export default function TtsPage() {
             {label: 'POST /v1/audio/speech', targetId: 'tts-post-v1-audio-speech', method: 'POST'},
             {label: 'POST /v1/audio/speech/file', targetId: 'tts-post-v1-audio-speech-file', method: 'POST'},
             {label: 'POST /v1/audio/speech/preview', targetId: 'tts-post-v1-audio-speech-preview', method: 'POST'},
-            {label: 'POST /api/voice/get-voices', targetId: 'tts-get-v1-voice-get-voices', method: 'GET'},
+            {label: 'GET /api/voice/get-voices', targetId: 'tts-get-v1-voice-get-voices', method: 'GET'},
           ],
         },
         {
@@ -565,8 +690,7 @@ export default function TtsPage() {
         <h1>Text-to-Speech Service</h1>
         <p>
           Deliver natural-sounding speech with configurable voices, streaming playback, and file-based output.
-          All endpoints share a consistent payload so you can reuse the same integration across streaming and
-          download workflows.
+          All endpoints use a consistent JSON payload via POST requests, making integration simple and straightforward.
         </p>
         <div className={styles.apiKeyNotice} style={{
           background: 'rgba(84, 104, 255, 0.08)',
@@ -596,8 +720,8 @@ export default function TtsPage() {
       <section id="tts-shared-payload" className={styles.sectionHeading}>
         <h2>Shared Request Payload</h2>
         <p>
-          Use the same JSON schema for every text-to-speech endpoint. Override optional fields (for example
-          output_format or stream on file/preview calls) depending on the output you need.
+          All text-to-speech endpoints use the same JSON schema sent via POST request. Simply adjust parameters 
+          like output_format or stream depending on your use case.
         </p>
       </section>
       <div className={styles.payloadCard}>
@@ -637,14 +761,6 @@ export default function TtsPage() {
                 </tr>
               );
             })}
-            <tr>
-              <td data-label="Name">
-                <code>stream</code>
-              </td>
-              <td data-label="Type">boolean</td>
-              <td data-label="Default">true</td>
-              <td data-label="Description">Whether to stream the output (default: true).</td>
-            </tr>
             </tbody>
           </table>
         </div>
