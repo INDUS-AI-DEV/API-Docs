@@ -259,7 +259,7 @@ function EndpointSection({
 export default function SttPage() {
   return (
     <DocsLayout
-      title="Audio Platform API"
+      title="API Documentation"
       description="Speech-to-text service overview"
       sidebarSections={[
         {
@@ -301,6 +301,22 @@ export default function SttPage() {
           Convert spoken audio into accurate transcripts using flexible endpoints.  
           Use <code>/v1/audio/transcribe</code> for streaming SSE results, or <code>/v1/audio/transcribe/file</code> for complete JSON output.
         </p>
+        <p style={{margin: 0}}>
+            <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
+            <a 
+              href="https://playground.induslabs.io/register" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{
+                color: '#5468ff',
+                fontWeight: 600,
+                textDecoration: 'none',
+                borderBottom: '1px solid rgba(84, 104, 255, 0.3)',
+              }}
+            >
+              https://playground.induslabs.io/register
+            </a>
+          </p>
       </section>
 
       <EndpointSection

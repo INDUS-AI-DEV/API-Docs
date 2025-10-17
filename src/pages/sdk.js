@@ -167,7 +167,7 @@ asyncio.run(main())`,
 export default function SdkPage() {
   return (
     <DocsLayout
-      title="Python SDK Documentation"
+      title="API Documentation"
       description="Official Python SDK for IndusLabs Voice API"
       sidebarSections={[
         {
@@ -227,6 +227,22 @@ export default function SdkPage() {
           Official Python SDK for IndusLabs Voice API - providing seamless Text-to-Speech (TTS) 
           and Speech-to-Text (STT) capabilities with both synchronous and asynchronous support.
         </p>
+        <p style={{margin: 0}}>
+            <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
+            <a 
+              href="https://playground.induslabs.io/register" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{
+                color: '#5468ff',
+                fontWeight: 600,
+                textDecoration: 'none',
+                borderBottom: '1px solid rgba(84, 104, 255, 0.3)',
+              }}
+            >
+              https://playground.induslabs.io/register
+            </a>
+          </p>
       </section>
 
       <section id="sdk-installation" style={styles.sectionCard}>
