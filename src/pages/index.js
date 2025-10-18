@@ -1,45 +1,16 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import DocsLayout from '@site/src/components/DocsLayout/DocsLayout';
+import {getSidebarSections} from '@site/src/sidebarConfig';
 
 import styles from './index.module.css';
-
-const sidebarSections = [
-  {
-    title: 'Overview',
-    links: [
-      {label: 'Introduction', targetId: 'home-introduction'},
-      {label: 'Text-to-Speech', to: '/tts'},
-      {label: 'Speech-to-Text', to: '/stt'},
-      {label: 'Python SDK', to: '/sdk'},  // NEW: Add SDK link
-    ],
-  },
-  {
-    title: 'TTS Service',
-    links: [
-      {label: 'API Reference', to: '/tts'},
-    ],
-  },
-  {
-    title: 'STT Service',
-    links: [
-      {label: 'API Reference', to: '/stt'},
-    ],
-  },
-  {
-    title: 'SDK',  // NEW: Add SDK section
-    links: [
-      {label: 'Python SDK', to: '/sdk'},
-    ],
-  },
-];
 
 export default function HomePage() {
   return (
     <DocsLayout
       title="API Documentation"
       description="Speech services with REST and SDK interfaces"
-      sidebarSections={sidebarSections}
+      sidebarSections={getSidebarSections('home')}
     >
       <section id="home-introduction" className={styles.pageIntro}>
         <h1 className={styles.heroTitle}>API Documentation</h1>

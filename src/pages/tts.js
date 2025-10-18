@@ -1,10 +1,350 @@
 import React, {useState} from 'react';
 import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
+import {getSidebarSections} from '@site/src/sidebarConfig';
 
 import styles from './api.module.css';
 
 const TTS_BASE_URL = 'https://voice.induslabs.io';
+
+const ttsQuickIntegration = {
+  title: 'Quick Integration',
+  description: 'Reference snippets for generating speech instantly.',
+  defaultApi: 'tts-post-v1-audio-speech',
+  apis: [
+    {
+      id: 'tts-post-v1-audio-speech',
+      label: 'POST /v1/audio/speech',
+      defaultLanguage: 'python-rest',
+      languages: [
+        {
+          id: 'python-rest',
+          label: 'Python (REST API)',
+          language: 'python',
+          code: `import requests
+
+url = "${TTS_BASE_URL}/v1/audio/speech"
+payload = {
+    "text": "Hello from IndusLabs Voice API",
+    "voice": "Indus-hi-maya",
+    "output_format": "mp3",
+    "stream": False,
+    "model": "indus-tts-v1",
+    "api_key": "YOUR_API_KEY"
+}
+
+response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload, timeout=30)
+response.raise_for_status()
+
+with open("output.mp3", "wb") as f:
+    f.write(response.content)
+print("Audio saved to output.mp3")`,
+        },
+        {
+          id: 'python-sdk',
+          label: 'Python SDK (Basic Usage)',
+          language: 'python',
+          code: `from induslabs import Client
+
+client = Client(api_key="YOUR_API_KEY")
+
+speech = client.tts.speak(
+    text="Hello from IndusLabs Voice API",
+    voice="Indus-hi-maya",
+    output_format="mp3",
+    stream=False
+)
+
+speech.save("output.mp3")
+print("Audio saved to output.mp3")`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript',
+          language: 'javascript',
+          code: `import fetch from 'node-fetch';
+import fs from 'fs';
+
+const url = "${TTS_BASE_URL}/v1/audio/speech";
+const payload = {
+  text: "Hello from IndusLabs Voice API",
+  voice: "Indus-hi-maya",
+  output_format: "mp3",
+  stream: false,
+  model: "indus-tts-v1",
+  api_key: "YOUR_API_KEY",
+  normalize: true,
+  speed: 1,
+  pitch_shift: 0,
+  loudness_db: 0
+};
+
+const response = await fetch(url, {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json', accept: 'application/json'},
+  body: JSON.stringify(payload),
+});
+if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+
+const buffer = Buffer.from(await response.arrayBuffer());
+fs.writeFileSync('output.mp3', buffer);
+console.log('Audio saved to output.mp3');`,
+        },
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: `curl -X POST \\
+  "${TTS_BASE_URL}/v1/audio/speech" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+  "text": "Hello from IndusLabs Voice API",
+  "voice": "Indus-hi-maya",
+  "output_format": "mp3",
+  "stream": false,
+  "model": "indus-tts-v1",
+  "api_key": "YOUR_API_KEY",
+  "normalize": true,
+  "speed": 1,
+  "pitch_shift": 0,
+  "loudness_db": 0
+}' \\
+  -o output.mp3`,
+        },
+      ],
+    },
+    {
+      id: 'tts-post-v1-audio-speech-file',
+      label: 'POST /v1/audio/speech/file',
+      defaultLanguage: 'python-rest',
+      languages: [
+        {
+          id: 'python-rest',
+          label: 'Python (REST API)',
+          language: 'python',
+          code: `import requests
+
+url = "${TTS_BASE_URL}/v1/audio/speech/file"
+payload = {
+    "text": "Hello from IndusLabs Voice API",
+    "voice": "Indus-hi-maya",
+    "output_format": "wav",
+    "response_format": "base64",
+    "stream": False,
+    "model": "indus-tts-v1",
+    "api_key": "YOUR_API_KEY"
+}
+
+response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload, timeout=30)
+response.raise_for_status()
+
+audio = response.json()
+print(audio)`,
+        },
+        {
+          id: 'python-sdk',
+          label: 'Python SDK (Basic Usage)',
+          language: 'python',
+          code: `from induslabs import Client
+
+client = Client(api_key="YOUR_API_KEY")
+
+speech = client.tts.speak(
+    text="Hello from IndusLabs Voice API",
+    voice="Indus-hi-maya",
+    output_format="wav",
+    stream=False
+)
+
+speech.save("output.wav")
+print("Audio saved to output.wav")`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript',
+          language: 'javascript',
+          code: `import fetch from 'node-fetch';
+
+const url = "${TTS_BASE_URL}/v1/audio/speech/file";
+const payload = {
+  text: "Hello from IndusLabs Voice API",
+  voice: "Indus-hi-maya",
+  output_format: "wav",
+  response_format: "base64",
+  stream: false,
+  model: "indus-tts-v1",
+  api_key: "YOUR_API_KEY"
+};
+
+const response = await fetch(url, {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json', accept: 'application/json'},
+  body: JSON.stringify(payload),
+});
+if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+
+const metadata = await response.json();
+console.log(metadata);`,
+        },
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: `curl -X POST \\
+  "${TTS_BASE_URL}/v1/audio/speech/file" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+  "text": "Hello from IndusLabs Voice API",
+  "voice": "Indus-hi-maya",
+  "output_format": "wav",
+  "response_format": "base64",
+  "stream": false,
+  "model": "indus-tts-v1",
+  "api_key": "YOUR_API_KEY"
+}'`,
+        },
+      ],
+    },
+    {
+      id: 'tts-post-v1-audio-speech-preview',
+      label: 'POST /v1/audio/speech/preview',
+      defaultLanguage: 'python-rest',
+      languages: [
+        {
+          id: 'python-rest',
+          label: 'Python (REST API)',
+          language: 'python',
+          code: `import requests
+
+url = "${TTS_BASE_URL}/v1/audio/speech/preview"
+payload = {
+    "text": "Hello from IndusLabs Voice API",
+    "voice": "Indus-hi-maya",
+    "output_format": "wav",
+    "stream": True,
+    "model": "indus-tts-v1",
+    "api_key": "YOUR_API_KEY",
+    "normalize": True,
+    "speed": 1,
+    "pitch_shift": 0,
+    "loudness_db": 0
+}
+
+response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload, timeout=30)
+response.raise_for_status()
+
+preview = response.json()
+print(preview["analysis"]["estimated_duration_seconds"])`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript',
+          language: 'javascript',
+          code: `import fetch from 'node-fetch';
+
+const url = "${TTS_BASE_URL}/v1/audio/speech/preview";
+const payload = {
+  text: "Hello from IndusLabs Voice API",
+  voice: "Indus-hi-maya",
+  output_format: "wav",
+  stream: true,
+  model: "indus-tts-v1",
+  api_key: "YOUR_API_KEY",
+  normalize: true,
+  speed: 1,
+  pitch_shift: 0,
+  loudness_db: 0
+};
+
+const response = await fetch(url, {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json', accept: 'application/json'},
+  body: JSON.stringify(payload),
+});
+if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+
+const preview = await response.json();
+console.log('Estimated duration (s):', preview.analysis.estimated_duration_seconds);`,
+        },
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: `curl -X POST \\
+  "${TTS_BASE_URL}/v1/audio/speech/preview" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+  "text": "Hello from IndusLabs Voice API",
+  "voice": "Indus-hi-maya",
+  "output_format": "wav",
+  "stream": true,
+  "model": "indus-tts-v1",
+  "api_key": "YOUR_API_KEY",
+  "normalize": true,
+  "speed": 1,
+  "pitch_shift": 0,
+  "loudness_db": 0
+}'`,
+        },
+      ],
+    },
+    {
+      id: 'tts-get-v1-voice-get-voices',
+      label: 'GET /api/voice/get-voices',
+      defaultLanguage: 'python-rest',
+      languages: [
+        {
+          id: 'python-rest',
+          label: 'Python (REST API)',
+          language: 'python',
+          code: `import requests
+
+url = "https://api.indusai.app/api/voice/get-voices"
+response = requests.get(url, headers={"accept": "application/json"}, timeout=30)
+response.raise_for_status()
+
+voices = response.json()
+print("Languages:", ", ".join(voices["data"].keys()))`,
+        },
+        {
+          id: 'python-sdk',
+          label: 'Python SDK (Basic Usage)',
+          language: 'python',
+          code: `from induslabs import Client
+
+client = Client(api_key="YOUR_API_KEY")
+
+voices = client.voices.list()
+for voice in voices.voices:
+    print(f"{voice.voice_id}: {voice.name} ({voice.gender})")`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript',
+          language: 'javascript',
+          code: `import fetch from 'node-fetch';
+
+const response = await fetch('https://api.indusai.app/api/voice/get-voices', {
+  method: 'GET',
+  headers: {'accept': 'application/json'},
+});
+if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
+
+const voices = await response.json();
+console.log('Languages:', Object.keys(voices.data));`,
+        },
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: `curl -X GET \\
+  "https://api.indusai.app/api/voice/get-voices" \\
+  -H "accept: application/json"`,
+        },
+      ],
+    },
+  ],
+};
 
 const sharedPayload = `{
   "text": "Hello, this is a test request.",
@@ -366,232 +706,6 @@ function OutputCard({rows, headerLabels = outputHeaderLabels}) {
   );
 }
 
-function IntegrationExamples({ endpoint }) {
-  const [activeTab, setActiveTab] = useState("python");
-
-  const getFileExtension = (format) => {
-    if (format === "json") return "json";
-    return format || "wav";
-  };
-
-  const ext = getFileExtension(endpoint.outputFormat);
-
-  const tabStyles = {
-    integrationExamples: {
-      background: "#ffffff",
-      border: "1px solid rgba(16, 22, 64, 0.08)",
-      borderRadius: "18px",
-      padding: "1.8rem",
-      boxShadow: "0 22px 48px rgba(10, 14, 64, 0.06)",
-      marginTop: "1.5rem",
-    },
-    tabButtons: {
-      display: "flex",
-      gap: "0.5rem",
-      marginBottom: "1.25rem",
-      flexWrap: "wrap",
-    },
-    tabButton: {
-      border: "1px solid rgba(16, 22, 64, 0.12)",
-      borderRadius: "999px",
-      background: "rgba(84, 104, 255, 0.08)",
-      color: "#2730a6",
-      padding: "0.5rem 1.2rem",
-      fontSize: "0.85rem",
-      fontWeight: 600,
-      letterSpacing: "0.03em",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      outline: "none",
-    },
-    activeTabButton: {
-      background: "#5468ff",
-      color: "#ffffff",
-      borderColor: "#5468ff",
-    },
-  };
-
-  const examples = {
-    python: ``,
-    javascript: ``,
-    curl: ``
-  };
-
-  // For get-voices endpoint, use GET request
-  if (endpoint.path === "/api/voice/get-voices") {
-    examples.python = `import requests
-
-url = "https://api.indusai.app${endpoint.path}"
-headers = {"accept": "application/json"}
-response = requests.get(url, headers=headers)
-response.raise_for_status()
-
-voices_data = response.json()
-print("✅ Voices fetched successfully")
-print(f"Status: {voices_data['status_code']}")
-print(f"Message: {voices_data['message']}")
-`;
-
-    examples.javascript = `import fetch from "node-fetch";
-
-const response = await fetch("https://api.indusai.app${endpoint.path}", {
-  method: "GET",
-  headers: { "accept": "application/json" },
-});
-
-if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
-
-const voicesData = await response.json();
-console.log("✅ Voices fetched successfully");
-console.log(\`Status: \${voicesData.status_code}\`);
-console.log(\`Message: \${voicesData.message}\`);
-`;
-
-    examples.curl = `curl -X 'GET' \\
-  'https://api.indusai.app${endpoint.path}' \\
-  -H 'accept: application/json'`;
-  } else {
-    // For TTS endpoints, use POST with JSON body
-    const jsonPayload = {
-      text: "Hello, this is a test request.",
-      voice: "Indus-hi-maya",
-      output_format: "wav",
-      stream: true,
-      model: "indus-tts-v1",
-      api_key: "YOUR_API_KEY",
-      normalize: true,
-      speed: 1,
-      pitch_shift: 0,
-      loudness_db: 0
-    };
-
-    examples.python = `import requests
-import json
-
-url = "${TTS_BASE_URL}${endpoint.path}"
-headers = {
-    "accept": "application/json",
-    "Content-Type": "application/json"
-}
-payload = {
-    "text": "Hello, this is a test request.",
-    "voice": "Indus-hi-maya",
-    "output_format": "wav",
-    "stream": True,
-    "model": "indus-tts-v1",
-    "api_key": "YOUR_API_KEY",
-    "normalize": True,
-    "speed": 1,
-    "pitch_shift": 0,
-    "loudness_db": 0
-}
-
-response = requests.post(url, headers=headers, json=payload)
-response.raise_for_status()
-
-${endpoint.outputFormat === 'json' ? `# For preview endpoint, parse JSON response
-result = response.json()
-print("✅ Preview generated successfully")
-print(f"Total characters: {result['analysis']['total_characters']}")
-print(f"Estimated duration: {result['analysis']['estimated_duration_seconds']}s")
-print(f"Estimated credits: {result['analysis']['estimated_credits']}")` : `# Save audio file
-with open("output.${ext}", "wb") as f:
-    f.write(response.content)
-print("✅ Audio saved as output.${ext}")`}
-`;
-
-    examples.javascript = `import fetch from "node-fetch";
-import fs from "fs";
-
-const url = "${TTS_BASE_URL}${endpoint.path}";
-const payload = {
-  text: "Hello, this is a test request.",
-  voice: "Indus-hi-maya",
-  output_format: "wav",
-  stream: true,
-  model: "indus-tts-v1",
-  api_key: "YOUR_API_KEY",
-  normalize: true,
-  speed: 1,
-  pitch_shift: 0,
-  loudness_db: 0
-};
-
-const response = await fetch(url, {
-  method: "POST",
-  headers: {
-    "accept": "application/json",
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(payload)
-});
-
-if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
-
-${endpoint.outputFormat === 'json' ? `// For preview endpoint, parse JSON response
-const result = await response.json();
-console.log("✅ Preview generated successfully");
-console.log(\`Total characters: \${result.analysis.total_characters}\`);
-console.log(\`Estimated duration: \${result.analysis.estimated_duration_seconds}s\`);
-console.log(\`Estimated credits: \${result.analysis.estimated_credits}\`);` : `// Save audio file
-const buffer = Buffer.from(await response.arrayBuffer());
-fs.writeFileSync("output.${ext}", buffer);
-console.log("✅ Audio saved as output.${ext}");`}
-`;
-
-    examples.curl = `curl -X 'POST' \\
-  '${TTS_BASE_URL}${endpoint.path}' \\
-  -H 'accept: application/json' \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-  "text": "Hello, this is a test request.",
-  "voice": "Indus-hi-maya",
-  "output_format": "wav",
-  "stream": true,
-  "model": "indus-tts-v1",
-  "api_key": "YOUR_API_KEY",
-  "normalize": true,
-  "speed": 1,
-  "pitch_shift": 0,
-  "loudness_db": 0
-}'${endpoint.outputFormat === 'wav' ? ` \\
-  -o "output.${ext}"` : ''}`;
-  }
-
-  return (
-    <div style={tabStyles.integrationExamples}>
-      <h4 style={{ margin: "0 0 1.25rem 0" }}>Code Examples</h4>
-      <div style={tabStyles.tabButtons}>
-        {["python", "javascript", "curl"].map((lang) => (
-          <button
-            key={lang}
-            style={{
-              ...tabStyles.tabButton,
-              ...(activeTab === lang ? tabStyles.activeTabButton : {}),
-            }}
-            onClick={() => setActiveTab(lang)}
-            onMouseEnter={(e) => {
-              if (activeTab !== lang)
-                e.target.style.background = "rgba(84, 104, 255, 0.15)";
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== lang)
-                e.target.style.background = "rgba(84, 104, 255, 0.08)";
-            }}
-          >
-            {lang === "curl"
-              ? "cURL"
-              : lang.charAt(0).toUpperCase() + lang.slice(1)}
-          </button>
-        ))}
-      </div>
-      <CopyableCode language={activeTab === "curl" ? "bash" : activeTab}>
-        {examples[activeTab]}
-      </CopyableCode>
-    </div>
-  );
-}
-
 function EndpointSection({endpoint}) {
   const [copied, setCopied] = useState(false);
   const copyValue = `${TTS_BASE_URL}${endpoint.path}`;
@@ -645,7 +759,6 @@ function EndpointSection({endpoint}) {
           ))}
         </div>
       )}
-      <IntegrationExamples endpoint={endpoint} />
     </section>
   );
 }
@@ -655,36 +768,8 @@ export default function TtsPage() {
     <DocsLayout
       title="API Documentation"
       description="Text-to-speech service overview"
-      sidebarSections={[
-        {
-          title: 'Overview',
-          links: [
-            {label: 'Introduction', to: '/'},
-            {label: 'Text-to-Speech', to: '/tts'},
-            {label: 'Speech-to-Text', to: '/stt'},
-            {label: 'Python SDK', to: '/sdk'},
-          ],
-        },
-        {
-          title: 'TTS Service',
-          links: [
-            {label: 'Introduction', targetId: 'tts-introduction'},
-            {label: 'Shared Payload', targetId: 'tts-shared-payload'},
-            {label: 'POST /v1/audio/speech', targetId: 'tts-post-v1-audio-speech', method: 'POST'},
-            {label: 'POST /v1/audio/speech/file', targetId: 'tts-post-v1-audio-speech-file', method: 'POST'},
-            {label: 'POST /v1/audio/speech/preview', targetId: 'tts-post-v1-audio-speech-preview', method: 'POST'},
-            {label: 'GET /api/voice/get-voices', targetId: 'tts-get-v1-voice-get-voices', method: 'GET'},
-          ],
-        },
-        {
-          title: 'STT Service',
-          links: [
-            {label: 'Introduction', to: '/stt'},
-            {label: 'POST /v1/audio/transcribe',  to: '/stt'},
-            {label: 'POST /v1/audio/transcribe/file',  to: '/stt'},
-          ],
-        },
-      ]}
+      sidebarSections={getSidebarSections('tts')}
+      integration={ttsQuickIntegration}
     >
       <section id="tts-introduction" className={styles.pageIntro}>
         <h1>Text-to-Speech Service</h1>

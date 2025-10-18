@@ -292,22 +292,16 @@
   border-radius: 16px;
   background: #ffffff;
   padding: 0.9rem 1rem 0.75rem;
-  box-shadow: 0 18px 32px rgba(10, 14, 64, 0.08);
+  box-shadow: 0 18px 38px rgba(15, 25, 90, 0.12);
 }
 
-.sidebarGroup summary {
-  list-style: none;
-  cursor: pointer;
-  font-size: 0.75rem;
+.sidebarGroupTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.74rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 700;
   color: #2730a6;
-  margin-bottom: 0.75rem;
-}
-
-.sidebarGroup summary::-webkit-details-marker {
-  display: none;
 }
 
 .sidebarList {
@@ -356,7 +350,7 @@
   background: linear-gradient(120deg, rgba(84, 104, 255, 0.15), rgba(84, 104, 255, 0.08));
   color: #2730a6;
   font-weight: 600;
-  box-shadow: 0 12px 26px rgba(84, 104, 255, 0.18);
+  box-shadow: 0 8px 20px rgba(84, 104, 255, 0.18);
 }
 
 .sidebarMethod {

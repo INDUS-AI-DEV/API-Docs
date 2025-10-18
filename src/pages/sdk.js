@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DocsLayout from '@site/src/components/DocsLayout/DocsLayout';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
+import {getSidebarSections} from '@site/src/sidebarConfig';
 
 const styles = {
   pageIntro: {
@@ -169,51 +170,7 @@ export default function SdkPage() {
     <DocsLayout
       title="API Documentation"
       description="Official Python SDK for IndusLabs Voice API"
-      sidebarSections={[
-        {
-          title: 'SDK Documentation',
-          links: [
-            { label: 'Introduction', targetId: 'sdk-introduction' },
-            { label: 'Installation', targetId: 'sdk-installation' },
-            { label: 'Quick Start', targetId: 'sdk-quick-start' },
-            { label: 'Features', targetId: 'sdk-features' },
-          ],
-        },
-        {
-          title: 'Text-to-Speech',
-          links: [
-            { label: 'Basic Usage', targetId: 'tts-basic' },
-            { label: 'Streaming Audio', targetId: 'tts-streaming' },
-            { label: 'File Objects', targetId: 'tts-file-objects' },
-            { label: 'Audio Formats', targetId: 'tts-formats' },
-            // { label: 'Advanced Options', targetId: 'tts-advanced' },
-          ],
-        },
-        {
-          title: 'Speech-to-Text',
-          links: [
-            { label: 'Basic Usage', targetId: 'stt-basic' },
-            { label: 'File Objects', targetId: 'stt-file-objects' },
-            // { label: 'Advanced Options', targetId: 'stt-advanced' },
-          ],
-        },
-        // {
-        //   title: 'Advanced Usage',
-        //   links: [
-        //     { label: 'Async API', targetId: 'async-api' },
-        //     { label: 'Concurrent Requests', targetId: 'concurrent-requests' },
-        //     { label: 'Voice Management', targetId: 'voice-management' },
-        //     { label: 'Error Handling', targetId: 'error-handling' },
-        //   ],
-        // },
-        {
-          title: 'API Reference',
-          links: [
-            { label: 'TTS API', to: '/tts' },
-            { label: 'STT API', to: '/stt' },
-          ],
-        },
-      ]}
+      sidebarSections={getSidebarSections('sdk')}
       integration={{
         title: 'Quick Integration',
         description: 'Get started with the Python SDK in seconds.',

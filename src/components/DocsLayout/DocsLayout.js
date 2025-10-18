@@ -44,8 +44,8 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
   }
 
   return (
-    <details open className={styles.sidebarGroup}>
-      <summary>{title}</summary>
+    <div className={styles.sidebarGroup}>
+      <p className={styles.sidebarGroupTitle}>{title}</p>
       <ul className={styles.sidebarList}>
         {links.map(link => {
           const key = `${title}-${link.label}`;
@@ -65,6 +65,7 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
                 <Link
                   className={clsx(styles.sidebarLink, isActive && styles.sidebarLinkActive)}
                   to={link.to}
+                  data-sidebar-item={link.targetId ?? key}
                 >
                   {content}
                 </Link>
@@ -78,6 +79,8 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
                 type="button"
                 className={clsx(styles.sidebarLink, styles.sidebarButton, isActive && styles.sidebarLinkActive)}
                 onClick={() => scrollToTarget(link.targetId, onNavigate)}
+                data-sidebar-item={link.targetId}
+                data-sidebar-active={isActive ? 'true' : undefined}
               >
                 {content}
               </button>
@@ -85,53 +88,162 @@ function SidebarGroup({title, links, activeId, onNavigate}) {
           );
         })}
       </ul>
-    </details>
+    </div>
   );
 }
 
 function IntegrationPanel({integration}) {
-  const {title = 'Quick Integration', description, languages = [], defaultLanguage} = integration;
-  const initial = useMemo(() => {
-    if (defaultLanguage) {
-      return languages.find(lang => lang.id === defaultLanguage) ?? languages[0];
-    }
-    return languages[0];
-  }, [languages, defaultLanguage]);
+  const {
+    title = 'Quick Integration',
+    description,
+    languages: legacyLanguages = [],
+    defaultLanguage,
+    apis = [],
+    defaultApi,
+  } = integration;
 
-  const [selected, setSelected] = useState(initial);
+  const hasApis = apis.length > 0;
+
+  const initialApi = useMemo(() => {
+    if (!hasApis) {
+      return null;
+    }
+    if (defaultApi) {
+      const found = apis.find(api => api.id === defaultApi);
+      if (found) {
+        return found;
+      }
+    }
+    return apis[0] ?? null;
+  }, [apis, defaultApi, hasApis]);
+
+  const [selectedApiId, setSelectedApiId] = useState(() => initialApi?.id ?? null);
 
   useEffect(() => {
-    setSelected(initial);
-  }, [initial]);
+    if (!hasApis) {
+      return;
+    }
+    setSelectedApiId(prev => {
+      if (prev && apis.some(api => api.id === prev)) {
+        return prev;
+      }
+      return initialApi?.id ?? null;
+    });
+  }, [apis, initialApi, hasApis]);
 
-  if (!selected) {
+  const selectedApi = useMemo(() => {
+    if (!hasApis) {
+      return null;
+    }
+    return apis.find(api => api.id === selectedApiId) ?? initialApi ?? apis[0] ?? null;
+  }, [apis, selectedApiId, initialApi, hasApis]);
+
+  const resolveInitialLanguage = (languageOptions, preferred) => {
+    if (!languageOptions?.length) {
+      return null;
+    }
+    if (preferred) {
+      const found = languageOptions.find(option => option.id === preferred);
+      if (found) {
+        return found;
+      }
+    }
+    if (defaultLanguage) {
+      const fallback = languageOptions.find(option => option.id === defaultLanguage);
+      if (fallback) {
+        return fallback;
+      }
+    }
+    return languageOptions[0] ?? null;
+  };
+
+  const activeLanguages = hasApis ? selectedApi?.languages ?? [] : legacyLanguages;
+
+  const [selectedLanguageId, setSelectedLanguageId] = useState(() => {
+    if (hasApis) {
+      return resolveInitialLanguage(initialApi?.languages ?? [], initialApi?.defaultLanguage)?.id ?? null;
+    }
+    return resolveInitialLanguage(legacyLanguages, defaultLanguage)?.id ?? null;
+  });
+
+  useEffect(() => {
+    if (!activeLanguages.length) {
+      setSelectedLanguageId(null);
+      return;
+    }
+    setSelectedLanguageId(prev => {
+      if (prev && activeLanguages.some(lang => lang.id === prev)) {
+        return prev;
+      }
+      const next = hasApis
+        ? resolveInitialLanguage(activeLanguages, selectedApi?.defaultLanguage)
+        : resolveInitialLanguage(activeLanguages, defaultLanguage);
+      return next?.id ?? null;
+    });
+  }, [activeLanguages, hasApis, selectedApi, defaultLanguage]);
+
+  const selectedLanguage = activeLanguages.find(lang => lang.id === selectedLanguageId) ?? null;
+
+  if (hasApis && !selectedApi) {
     return null;
   }
+
+  if (!hasApis && !selectedLanguage) {
+    return null;
+  }
+
+  const apiSelectId = 'integration-api';
+  const languageSelectId = 'integration-language';
 
   return (
     <aside className={styles.integration}>
       <div className={styles.integrationInner}>
         <h2>{title}</h2>
         {description && <p className={styles.integrationDescription}>{description}</p>}
-        <label className={styles.integrationLabel} htmlFor="integration-language">
-          Language
-        </label>
-        <select
-          id="integration-language"
-          className={styles.integrationSelect}
-          value={selected.id}
-          onChange={event => {
-            const next = languages.find(lang => lang.id === event.target.value);
-            setSelected(next ?? selected);
-          }}
-        >
-          {languages.map(lang => (
-            <option key={lang.id} value={lang.id}>
-              {lang.label}
-            </option>
-          ))}
-        </select>
-        <CopyableCode language={selected.language}>{selected.code}</CopyableCode>
+
+        {hasApis && (
+          <>
+            <label className={styles.integrationLabel} htmlFor={apiSelectId}>
+              API Endpoint
+            </label>
+            <select
+              id={apiSelectId}
+              className={styles.integrationSelect}
+              value={selectedApi?.id ?? ''}
+              onChange={event => setSelectedApiId(event.target.value)}
+            >
+              {apis.map(api => (
+                <option key={api.id} value={api.id}>
+                  {api.label}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+
+        {activeLanguages.length > 0 && (
+          <>
+            <label className={styles.integrationLabel} htmlFor={languageSelectId}>
+              Language
+            </label>
+            <select
+              id={languageSelectId}
+              className={styles.integrationSelect}
+              value={selectedLanguage?.id ?? ''}
+              onChange={event => setSelectedLanguageId(event.target.value)}
+            >
+              {activeLanguages.map(lang => (
+                <option key={lang.id} value={lang.id}>
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+
+        {selectedLanguage && (
+          <CopyableCode language={selectedLanguage.language}>{selectedLanguage.code}</CopyableCode>
+        )}
       </div>
     </aside>
   );
@@ -145,13 +257,16 @@ export default function DocsLayout({
   integration,
 }) {
   const hasSidebar = sidebarSections.some(section => section?.links?.length);
-  const hasIntegration = Boolean(integration?.languages?.length);
+  const hasIntegration = Boolean(
+    (integration?.languages?.length ?? 0) > 0 || (integration?.apis?.length ?? 0) > 0,
+  );
   const [isMobile, setIsMobile] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
   const mobileToggleRef = useRef(null);
   const [isHeaderElevated, setIsHeaderElevated] = useState(false);
   const headerRef = useRef(null);
+  const sidebarRef = useRef(null);
 
   const trackedIds = useMemo(
     () =>
@@ -218,6 +333,33 @@ export default function DocsLayout({
   useEffect(() => {
     activeRef.current = activeId;
   }, [activeId]);
+
+  useEffect(() => {
+    if (!hasSidebar || isMobile) {
+      return undefined;
+    }
+    const container = sidebarRef.current;
+    if (!container) {
+      return undefined;
+    }
+    const activeItem = container.querySelector('[data-sidebar-active="true"]');
+    if (!activeItem) {
+      return undefined;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const itemRect = activeItem.getBoundingClientRect();
+    const currentScroll = container.scrollTop ?? 0;
+    const offset = itemRect.top - containerRect.top;
+    const targetScroll = Math.max(currentScroll + offset - 12, 0);
+
+    container.scrollTo({
+      top: targetScroll,
+      behavior: 'smooth',
+    });
+
+    return undefined;
+  }, [activeId, hasSidebar, isMobile]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -440,7 +582,7 @@ export default function DocsLayout({
           )}
         >
           {isSidebarVisible && (
-            <aside className={styles.sidebar}>
+            <aside className={styles.sidebar} ref={sidebarRef}>
               {sidebarSections.map(section => (
                 <SidebarGroup
                   key={section.title}
