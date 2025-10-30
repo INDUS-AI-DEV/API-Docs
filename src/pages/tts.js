@@ -456,7 +456,7 @@ const voiceListExample = `{
       },
       {
         "name": "Urvashi",
-        "voice_id": "Indus-hi-maya",
+        "voice_id": "Indus-hi-Urvashi",
         "gender": "female"
       },
       {
@@ -480,11 +480,6 @@ const voiceListExample = `{
         "name": "Urvashi",
         "voice_id": "Indus-en-Urvashi",
         "gender": "female"
-      },
-      {
-        "name": "pk",
-        "voice_id": "Indus-hi-teju",
-        "gender": "male"
       }
     ],
     "bengali": [
