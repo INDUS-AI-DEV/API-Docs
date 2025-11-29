@@ -5,6 +5,7 @@ const sections = [
       {label: 'Introduction', page: 'home', id: 'home-introduction'},
       {label: 'Text-to-Speech', page: 'tts', id: 'tts-introduction'},
       {label: 'Speech-to-Text', page: 'stt', id: 'stt-introduction'},
+      {label: 'Voice Agents', page: 'voice-agents', id: 'voice-agents-introduction'},
       {label: 'SDK Documentation', page: 'sdk', id: 'sdk-introduction'},
     ],
   },
@@ -28,6 +29,16 @@ const sections = [
       {label: 'GET /v1/audio/transcribe/config', page: 'stt', id: 'stt-get-v1-audio-transcribe-config', method: 'GET'},
     ],
   },
+  // Voice Agent services
+  {
+    title: 'Voice Agent Services',
+    items: [
+      {label: 'Introduction', page: 'voice-agents', id: 'voice-agents-introduction'},
+      {label: 'POST /api/agents', page: 'voice-agents', id: 'va-post-api-agents', method: 'POST'},
+      {label: 'POST /api/livekit', page: 'voice-agents', id: 'va-post-api-livekit', method: 'POST'},
+    ],
+  },
+
   {
     title: 'SDK Documentation',
     items: [

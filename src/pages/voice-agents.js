@@ -1,0 +1,297 @@
+import React from 'react';
+import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
+import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
+import {getSidebarSections} from '@site/src/sidebarConfig';
+
+import styles from './api.module.css';
+
+const agentsCurl = `curl -N -X POST \\
+  "https://developer.induslabs.io/api/agents" \\
+  -H "accept: application/json" \\
+  -H "Content-Type: application/json" \\
+  -d '{"api_key":"YOUR_API_KEY"}'`;
+
+const livekitCurl = `curl -N -X POST \\
+  "https://developer.induslabs.io/api/livekit" \\
+  -H "accept: application/json" \\
+  -H "Content-Type: application/json" \\
+  -d '{"api_key":"YOUR_API_KEY","agent_id":"AGENT_ID"}'`;
+
+const voiceAgentsIntegration = {
+  title: 'Quick Integration',
+  description: 'Reference snippets for discovering agents and connecting to a LiveKit session.',
+  defaultApi: 'get-agents',
+  apis: [
+    {
+      id: 'get-agents',
+      label: 'POST /api/agents',
+      defaultLanguage: 'curl',
+      languages: [
+        {
+          id: 'python-rest',
+          label: 'Python (REST API)',
+          language: 'python',
+            code: `import requests
+
+          url = "https://developer.induslabs.io/api/agents"
+          payload = {"api_key": "YOUR_API_KEY"}
+
+          resp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)
+          resp.raise_for_status()
+          print(resp.json())`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript (fetch)',
+          language: 'javascript',
+          code: `const url = "https://developer.induslabs.io/api/agents";
+const payload = { api_key: "YOUR_API_KEY" };
+
+const resp = await fetch(url, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', accept: 'application/json' },
+  body: JSON.stringify(payload),
+});
+if (!resp.ok) throw new Error(\`Request failed: \${resp.status}\`);
+console.log(await resp.json());`,
+        },
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: agentsCurl,
+        },
+      ],
+    },
+    {
+      id: 'post-livekit',
+      label: 'POST /api/livekit',
+      defaultLanguage: 'curl',
+      languages: [
+        {
+          id: 'python-rest',
+          label: 'Python (REST API)',
+          language: 'python',
+          code: `import requests
+
+      url = "https://developer.induslabs.io/api/livekit"
+      payload = {"api_key": "YOUR_API_KEY", "agent_id": "AGT_E882B100"}
+
+      resp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)
+      resp.raise_for_status()
+      print(resp.json())`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript (fetch)',
+          language: 'javascript',
+          code: `const url = "https://developer.induslabs.io/api/livekit";
+const payload = { api_key: "YOUR_API_KEY", agent_id: "AGT_E882B100" };
+
+const resp = await fetch(url, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', accept: 'application/json' },
+  body: JSON.stringify(payload),
+});
+if (!resp.ok) throw new Error(\`Request failed: \${resp.status}\`);
+console.log(await resp.json());`,
+        },
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: livekitCurl,
+        },
+      ],
+    },
+  ],
+};
+
+export default function VoiceAgentsPage() {
+  const endpoints = [
+    {
+      id: 'va-post-api-agents',
+      method: 'POST',
+      path: '/api/agents',
+      title: 'List Available Agents',
+      description: 'Returns a list of configured voice agents available in the developer environment.',
+      notes: ['Discover configured agents for your organization or developer environment.'],
+      inputs: [
+        {name: 'api_key', type: 'string', defaultValue: 'required', description: 'API key used for authentication.'},
+      ],
+      outputs: [
+        {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'List of agents and metadata.'},
+        {name: '401 Unauthorized', type: 'application/json', defaultValue: '-', description: 'Missing or invalid credentials.'},
+      ],
+      examples: [
+        {label: 'cURL', language: 'bash', code: agentsCurl},
+        {label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/agents"\npayload = {"api_key": "YOUR_API_KEY"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())`},
+      ],
+    },
+    {
+      id: 'va-post-api-livekit',
+      method: 'POST',
+      path: '/api/livekit',
+      title: 'Start / Connect LiveKit Session',
+      description: 'Request LiveKit session details for a given agent so clients can join the voice session.',
+      notes: ['Returns connection details (token, room) required to join LiveKit.'],
+      inputs: [
+        {name: 'api_key', type: 'string', defaultValue: 'required', description: 'API key used for authentication.'},
+        {name: 'agent_id', type: 'string', defaultValue: 'required', description: 'ID of the agent to connect to.'},
+      ],
+      outputs: [
+        {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'LiveKit connection details and metadata.'},
+        {name: '401 Unauthorized', type: 'application/json', defaultValue: '-', description: 'Missing or invalid credentials.'},
+      ],
+      examples: [
+        {label: 'cURL', language: 'bash', code: livekitCurl},
+        {label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/livekit"\npayload = {"api_key": "YOUR_API_KEY", "agent_id": "AGT_E882B100"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())`} ,
+      ],
+    },
+  ];
+
+  function TableCard({title, rows, headerLabels = ['Name', 'Type', 'Default', 'Description']}) {
+    if (!rows || rows.length === 0) return null;
+    return (
+      <div className={styles.tableCard}>
+        <h4>{title}</h4>
+        <div className={styles.tableScroll}>
+          <table>
+            <thead>
+              <tr>{headerLabels.map(label => <th key={label}>{label}</th>)}</tr>
+            </thead>
+            <tbody>
+              {rows.map(row => {
+                const normalizedDefault = typeof row.defaultValue === 'string' ? row.defaultValue.toLowerCase() : row.defaultValue;
+                const isRequired = normalizedDefault === 'required';
+                return (
+                  <tr key={row.name}>
+                    <td data-label="Name"><code>{row.name}</code>{isRequired && <span className={styles.requiredBadgeMobile}>*</span>}</td>
+                    <td data-label="Type">{row.type}</td>
+                    <td data-label="Default">{isRequired ? 'required' : row.defaultValue}</td>
+                    <td data-label="Description">{row.description}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  function OutputCard({rows}) {
+    if (!rows) return null;
+    const headerLabels = ['Status', 'Type', 'Description'];
+    return (
+      <div className={styles.tableCard}>
+        <h4>Outputs</h4>
+        <div className={styles.tableScroll}>
+          <table>
+            <thead>
+              <tr>{headerLabels.map(label => <th key={label}>{label}</th>)}</tr>
+            </thead>
+            <tbody>
+              {rows.map(row => (
+                <tr key={row.name}>
+                  <td data-label={headerLabels[0]}><code>{row.name}</code></td>
+                  <td data-label={headerLabels[1]}>{row.type}</td>
+                  <td data-label={headerLabels[2]}>{row.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  function EndpointSection({endpoint}) {
+    const [copied, setCopied] = React.useState(false);
+    const copyValue = `https://developer.induslabs.io${endpoint.path}`;
+    const handleCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(copyValue);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (e) {
+        setCopied(false);
+      }
+    };
+
+    return (
+      <section id={endpoint.id} className={styles.endpointSection}>
+        <div className={styles.endpointHeader}>
+          <MethodBadge method={endpoint.method} />
+          <code className={styles.endpointPath}>{endpoint.path}</code>
+          <button type="button" className={styles.copyButton} onClick={handleCopy}>{copied ? 'Copied!' : 'Copy API'}</button>
+        </div>
+        <h3 className={styles.anchorTitle}>{endpoint.title}</h3>
+        <p>{endpoint.description}</p>
+        {endpoint.notes?.length > 0 && (
+          <div className={styles.callout}><strong>Functionality</strong><ul>{endpoint.notes.map(n => <li key={n}>{n}</li>)}</ul></div>
+        )}
+        <div className={styles.ioGrid}>
+          <TableCard title="Inputs" rows={endpoint.inputs} />
+          <OutputCard rows={endpoint.outputs} />
+        </div>
+        {endpoint.examples?.length > 0 && (
+          <div className={styles.responseExamples}>
+            {endpoint.examples.map(example => (
+              <div key={example.label} className={styles.responseExampleCard}>
+                <h4>{example.label}</h4>
+                <CopyableCode language={example.language}>{example.code}</CopyableCode>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    );
+  }
+
+  return (
+    <DocsLayout
+      title="Voice Agents"
+      description="Voice agents: agent discovery and LiveKit connection endpoints"
+      sidebarSections={getSidebarSections('voice-agents')}
+      integration={voiceAgentsIntegration}
+    >
+      <section id="voice-agents-introduction" className={styles.pageIntro}>
+        <h1>Voice Agents</h1>
+        <p>
+          Build interactive voice experiences by combining Speech-to-Text, NLU, and Text-to-Speech. The endpoints below
+          let you discover configured agents and obtain LiveKit session details to connect to an agent.
+        </p>
+
+        <div className={styles.apiKeyNotice} style={{
+          background: 'rgba(84, 104, 255, 0.08)',
+          border: '1px solid rgba(84, 104, 255, 0.2)',
+          borderRadius: '16px',
+          padding: '1.2rem 1.5rem',
+          marginTop: '1rem',
+        }}>
+          <p style={{margin: 0}}>
+            <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
+            <a
+              href="https://playground.induslabs.io/register"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: '#5468ff',
+                fontWeight: 600,
+                textDecoration: 'none',
+                borderBottom: '1px solid rgba(84, 104, 255, 0.3)',
+              }}
+            >
+              https://playground.induslabs.io/register
+            </a>
+          </p>
+        </div>
+      </section>
+
+      {endpoints.map(endpoint => (
+        <EndpointSection key={endpoint.id} endpoint={endpoint} />
+      ))}
+    </DocsLayout>
+  );
+}
