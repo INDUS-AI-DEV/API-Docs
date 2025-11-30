@@ -25,6 +25,9 @@ export default function HomePage() {
           <Link to="/stt" className={styles.heroButton}>
             Explore STT Service
           </Link>
+          <Link to="/voice-agents" className={styles.heroButton}>
+            Explore Voice Agents
+          </Link>
           {/* NEW: Add SDK button */}
           <Link to="/sdk" className={styles.heroButton}>
             Python SDK
@@ -51,6 +54,17 @@ export default function HomePage() {
           </p>
           <Link to="/stt" className={styles.serviceLink}>
             View STT API →
+          </Link>
+        </div>
+
+        <div className={styles.serviceCard}>
+          <h2 className={styles.serviceTitle}>Voice Agents</h2>
+          <p className={styles.serviceDescription}>
+            Discover and connect to configured voice agents. Obtain agent listings and LiveKit session details to
+            start interactive voice sessions that combine ASR, NLU, and TTS.
+          </p>
+          <Link to="/voice-agents" className={styles.serviceLink}>
+            View Voice Agents →
           </Link>
         </div>
 

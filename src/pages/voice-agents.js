@@ -288,7 +288,16 @@ export default function VoiceAgentsPage() {
           </p>
         </div>
       </section>
-
+      
+      <div style={{marginTop: '0.75rem'}}>
+        <div className={styles.apiKeyImage}>
+          <img src="/img/api-key-location.png" alt="Where to get your API key" style={{maxWidth: '420px', width: '100%', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)'}} />
+          <p style={{fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0}}>
+            Screenshot: where to find your API key. Create one at{' '}
+            <a href="https://playground.induslabs.io/register" target="_blank" rel="noopener noreferrer">playground.induslabs.io/register</a>
+          </p>
+        </div>
+      </div>
       {endpoints.map(endpoint => (
         <EndpointSection key={endpoint.id} endpoint={endpoint} />
       ))}

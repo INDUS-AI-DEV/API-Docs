@@ -9,6 +9,10 @@ This page describes the Voice Agent endpoints and example usage for building int
 
 **Need an API Key?** If you don't have an API key yet, you can create one here: https://playground.induslabs.io/register
 
+![Where to get your API key](/img/api-key-location.png)
+
+_*Screenshot: where to find your API key. Create one at [playground.induslabs.io/register](https://playground.induslabs.io/register)._* 
+
 ## Overview
 
 - Purpose: Create conversational voice agents for IVR, assistants, and voice apps.

@@ -8,6 +8,10 @@ sidebar_label: Audio & Speech
 
 This page documents the available audio-focused REST endpoints, including text-to-speech (TTS) synthesis and speech-to-text (STT) transcription. All endpoints accept and return JSON unless otherwise noted.
 
+![Where to get your API key](/img/api-key-location.png)
+
+_Screenshot: where to find your API key. Create one at [playground.induslabs.io/register](https://playground.induslabs.io/register)._ 
+
 ## Base URLs
 
 - TTS endpoints: Append the listed paths to your deployment host, for example `https://<host>/v1/audio/speech`.
