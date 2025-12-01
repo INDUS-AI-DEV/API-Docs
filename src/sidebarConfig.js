@@ -36,6 +36,7 @@ const sections = [
       {label: 'Introduction', page: 'voice-agents', id: 'voice-agents-introduction'},
       {label: 'POST /api/agents', page: 'voice-agents', id: 'va-post-api-agents', method: 'POST'},
       {label: 'POST /api/livekit', page: 'voice-agents', id: 'va-post-api-livekit', method: 'POST'},
+      {label: 'React + TypeScript Integration', page: 'voice-agents', id: 'voice-agents-react-typescript'},
     ],
   },
 

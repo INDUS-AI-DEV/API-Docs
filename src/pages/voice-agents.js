@@ -17,6 +17,102 @@ const livekitCurl = `curl -N -X POST \\
   -H "Content-Type: application/json" \\
   -d '{"api_key":"YOUR_API_KEY","agent_id":"AGENT_ID"}'`;
 
+const reactTsAgents = `type Agent = { agent_id: string; name?: string };
+
+const resp = await fetch("https://developer.induslabs.io/api/agents", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", accept: "application/json" },
+  body: JSON.stringify({ api_key: process.env.NEXT_PUBLIC_INDUS_API_KEY }),
+});
+if (!resp.ok) throw new Error("Failed to load agents");
+const agents: Agent[] = await resp.json();`;
+
+const reactTsLivekit = `import { useEffect, useMemo, useState } from "react";
+import { Room, RoomEvent } from "livekit-client";
+
+const API_BASE = "https://developer.induslabs.io/api";
+const API_KEY = "YOUR_API_KEY"; // Prefer an env var like process.env.NEXT_PUBLIC_INDUS_API_KEY
+
+type Agent = { agent_id: string; name?: string };
+type LivekitSession = { url: string; token: string };
+
+async function fetchAgents(): Promise<Agent[]> {
+  const res = await fetch(\`\${API_BASE}/agents\`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ api_key: API_KEY })
+  });
+  if (!res.ok) throw new Error("Failed to load agents");
+  return res.json();
+}
+
+async function startLivekit(agentId: string): Promise<LivekitSession> {
+  const res = await fetch(\`\${API_BASE}/livekit\`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ api_key: API_KEY, agent_id: agentId })
+  });
+  if (!res.ok) throw new Error("Failed to start LiveKit");
+  return res.json(); // expects { url, token }
+}
+
+export function VoiceAgentLivekit() {
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [room, setRoom] = useState<Room | null>(null);
+  const [status, setStatus] = useState("idle");
+
+  useEffect(() => {
+    fetchAgents().then(setAgents).catch(console.error);
+  }, []);
+
+  const connect = useMemo(
+    () => async (agentId: string) => {
+      setStatus("connecting");
+      const { url, token } = await startLivekit(agentId);
+      const lkRoom = new Room();
+      lkRoom.on(RoomEvent.Connected, () => setStatus("connected"));
+      lkRoom.on(RoomEvent.Disconnected, () => setStatus("disconnected"));
+      await lkRoom.connect(url, token);
+      setRoom(lkRoom);
+    },
+    []
+  );
+
+  useEffect(() => {
+    return () => room?.disconnect();
+  }, [room]);
+
+  if (!agents.length) return <p>Loading agents...</p>;
+
+  return (
+    <div>
+      <p>Status: {status}</p>
+      {agents.map((agent) => (
+        <button key={agent.agent_id} onClick={() => connect(agent.agent_id)}>
+          Join {agent.name || agent.agent_id}
+        </button>
+      ))}
+    </div>
+  );
+}`;
+
+const reactTsLivekitQuick = `import { Room } from "livekit-client";
+
+const resp = await fetch("https://developer.induslabs.io/api/livekit", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", accept: "application/json" },
+  body: JSON.stringify({
+    api_key: process.env.NEXT_PUBLIC_INDUS_API_KEY,
+    agent_id: "AGENT_ID"
+  }),
+});
+if (!resp.ok) throw new Error("Failed to start LiveKit");
+const { url, token } = await resp.json(); // expects { url, token }
+
+const room = new Room();
+await room.connect(url, token);
+// add RoomEvent listeners as needed`;
+
 const voiceAgentsIntegration = {
   title: 'Quick Integration',
   description: 'Reference snippets for discovering agents and connecting to a LiveKit session.',
@@ -54,6 +150,12 @@ const resp = await fetch(url, {
 });
 if (!resp.ok) throw new Error(\`Request failed: \${resp.status}\`);
 console.log(await resp.json());`,
+        },
+        {
+          id: 'react-typescript',
+          label: 'React + TypeScript',
+          language: 'tsx',
+          code: reactTsAgents,
         },
         {
           id: 'curl',
@@ -97,6 +199,12 @@ if (!resp.ok) throw new Error(\`Request failed: \${resp.status}\`);
 console.log(await resp.json());`,
         },
         {
+          id: 'react-typescript',
+          label: 'React + TypeScript',
+          language: 'tsx',
+          code: reactTsLivekitQuick,
+        },
+        {
           id: 'curl',
           label: 'cURL',
           language: 'bash',
@@ -126,6 +234,7 @@ export default function VoiceAgentsPage() {
       examples: [
         {label: 'cURL', language: 'bash', code: agentsCurl},
         {label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/agents"\npayload = {"api_key": "YOUR_API_KEY"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())`},
+        {label: 'React + TypeScript', language: 'tsx', code: reactTsAgents},
       ],
     },
     {
@@ -146,6 +255,7 @@ export default function VoiceAgentsPage() {
       examples: [
         {label: 'cURL', language: 'bash', code: livekitCurl},
         {label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/livekit"\npayload = {"api_key": "YOUR_API_KEY", "agent_id": "AGT_E882B100"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())`} ,
+        {label: 'React + TypeScript', language: 'tsx', code: reactTsLivekitQuick},
       ],
     },
   ];
@@ -301,6 +411,30 @@ export default function VoiceAgentsPage() {
       {endpoints.map(endpoint => (
         <EndpointSection key={endpoint.id} endpoint={endpoint} />
       ))}
+      <section id="voice-agents-react-typescript" className={styles.endpointSection}>
+        <div className={styles.endpointHeader}>
+          <code className={styles.endpointPath}>React + TypeScript</code>
+        </div>
+        <h3 className={styles.anchorTitle}>Integrate with LiveKit</h3>
+        <p>
+          Example of fetching agents, requesting a LiveKit session for one agent, and connecting to the room from a React app.
+        </p>
+        <div className={styles.callout}>
+          <strong>Install LiveKit client</strong>
+          <ul>
+            <li><code>npm install livekit-client</code></li>
+          </ul>
+        </div>
+        <div className={styles.responseExamples}>
+          <div className={styles.responseExampleCard}>
+            <h4>React + TypeScript component</h4>
+            <CopyableCode language="tsx">{reactTsLivekit}</CopyableCode>
+          </div>
+        </div>
+        <p style={{marginTop: '0.5rem'}}>
+          The <code>/api/livekit</code> response should include <code>url</code> and <code>token</code>. Supply your API key via environment variables in production and extend with reconnection/error handling as needed.
+        </p>
+      </section>
     </DocsLayout>
   );
 }
