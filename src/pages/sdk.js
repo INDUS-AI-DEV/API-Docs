@@ -134,8 +134,11 @@ response = client.tts.speak(
 )
 response.save("output.wav")
 
-# Speech-to-Text
-result = client.stt.transcribe("audio.wav", language="hi")
+# Speech-to-Text (Default Model)
+result = client.stt.transcribe(
+    file="audio.wav", 
+    model="default"
+)
 print(result.text)`,
   },
   {
@@ -152,12 +155,13 @@ async def main():
             text="Async speech synthesis",
             voice="Indus-hi-maya"
         )
-        response.save("output.wav")
         
-        # Async STT
+        # Async STT (Streaming with Hi-En Model)
         result = await client.stt.transcribe_async(
             "audio.wav",
-            language="hi"
+            model="hi-en",
+            streaming=True,
+            language="hindi"
         )
         print(result.text)
 
@@ -235,9 +239,14 @@ response = client.tts.speak(
 response.save("output.wav")
 
 # Speech-to-Text
-result = client.stt.transcribe("audio.wav", language="hi")
+result = client.stt.transcribe(
+    file="audio.wav", 
+    model="default",
+    streaming=False
+)
 print(result.text)
-print(f"Detected: {result.language_detected}")`}</CopyableCode>
+if result.metrics:
+    print(f"RTF: {result.metrics.rtf:.3f}")`}</CopyableCode>
         </div>
       </section>
 
@@ -537,100 +546,22 @@ pcm_response = client.tts.speak(
         </div>
       </section>
 
-      {/* <section id="tts-advanced" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Advanced TTS Options</h2>
-        <p style={styles.sectionDescription}>
-          Fine-tune speech generation with advanced parameters.
-        </p>
-        <div style={styles.codeExample}>
-          <CopyableCode language="python">{`response = client.tts.speak(
-    text="Advanced TTS example",
-    voice="Indus-hi-maya",
-    language="hi-IN",
-    output_format="wav",
-    stream=True,
-    model="indus-tts-v1",      # TTS model
-    temperature=0.7,         # Control randomness (0.0-1.0)
-    max_tokens=2000          # Limit generation length
-)`}</CopyableCode>
-        </div>
-        <div style={styles.methodSection}>
-          <h3 style={styles.methodTitle}>Method: client.tts.speak()</h3>
-          <table style={styles.paramTable}>
-            <thead>
-              <tr>
-                <th style={styles.tableHeader}>Parameter</th>
-                <th style={styles.tableHeader}>Type</th>
-                <th style={styles.tableHeader}>Default</th>
-                <th style={styles.tableHeader}>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={styles.tableCell}><code>text</code></td>
-                <td style={styles.tableCell}>str</td>
-                <td style={styles.tableCell}>required</td>
-                <td style={styles.tableCell}>Text to convert to speech</td>
-              </tr>
-              <tr>
-                <td style={styles.tableCell}><code>voice</code></td>
-                <td style={styles.tableCell}>str</td>
-                <td style={styles.tableCell}>"Indus-hi-maya"</td>
-                <td style={styles.tableCell}>Voice model to use</td>
-              </tr>
-              <tr>
-                <td style={styles.tableCell}><code>language</code></td>
-                <td style={styles.tableCell}>Optional[str]</td>
-                <td style={styles.tableCell}>None</td>
-                <td style={styles.tableCell}>Language code (e.g., "hi-IN")</td>
-              </tr>
-              <tr>
-                <td style={styles.tableCell}><code>output_format</code></td>
-                <td style={styles.tableCell}>str</td>
-                <td style={styles.tableCell}>"wav"</td>
-                <td style={styles.tableCell}>Audio format: "wav", "mp3", or "pcm"</td>
-              </tr>
-              <tr>
-                <td style={styles.tableCell}><code>stream</code></td>
-                <td style={styles.tableCell}>bool</td>
-                <td style={styles.tableCell}>False</td>
-                <td style={styles.tableCell}>Enable streaming response</td>
-              </tr>
-              <tr>
-                <td style={styles.tableCell}><code>model</code></td>
-                <td style={styles.tableCell}>str</td>
-                <td style={styles.tableCell}>"indus-tts-v1"</td>
-                <td style={styles.tableCell}>TTS model to use</td>
-              </tr>
-              <tr>
-                <td style={styles.tableCell}><code>temperature</code></td>
-                <td style={styles.tableCell}>Optional[float]</td>
-                <td style={styles.tableCell}>None</td>
-                <td style={styles.tableCell}>Sampling temperature (0.0-1.0)</td>
-              </tr>
-              <tr>
-                <td style={styles.tableCell}><code>max_tokens</code></td>
-                <td style={styles.tableCell}>Optional[int]</td>
-                <td style={styles.tableCell}>None</td>
-                <td style={styles.tableCell}>Maximum tokens to generate</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section> */}
-
-<section id="stt-basic" style={styles.sectionCard}>
+      <section id="stt-basic" style={styles.sectionCard}>
         <h2 style={styles.sectionTitle}>Speech-to-Text: Basic Usage</h2>
         <p style={styles.sectionDescription}>
-          Transcribe audio files using the unified <code>transcribe</code> method. This handles both file paths and file-like objects.
+          Transcribe audio files using the unified <code>transcribe</code> method. By default, this uses the <code>default</code> model in non-streaming mode.
         </p>
         <div style={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 
 client = Client(api_key="your_api_key")
 
-# Transcribe audio file
-result = client.stt.transcribe(file="audio.wav")
+# Transcribe audio file (Default model, Non-streaming)
+result = client.stt.transcribe(
+    file="audio.wav",
+    model="default",
+    streaming=False
+)
 
 # Access transcription
 print(f"Transcription: {result.text}")
@@ -648,7 +579,7 @@ if result.metrics:
       <section id="stt-streaming" style={styles.sectionCard}>
         <h2 style={styles.sectionTitle}>Real-time Streaming</h2>
         <p style={styles.sectionDescription}>
-          To enable streaming, simply provide an <code>on_segment</code> callback to the same <code>transcribe</code> method. The SDK detects the callback and streams results in real-time.
+          To enable streaming, you must set <code>streaming=True</code> and use the <code>hi-en</code> model. You can then provide an <code>on_segment</code> callback to receive partial results.
         </p>
         <div style={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client, STTSegment
@@ -657,22 +588,24 @@ client = Client()
 
 # 1. Define a callback to handle segments
 def on_segment(segment: STTSegment):
-    print(f"📝 Segment: '{segment.text}' [{segment.start:.2f}s - {segment.end:.2f}s]")
+    print(f"📝 Segment: '{segment.text}' [{segment.start:.2f}s]")
 
-# 2. Transcribe with the callback
+# 2. Transcribe with streaming enabled
 print("Transcribing with real-time streaming...")
 
 result = client.stt.transcribe(
     file="audio.wav",
-    on_segment=on_segment  # Triggers streaming mode
+    model="hi-en",        # Required for streaming
+    streaming=True,       # Enable streaming
+    language="hindi",
+    on_segment=on_segment # Callback for real-time results
 )
 
 # 3. Access final results
-print(f"\n✅ Complete transcription: {result.text}")
-print(f"Total segments: {len(result.segments)}")`}</CopyableCode>
+print(f"\n✅ Complete transcription: {result.text}")`}</CopyableCode>
         </div>
         <div style={styles.callout}>
-          <strong>Unified API:</strong> There is no separate <code>transcribe_stream</code> method. The presence of the callback automatically handles the streaming connection.
+          <strong>Note:</strong> The <code>default</code> model does not support streaming. Attempting to use <code>streaming=True</code> with <code>model="default"</code> will raise a ValueError.
         </div>
       </section>
 
@@ -686,20 +619,26 @@ print(f"Total segments: {len(result.segments)}")`}</CopyableCode>
 
 # Example 1: Using an open file handle
 with open("audio.wav", "rb") as f:
-    result = client.stt.transcribe(file=f)
+    result = client.stt.transcribe(
+        file=f,
+        model="default"
+    )
     print(result.text)
 
 # Example 2: Using BytesIO (in-memory)
 # assuming 'audio_bytes' contains your audio data
 audio_buffer = BytesIO(audio_bytes)
-result = client.stt.transcribe(file=audio_buffer)`}</CopyableCode>
+result = client.stt.transcribe(
+    file=audio_buffer,
+    model="default"
+)`}</CopyableCode>
         </div>
       </section>
 
       <section id="async-api" style={styles.sectionCard}>
         <h2 style={styles.sectionTitle}>Async API</h2>
         <p style={styles.sectionDescription}>
-          Use <code>transcribe_async</code> for non-blocking operations. Like the synchronous method, it supports streaming via callbacks.
+          Use <code>transcribe_async</code> for non-blocking operations. You can run basic transcriptions or streaming sessions asynchronously.
         </p>
         <div style={styles.codeExample}>
           <CopyableCode language="python">{`import asyncio
@@ -709,23 +648,30 @@ async def main():
     async with Client(api_key="your_api_key") as client:
         
         # --- Example 1: Basic Async Transcription ---
-        result = await client.stt.transcribe_async("audio.wav")
-        print(f"Result: {result.text}")
+        result = await client.stt.transcribe_async(
+            "audio.wav", 
+            model="default",
+            streaming=False
+        )
+        print(f"Result (Default): {result.text}")
 
-        # --- Example 2: Async Streaming with Callback ---
+        # --- Example 2: Async Streaming with Hi-En Model ---
         segments = []
         
         def on_segment(segment: STTSegment):
             segments.append(segment)
             print(f"Streamed: {segment.text}")
 
-        # Pass the callback to the async method
+        # Pass the callback and required streaming parameters
         result = await client.stt.transcribe_async(
             "audio.wav",
+            model="hi-en",      # Required for streaming
+            streaming=True,     # Enable streaming
+            language="hindi",
             on_segment=on_segment
         )
         
-        print(f"Final Text: {result.text}")
+        print(f"Final Text (Hi-En): {result.text}")
 
 asyncio.run(main())`}</CopyableCode>
         </div>
@@ -734,7 +680,7 @@ asyncio.run(main())`}</CopyableCode>
       <section id="concurrent-requests" style={styles.sectionCard}>
         <h2 style={styles.sectionTitle}>Concurrent Requests</h2>
         <p style={styles.sectionDescription}>
-          Process multiple requests in parallel for better throughput.
+          Process multiple requests in parallel for better throughput. You can mix different models and modes (streaming/non-streaming) in concurrent tasks.
         </p>
         <div style={styles.codeExample}>
           <CopyableCode language="python">{`import asyncio
@@ -744,11 +690,23 @@ async def main():
     async with Client() as client:
         audio_file = "audio.wav"
         
-        # Create multiple tasks
-        tasks = [
-            client.stt.transcribe_async(audio_file)
-            for _ in range(3)
-        ]
+        # Create multiple tasks with different configurations
+        tasks = []
+        
+        # Task 1: Default model (non-streaming)
+        tasks.append(client.stt.transcribe_async(
+            audio_file, model="default", streaming=False
+        ))
+        
+        # Task 2: Hi-En model (non-streaming)
+        tasks.append(client.stt.transcribe_async(
+            audio_file, model="hi-en", streaming=False, language="hindi"
+        ))
+        
+        # Task 3: Hi-En model (streaming)
+        tasks.append(client.stt.transcribe_async(
+            audio_file, model="hi-en", streaming=True, language="hindi"
+        ))
         
         # Run concurrently
         results = await asyncio.gather(*tasks)
