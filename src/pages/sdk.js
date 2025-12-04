@@ -588,7 +588,7 @@ client = Client()
 
 # 1. Define a callback to handle segments
 def on_segment(segment: STTSegment):
-    print(f"📝 Segment: '{segment.text}' [{segment.start:.2f}s]")
+    print(f"📝 Segment: '{segment.text}'")
 
 # 2. Transcribe with streaming enabled
 print("Transcribing with real-time streaming...")
