@@ -491,7 +491,13 @@ if __name__ == "__main__":
           Process audio in memory without saving to disk. Useful for temporary processing or immediate playback.
         </p>
         <div style={styles.codeExample}>
-          <CopyableCode language="python">{`response = client.tts.speak(
+          <CopyableCode language="python">{`import wave
+from induslabs import Client
+
+# Initialize Client
+client = Client(api_key="your_api_key")
+
+response = client.tts.speak(
     text="In-memory audio",
     voice="Indus-hi-maya"
 )
@@ -502,10 +508,10 @@ audio_file = response.to_file_object()
 # Get raw bytes
 audio_bytes = response.get_audio_data()
 
-# Pass to other libraries
-import wave
+# Pass to other libraries (e.g., standard wave module)
 with wave.open(audio_file, 'rb') as wf:
-    frames = wf.readframes(wf.getnframes())`}</CopyableCode>
+    frames = wf.readframes(wf.getnframes())
+    print(f"Read {len(frames)} frames from memory")`}</CopyableCode>
         </div>
       </section>
 
@@ -515,7 +521,11 @@ with wave.open(audio_file, 'rb') as wf:
           Choose between WAV, MP3, or PCM formats based on your needs.
         </p>
         <div style={styles.codeExample}>
-          <CopyableCode language="python">{`# WAV format (default, best quality)
+          <CopyableCode language="python">{`from induslabs import Client
+
+client = Client(api_key="your_api_key")
+
+# WAV format (default, best quality)
 wav_response = client.tts.speak(
     text="WAV format audio",
     voice="Indus-hi-maya",
@@ -616,6 +626,9 @@ print(f"\n✅ Complete transcription: {result.text}")`}</CopyableCode>
         </p>
         <div style={styles.codeExample}>
           <CopyableCode language="python">{`from io import BytesIO
+from induslabs import Client
+
+client = Client(api_key="your_api_key")
 
 # Example 1: Using an open file handle
 with open("audio.wav", "rb") as f:
@@ -623,15 +636,19 @@ with open("audio.wav", "rb") as f:
         file=f,
         model="default"
     )
-    print(result.text)
+    print(f"File handle transcription: {result.text}")
 
 # Example 2: Using BytesIO (in-memory)
-# assuming 'audio_bytes' contains your audio data
+# Simulating loading bytes from somewhere (e.g. database or network)
+with open("audio.wav", "rb") as f:
+    audio_bytes = f.read()
+
 audio_buffer = BytesIO(audio_bytes)
 result = client.stt.transcribe(
     file=audio_buffer,
     model="default"
-)`}</CopyableCode>
+)
+print(f"BytesIO transcription: {result.text}")`}</CopyableCode>
         </div>
       </section>
 
@@ -728,46 +745,59 @@ asyncio.run(main())`}</CopyableCode>
         
         <h3>TTSResponse</h3>
         <div style={styles.codeExample}>
-          <CopyableCode language="python">{`response = client.tts.speak(text="Hello", voice="Indus-hi-maya")
+          <CopyableCode language="python">{`from induslabs import Client
+client = Client()
 
-# Properties
-response.content          # bytes: Raw audio data
-response.request_id       # str: Unique request identifier
-response.sample_rate      # int: Audio sample rate
-response.format           # str: Audio format
+# Get a response object
+response = client.tts.speak(text="Hello", voice="Indus-hi-maya")
+
+# Access Properties
+print(f"Data Size: {len(response.content)} bytes")  # bytes: Raw audio data
+print(f"Request ID: {response.request_id}")         # str: Unique request identifier
+print(f"Sample Rate: {response.sample_rate}")       # int: Audio sample rate
+print(f"Format: {response.format}")                 # str: Audio format
 
 # Methods
 response.save("output.wav")          # Save to file
-response.get_audio_data()            # Get raw bytes`}</CopyableCode>
+raw_data = response.get_audio_data() # Get raw bytes`}</CopyableCode>
         </div>
 
         <h3>STTResponse</h3>
         <div style={styles.codeExample}>
-          <CopyableCode language="python">{`result = client.stt.transcribe("audio.wav")
+          <CopyableCode language="python">{`from induslabs import Client
+client = Client()
+
+result = client.stt.transcribe("audio.wav")
 
 # Properties
-result.text                          # str: Final transcribed text
-result.segments                      # List[STTSegment]: All segments
-result.request_id                    # str: Unique request identifier
-result.has_error                     # bool: If an error occurred
-result.error                         # str: Error message if any
+print(f"Text: {result.text}")                 # str: Final transcribed text
+print(f"Segments: {len(result.segments)}")    # List[STTSegment]: All segments
+print(f"Request ID: {result.request_id}")     # str: Unique request identifier
+
+if result.has_error:
+    print(f"Error: {result.error}")           # str: Error message if any
 
 # Metrics (result.metrics)
-result.metrics.buffer_duration       # float: Duration of audio processed
-result.metrics.transcription_time    # float: Time spent processing
-result.metrics.total_time            # float: Total round-trip time
-result.metrics.rtf                   # float: Real-time Factor (<1 is faster than real-time)
+if result.metrics:
+    m = result.metrics
+    print(f"Buffer Duration: {m.buffer_duration}s")
+    print(f"Process Time: {m.transcription_time}s")
+    print(f"Total Time: {m.total_time}s")
+    print(f"RTF: {m.rtf}")                    # Real-time Factor
 
 # Methods
-result.to_dict()                     # Get as dictionary`}</CopyableCode>
+data_dict = result.to_dict()                  # Get as dictionary`}</CopyableCode>
         </div>
 
         <h3>STTSegment</h3>
         <div style={styles.codeExample}>
-          <CopyableCode language="python">{`def on_segment(segment: STTSegment):
-    print(segment.text)     # str: Text content of segment
-    print(segment.start)    # float: Start time in seconds
-    print(segment.end)      # float: End time in seconds`}</CopyableCode>
+          <CopyableCode language="python">{`from induslabs import STTSegment
+
+def on_segment(segment: STTSegment):
+    # This object is passed to your callback during streaming
+    print(f"Text: {segment.text}")    # str: Text content of segment
+    print(f"Start: {segment.start}s") # float: Start time in seconds
+    print(f"End: {segment.end}s")     # float: End time in seconds`}</CopyableCode>
         </div>
       </section>
 
@@ -854,9 +884,12 @@ client = Client()  # Automatically uses INDUSLABS_API_KEY`}</CopyableCode>
             <div style={styles.codeExample}>
               <CopyableCode language="python">{`# Error: API key must be provided
 # Solution: Set API key via parameter or environment variable
-export INDUSLABS_API_KEY="your_api_key"
+from induslabs import Client
 
-# Or
+# Method 1: Export ENV var
+# export INDUSLABS_API_KEY="your_api_key"
+
+# Method 2: Pass directly
 client = Client(api_key="your_api_key")`}</CopyableCode>
             </div>
           </div>
@@ -877,12 +910,14 @@ pip install --upgrade induslabs`}</CopyableCode>
             <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>Async Session Warnings</h4>
             <div style={styles.codeExample}>
               <CopyableCode language="python">{`# Warning: Unclosed client session
-# Solution: Use context manager or explicit close
+from induslabs import Client
+
+# Solution 1: Use context manager (Recommended)
 async with Client(api_key="key") as client:
     # Your code here
     pass  # Auto cleanup
 
-# Or
+# Solution 2: Explicit close
 client = Client(api_key="key")
 try:
     # Your code here
@@ -896,6 +931,9 @@ finally:
             <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>File Format Errors</h4>
             <div style={styles.codeExample}>
               <CopyableCode language="python">{`# Error: ValueError: output_format must be 'wav', 'mp3', or 'pcm'
+from induslabs import Client
+client = Client()
+
 # Solution: Use valid format
 response = client.tts.speak(
     text="Test",
