@@ -27,6 +27,7 @@ const sections = [
       {label: 'POST /v1/audio/transcribe', page: 'stt', id: 'stt-post-v1-audio-transcribe', method: 'POST'},
       {label: 'POST /v1/audio/transcribe/file', page: 'stt', id: 'stt-post-v1-audio-transcribe-file', method: 'POST'},
       {label: 'GET /v1/audio/transcribe/config', page: 'stt', id: 'stt-get-v1-audio-transcribe-config', method: 'GET'},
+      {label: 'WS /v1/audio/transcribe_ws', page: 'stt', id: 'stt-ws-v1-audio-transcribe', method: 'WS'},
     ],
   },
   // Voice Agent services

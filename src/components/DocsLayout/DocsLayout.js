@@ -12,6 +12,7 @@ const methodBadgeClass = {
   POST: styles.methodPost,
   PUT: styles.methodPut,
   DELETE: styles.methodDelete,
+  WS: styles.methodWs,
 };
 
 function scrollToTarget(targetId, onNavigate) {
