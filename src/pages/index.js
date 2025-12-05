@@ -18,21 +18,6 @@ export default function HomePage() {
           Discover how to launch expressive voice experiences and reliable transcription with a consistent REST
           interface. Choose one of the services below to get started.
         </p>
-        <div className={styles.heroActions}>
-          <Link to="/tts" className={styles.heroButton}>
-            Explore TTS Service
-          </Link>
-          <Link to="/stt" className={styles.heroButton}>
-            Explore STT Service
-          </Link>
-          <Link to="/voice-agents" className={styles.heroButton}>
-            Explore Voice Agents
-          </Link>
-          {/* NEW: Add SDK button */}
-          <Link to="/sdk" className={styles.heroButton}>
-            Python SDK
-          </Link>
-        </div>
       </section>
 
       <section className={styles.servicesGrid}>

@@ -39,12 +39,13 @@ const config = {
 
   themeConfig: {
     colorMode: {
-      defaultMode: 'light',
-      disableSwitch: true,
+      defaultMode: 'dark',
+      disableSwitch: false,
       respectPrefersColorScheme: false,
     },
     prism: {
       theme: prismThemes.github,
+      darkTheme: prismThemes.vsDark,
     },
   },
 };

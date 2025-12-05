@@ -215,7 +215,7 @@ client = Client(api_key="YOUR_API_KEY")
 
 def on_segment(segment: STTSegment):
     """Called for each transcribed segment in real-time"""
-    print(f"📝 {segment.text}")
+    print(f"{segment.text}")
 
 # Stream transcription with real-time callbacks
 result = client.stt.transcribe(
@@ -226,7 +226,7 @@ result = client.stt.transcribe(
     on_segment=on_segment
 )
 
-print(f"\\n✅ Final transcript: {result.text}")
+print(f"\\nFinal transcript: {result.text}")
 if result.metrics:
     print(f"RTF: {result.metrics.rtf:.3f}")`,
         },
@@ -243,7 +243,7 @@ async def stream_transcription():
         
         def on_segment(segment: STTSegment):
             segments_received.append(segment)
-            print(f"📝 {segment.text}")
+            print(f"{segment.text}")
         
         result = await client.stt.transcribe_async(
             "audio.wav",
@@ -253,7 +253,7 @@ async def stream_transcription():
             on_segment=on_segment
         )
         
-        print(f"\\n✅ Final: {result.text}")
+        print(f"\\nFinal: {result.text}")
         print(f"Total segments: {len(segments_received)}")
         if result.metrics:
             print(f"RTF: {result.metrics.rtf:.3f}")
@@ -274,7 +274,8 @@ async def transcribe_ws():
         "api_key": "YOUR_API_KEY",
         "model": "indus-stt-hi-en",
         "language": "hindi",
-        "streaming": "true"  # Use "true" for streaming, "false" for non-streaming
+        "streaming": "true",  # Use "true" for streaming, "false" for non-streaming
+        "noise_cancellation": "false"  # Set to "true" to enable noise filtering
     }
     query_string = "&".join([f"{k}={v}" for k, v in params.items()])
     uri = f"${STT_WS_URL}/v1/audio/transcribe_ws?{query_string}"
@@ -294,11 +295,11 @@ async def transcribe_ws():
             msg_type = data.get("type")
             
             if msg_type == "chunk_interim":
-                print(f"📝 [INTERIM] {data.get('text', '')}")
+                print(f"[INTERIM] {data.get('text', '')}")
             elif msg_type == "chunk_final":
-                print(f"✅ [CHUNK] {data.get('text', '')}")
+                print(f"[CHUNK] {data.get('text', '')}")
             elif msg_type == "final":
-                print(f"\\n✅ Final: {data.get('text', '')}")
+                print(f"\\nFinal: {data.get('text', '')}")
                 break
 
 asyncio.run(transcribe_ws())`,
@@ -315,7 +316,8 @@ const params = new URLSearchParams({
   api_key: 'YOUR_API_KEY',
   model: 'indus-stt-hi-en',
   language: 'hindi',
-  streaming: 'true'  // Use 'true' for streaming, 'false' for non-streaming
+  streaming: 'true',  // Use 'true' for streaming, 'false' for non-streaming
+  noise_cancellation: 'false'  // Set to 'true' to enable noise filtering
 });
 
 const ws = new WebSocket(\`${STT_WS_URL}/v1/audio/transcribe_ws?\${params}\`);
@@ -342,11 +344,11 @@ ws.on('open', () => {
 ws.on('message', (data) => {
   const msg = JSON.parse(data);
   if (msg.type === 'chunk_interim') {
-    console.log(\`📝 [INTERIM] \${msg.text}\`);
+    console.log(\`[INTERIM] \${msg.text}\`);
   } else if (msg.type === 'chunk_final') {
-    console.log(\`✅ [CHUNK] \${msg.text}\`);
+    console.log(\`[CHUNK] \${msg.text}\`);
   } else if (msg.type === 'final') {
-    console.log(\`\\n✅ Final: \${msg.text}\`);
+    console.log(\`\\nFinal: \${msg.text}\`);
     ws.close();
   }
 });
@@ -507,8 +509,9 @@ const configOutputs = [
 const wsInputs = [
   {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key passed in URL query string.'},
   {name: 'model', type: 'string', defaultValue: 'indus-stt-hi-en', description: 'Model to use (e.g., "indus-stt-hi-en").'},
-  {name: 'language', type: 'string', defaultValue: '-', description: 'Full language name (e.g., "english", "hindi") — NOT language codes like "en" or "hi".'},
+  {name: 'language', type: 'string', defaultValue: '-', description: 'Language name or ISO code (e.g., "english", "hindi", "en", "hi").'},
   {name: 'streaming', type: 'string', defaultValue: '"true"', description: 'Use "true" for streaming mode (interim results), "false" for non-streaming.'},
+  {name: 'noise_cancellation', type: 'string', defaultValue: '"false"', description: 'Use "true" to enable noise cancellation for cleaner audio in noisy environments. Filters low-frequency rumble, high-frequency hiss, and ambient background noise to reduce hallucinations and improve accuracy.'},
 ];
 
 const wsMessageTypes = [
@@ -652,12 +655,12 @@ const endpoints = [
       title: 'WebSocket Streaming Transcription',
       description: 'Real-time speech-to-text transcription using WebSocket for bidirectional streaming. Perfect for live audio, voice assistants, and low-latency applications.',
       notes: [
-        '🔌 **Persistent Connection**: Maintains a WebSocket connection for continuous audio streaming.',
-        '⚡ **Real-time Results**: Receive transcription segments as audio is processed—no waiting for the complete file.',
-        '🎯 **Low Latency**: Optimized for live microphone input and real-time voice applications.',
-        '📊 **Segment Callbacks**: Get word-level and segment-level results via callbacks as they become available.',
-        '🔄 **Bidirectional**: Send audio chunks and receive transcriptions simultaneously.',
-        '⚠️ **Language Format**: Use full language names (e.g., "hindi", "english") instead of ISO codes ("hi", "en").',
+        '**Persistent Connection**: Maintains a WebSocket connection for continuous audio streaming.',
+        '**Real-time Results**: Receive transcription segments as audio is processed—no waiting for the complete file.',
+        '**Low Latency**: Optimized for live microphone input and real-time voice applications.',
+        '**Segment Callbacks**: Get word-level and segment-level results via callbacks as they become available.',
+        '**Bidirectional**: Send audio chunks and receive transcriptions simultaneously.',
+        '**Noise Cancellation**: Optional audio enhancement that filters background noise for improved accuracy in noisy environments.',
       ],
       models: [
         {name: 'indus-stt-v1', description: 'Default model that supports all languages.'},
@@ -815,7 +818,7 @@ function EndpointSection({endpoint}) {
         {/* WebSocket-specific connection info */}
         {isWebSocket && (
           <div className={styles.callout} style={{ background: 'rgba(156, 39, 176, 0.06)', borderColor: 'rgba(156, 39, 176, 0.2)' }}>
-            <strong>🔌 WebSocket Connection</strong>
+            <strong>WebSocket Connection</strong>
             <p style={{ margin: '0.5rem 0 0' }}>
               Connect to: <code>{STT_WS_URL}{endpoint.path}</code>
             </p>
@@ -828,7 +831,7 @@ function EndpointSection({endpoint}) {
         {/* Available Models */}
         {endpoint.models && endpoint.models.length > 0 && (
           <div className={styles.callout} style={{ background: 'rgba(46, 125, 50, 0.06)', borderColor: 'rgba(46, 125, 50, 0.2)' }}>
-            <strong>🤖 Available Models</strong>
+            <strong>Available Models</strong>
             <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.5rem' }}>
               {endpoint.models.map(model => (
                 <li key={model.name} style={{ marginBottom: '0.4rem' }}>

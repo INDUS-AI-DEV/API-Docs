@@ -1,132 +1,363 @@
 /**
- * Global overrides for the Audio Platform docs.
- * Keep this file focused on shared primitives and layout polish.
+ * Minimal, developer-friendly documentation styling
+ * Dark theme by default - inspired by OpenAI/PayPal docs
  */
 
+/* Light theme variables */
 :root {
-  --ifm-color-primary: #5468ff;
-  --ifm-color-primary-dark: #4c5ee6;
-  --ifm-color-primary-darker: #4455cc;
-  --ifm-color-primary-darkest: #3846a6;
-  --ifm-color-primary-light: #6c7bff;
-  --ifm-color-primary-lighter: #7a86ff;
-  --ifm-color-primary-lightest: #9aa3ff;
-  --ifm-code-font-size: 95%;
-  --ifm-button-border-radius: 999px;
-  --docusaurus-highlighted-code-line-bg: rgba(84, 104, 255, 0.1);
-  --docs-header-height: 84px;
-  --docs-header-offset: 112px;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+  --color-border: #e5e5e5;
+  --color-border-light: #f0f0f0;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #fafafa;
+  --color-bg-code: #f5f5f5;
+  
+  /* Accent colors */
+  --color-accent: #0066cc;
+  --color-accent-hover: #0052a3;
+  --color-success: #16a34a;
+  --color-warning: #ca8a04;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+  
+  /* Docusaurus overrides */
+  --ifm-color-primary: #0066cc;
+  --ifm-color-primary-dark: #0052a3;
+  --ifm-color-primary-darker: #004080;
+  --ifm-color-primary-darkest: #003366;
+  --ifm-color-primary-light: #3385d6;
+  --ifm-color-primary-lighter: #66a3e0;
+  --ifm-color-primary-lightest: #99c2eb;
+  --ifm-code-font-size: 0.875rem;
+  --ifm-button-border-radius: 6px;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 102, 204, 0.08);
+  
+  /* Layout */
+  --docs-header-height: 56px;
+  --docs-header-offset: 72px;
+  --sidebar-width: 240px;
+  --content-max-width: 800px;
 }
 
-@media (max-width: 960px) {
-  :root {
-    --docs-header-height: 80px;
-    --docs-header-offset: 104px;
-  }
+/* Dark theme variables */
+[data-theme='dark'] {
+  --color-text-primary: #e5e5e5;
+  --color-text-secondary: #a3a3a3;
+  --color-text-muted: #737373;
+  --color-border: #333333;
+  --color-border-light: #262626;
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #141414;
+  --color-bg-code: #1a1a1a;
+  
+  --color-accent: #3b82f6;
+  --color-accent-hover: #60a5fa;
+  
+  --ifm-color-primary: #3b82f6;
+  --ifm-background-color: #0a0a0a;
+  --ifm-background-surface-color: #141414;
+  --docusaurus-highlighted-code-line-bg: rgba(59, 130, 246, 0.15);
 }
 
-@media (max-width: 720px) {
-  :root {
-    --docs-header-height: 76px;
-    --docs-header-offset: 96px;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  color: #1f2448;
-  background: #f6f7ff;
-  font-feature-settings: 'kern';
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 main {
   background: transparent;
 }
 
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 0;
+}
+
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.125rem; }
+h4 { font-size: 1rem; }
+
+p {
+  color: var(--color-text-secondary);
+  margin: 0 0 0.75rem;
+}
+
+/* Links */
 a {
-  color: #2730a6;
-  transition: color 0.2s ease;
+  color: var(--color-accent);
+  text-decoration: none;
 }
 
 a:hover {
-  color: #101640;
+  color: var(--color-accent-hover);
+  text-decoration: underline;
 }
 
+/* Tables */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1.5rem 0;
-  background: #ffffff;
-  border: 1px solid rgba(16, 22, 64, 0.08);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 18px 32px rgba(10, 14, 64, 0.06);
-}
-
-table thead {
-  background: rgba(84, 104, 255, 0.08);
+  margin: 0.75rem 0;
+  font-size: 0.8125rem;
 }
 
 table th,
 table td {
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid rgba(16, 22, 64, 0.08);
+  border-bottom: 1px solid var(--color-border);
   vertical-align: top;
 }
 
 table th {
   font-weight: 600;
-  color: #101640;
-  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
 }
 
 table td {
-  color: #2a3060;
-  font-size: 0.95rem;
+  color: var(--color-text-secondary);
 }
 
-table tbody tr:nth-child(even) {
-  background: rgba(84, 104, 255, 0.04);
+table tbody tr:hover {
+  background: var(--color-bg-secondary);
 }
 
-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-table code {
-  font-size: 0.85rem;
-  background: rgba(84, 104, 255, 0.1);
-  padding: 0.15rem 0.35rem;
-  border-radius: 6px;
-}
-
-@media (max-width: 720px) {
-  table {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    table-layout: fixed;
-  }
-
-  table th,
-  table td {
-    white-space: normal;
-    word-break: break-word;
-    padding: 0.65rem 0.75rem;
-  }
-}
-
+/* Code */
 code {
-  font-size: 0.9rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.8125rem;
+  background: var(--color-bg-code);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  color: var(--color-text-primary);
+}
+
+pre {
+  background: #1e1e1e !important;
+  border-radius: 6px;
+  padding: 0.875rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
 }
 
 pre code {
-  font-size: 0.85rem;
+  background: transparent !important;
+  padding: 0;
+  color: #ffffff !important;
+  font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
+/* Force ALL code block text to be white in light mode */
+:root pre,
+:root pre *,
+:root pre code,
+:root pre code *,
+:root .prism-code,
+:root .prism-code *,
+:root [class*="codeBlock"],
+:root [class*="codeBlock"] * {
+  color: #ffffff !important;
+}
+
+/* Light mode code inline styles - ensure good contrast */
+:root code:not(pre code) {
+  background: #f0f0f0;
+  color: #1a1a1a !important;
+}
+
+/* 
+ * Light mode syntax highlighting for dark code blocks
+ * Using bright/vibrant colors that are visible on #1e1e1e background
+ */
+
+/* Keywords: bright pink/magenta */
+:root .token.keyword,
+:root pre .token.keyword {
+  color: #ff79c6 !important;
+}
+
+/* Operators: white */
+:root .token.operator,
+:root pre .token.operator {
+  color: #ffffff !important;
+}
+
+/* Strings: bright green */
+:root .token.string,
+:root .token.attr-value,
+:root pre .token.string,
+:root pre .token.attr-value {
+  color: #50fa7b !important;
+}
+
+/* Functions: bright cyan */
+:root .token.function,
+:root pre .token.function {
+  color: #8be9fd !important;
+}
+
+/* Class names: bright yellow */
+:root .token.class-name,
+:root pre .token.class-name {
+  color: #f1fa8c !important;
+}
+
+/* Comments: visible gray */
+:root .token.comment,
+:root pre .token.comment {
+  color: #a8b5c2 !important;
+}
+
+/* Numbers and booleans: bright purple */
+:root .token.number,
+:root .token.boolean,
+:root pre .token.number,
+:root pre .token.boolean {
+  color: #bd93f9 !important;
+}
+
+/* Property names: bright orange */
+:root .token.property,
+:root pre .token.property {
+  color: #ffb86c !important;
+}
+
+/* Variables, parameters - white for visibility */
+:root .token.parameter,
+:root .token.variable,
+:root .token.attr-name,
+:root .token.plain,
+:root pre .token.parameter,
+:root pre .token.variable,
+:root pre .token.attr-name,
+:root pre .token.plain {
+  color: #ffffff !important;
+}
+
+/* Default text in code blocks - white */
+:root pre code,
+:root .prism-code {
+  color: #ffffff !important;
+}
+
+/* Punctuation: WHITE for visibility */
+:root .token.punctuation,
+:root pre .token.punctuation {
+  color: #ffffff !important;
+}
+
+/* Builtin functions: bright cyan */
+:root .token.builtin,
+:root pre .token.builtin {
+  color: #8be9fd !important;
+}
+
+/* Dark mode keeps existing colors */
+[data-theme='dark'] .token.keyword,
+[data-theme='dark'] .token.operator {
+  color: #c586c0 !important;
+}
+
+[data-theme='dark'] .token.string,
+[data-theme='dark'] .token.attr-value {
+  color: #ce9178 !important;
+}
+
+[data-theme='dark'] .token.function,
+[data-theme='dark'] .token.class-name {
+  color: #dcdcaa !important;
+}
+
+[data-theme='dark'] .token.comment {
+  color: #6a9955 !important;
+}
+
+[data-theme='dark'] .token.number,
+[data-theme='dark'] .token.boolean {
+  color: #b5cea8 !important;
+}
+
+[data-theme='dark'] .token.property {
+  color: #9cdcfe !important;
+}
+
+[data-theme='dark'] .token.punctuation {
+  color: #d4d4d4 !important;
+}
+
+[data-theme='dark'] .token.builtin {
+  color: #4ec9b0 !important;
+}
+
+/* Variables and parameters in dark mode */
+[data-theme='dark'] .token.parameter,
+[data-theme='dark'] .token.variable,
+[data-theme='dark'] .token.attr-name,
+[data-theme='dark'] .token.plain {
+  color: #9cdcfe !important;
+}
+
+/* Default text in code blocks for dark mode */
+[data-theme='dark'] pre code,
+[data-theme='dark'] .prism-code {
+  color: #d4d4d4 !important;
+}
+
+/* API Key Image / Screenshot styling */
+.apiKeyImage {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.apiKeyImage img {
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.apiKeyImage p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-top: 0.375rem;
+  margin-bottom: 0;
+}
+
+/* Hide default navbar */
 .navbar {
   display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  :root {
+    --docs-header-height: 52px;
+    --docs-header-offset: 64px;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --docs-header-height: 48px;
+    --docs-header-offset: 56px;
+  }
+  
+  body {
+    font-size: 14px;
+  }
 }
