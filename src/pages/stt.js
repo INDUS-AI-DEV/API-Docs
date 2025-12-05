@@ -274,7 +274,8 @@ async def transcribe_ws():
         "api_key": "YOUR_API_KEY",
         "model": "indus-stt-hi-en",
         "language": "hindi",
-        "streaming": "true"  # Use "true" for streaming, "false" for non-streaming
+        "streaming": "false",
+        "noise_cancellation": "true"
     }
     query_string = "&".join([f"{k}={v}" for k, v in params.items()])
     uri = f"${STT_WS_URL}/v1/audio/transcribe_ws?{query_string}"
@@ -315,7 +316,8 @@ const params = new URLSearchParams({
   api_key: 'YOUR_API_KEY',
   model: 'indus-stt-hi-en',
   language: 'hindi',
-  streaming: 'true'  // Use 'true' for streaming, 'false' for non-streaming
+  streaming: 'false',
+  noise_cancellation: 'true'
 });
 
 const ws = new WebSocket(\`${STT_WS_URL}/v1/audio/transcribe_ws?\${params}\`);
@@ -507,8 +509,9 @@ const configOutputs = [
 const wsInputs = [
   {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key passed in URL query string.'},
   {name: 'model', type: 'string', defaultValue: 'indus-stt-hi-en', description: 'Model to use (e.g., "indus-stt-hi-en").'},
-  {name: 'language', type: 'string', defaultValue: '-', description: 'Full language name (e.g., "english", "hindi") — NOT language codes like "en" or "hi".'},
+  {name: 'language', type: 'string', defaultValue: '-', description: 'Language name or ISO code (e.g., "english", "hindi", "en", "hi").'},
   {name: 'streaming', type: 'string', defaultValue: '"true"', description: 'Use "true" for streaming mode (interim results), "false" for non-streaming.'},
+  {name: 'noise_cancellation', type: 'string', defaultValue: '"false"', description: 'Use "true" to enable noise cancellation for cleaner audio in noisy environments. Filters low-frequency rumble, high-frequency hiss, and ambient background noise to reduce hallucinations and improve accuracy.'},
 ];
 
 const wsMessageTypes = [
@@ -657,7 +660,7 @@ const endpoints = [
         '🎯 **Low Latency**: Optimized for live microphone input and real-time voice applications.',
         '📊 **Segment Callbacks**: Get word-level and segment-level results via callbacks as they become available.',
         '🔄 **Bidirectional**: Send audio chunks and receive transcriptions simultaneously.',
-        '⚠️ **Language Format**: Use full language names (e.g., "hindi", "english") instead of ISO codes ("hi", "en").',
+        '🔇 **Noise Cancellation**: Optional audio enhancement that filters background noise for improved accuracy in noisy environments.',
       ],
       models: [
         {name: 'indus-stt-v1', description: 'Default model that supports all languages.'},
