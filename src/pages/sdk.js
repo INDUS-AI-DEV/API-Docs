@@ -134,10 +134,10 @@ response = client.tts.speak(
 )
 response.save("output.wav")
 
-# Speech-to-Text (Default Model)
+# Speech-to-Text (Indus-STT-V1 Model)
 result = client.stt.transcribe(
     file="audio.wav", 
-    model="default"
+    model="indus-stt-v1"
 )
 print(result.text)`,
   },
@@ -156,10 +156,10 @@ async def main():
             voice="Indus-hi-maya"
         )
         
-        # Async STT (Streaming with Hi-En Model)
+        # Async STT (Streaming with Indus-STT-Hi-En Model)
         result = await client.stt.transcribe_async(
             "audio.wav",
-            model="hi-en",
+            model="indus-stt-hi-en",
             streaming=True,
             language="hindi"
         )
@@ -241,7 +241,7 @@ response.save("output.wav")
 # Speech-to-Text
 result = client.stt.transcribe(
     file="audio.wav", 
-    model="default",
+    model="indus-stt-v1",
     streaming=False
 )
 print(result.text)
@@ -559,17 +559,17 @@ pcm_response = client.tts.speak(
       <section id="stt-basic" style={styles.sectionCard}>
         <h2 style={styles.sectionTitle}>Speech-to-Text: Basic Usage</h2>
         <p style={styles.sectionDescription}>
-          Transcribe audio files using the unified <code>transcribe</code> method. By default, this uses the <code>default</code> model in non-streaming mode.
+          Transcribe audio files using the unified <code>transcribe</code> method. By default, this uses the <code>indus-stt-v1</code> model in non-streaming mode.
         </p>
         <div style={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 
 client = Client(api_key="your_api_key")
 
-# Transcribe audio file (Default model, Non-streaming)
+# Transcribe audio file (Indus-STT-V1 model, Non-streaming)
 result = client.stt.transcribe(
     file="audio.wav",
-    model="default",
+    model="indus-stt-v1",
     streaming=False
 )
 
@@ -589,7 +589,7 @@ if result.metrics:
       <section id="stt-streaming" style={styles.sectionCard}>
         <h2 style={styles.sectionTitle}>Real-time Streaming</h2>
         <p style={styles.sectionDescription}>
-          To enable streaming, you must set <code>streaming=True</code> and use the <code>hi-en</code> model. You can then provide an <code>on_segment</code> callback to receive partial results.
+          To enable streaming, you must set <code>streaming=True</code> and use the <code>indus-stt-hi-en</code> model. You can then provide an <code>on_segment</code> callback to receive partial results.
         </p>
         <div style={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client, STTSegment
@@ -605,7 +605,7 @@ print("Transcribing with real-time streaming...")
 
 result = client.stt.transcribe(
     file="audio.wav",
-    model="hi-en",        # Required for streaming
+    model="indus-stt-hi-en",        # Required for streaming
     streaming=True,       # Enable streaming
     language="hindi",
     on_segment=on_segment # Callback for real-time results
@@ -615,7 +615,7 @@ result = client.stt.transcribe(
 print(f"\n✅ Complete transcription: {result.text}")`}</CopyableCode>
         </div>
         <div style={styles.callout}>
-          <strong>Note:</strong> The <code>default</code> model does not support streaming. Attempting to use <code>streaming=True</code> with <code>model="default"</code> will raise a ValueError.
+          <strong>Note:</strong> The <code>indus-stt-v1</code> model does not support streaming. Attempting to use <code>streaming=True</code> with <code>model="indus-stt-v1"</code> will raise a ValueError.
         </div>
       </section>
 
@@ -634,7 +634,7 @@ client = Client(api_key="your_api_key")
 with open("audio.wav", "rb") as f:
     result = client.stt.transcribe(
         file=f,
-        model="default"
+        model="indus-stt-v1"
     )
     print(f"File handle transcription: {result.text}")
 
@@ -646,7 +646,7 @@ with open("audio.wav", "rb") as f:
 audio_buffer = BytesIO(audio_bytes)
 result = client.stt.transcribe(
     file=audio_buffer,
-    model="default"
+    model="indus-stt-v1"
 )
 print(f"BytesIO transcription: {result.text}")`}</CopyableCode>
         </div>
@@ -667,12 +667,12 @@ async def main():
         # --- Example 1: Basic Async Transcription ---
         result = await client.stt.transcribe_async(
             "audio.wav", 
-            model="default",
+            model="indus-stt-v1",
             streaming=False
         )
-        print(f"Result (Default): {result.text}")
+        print(f"Result (Indus-STT-V1): {result.text}")
 
-        # --- Example 2: Async Streaming with Hi-En Model ---
+        # --- Example 2: Async Streaming with Indus-STT-Hi-En Model ---
         segments = []
         
         def on_segment(segment: STTSegment):
@@ -682,13 +682,13 @@ async def main():
         # Pass the callback and required streaming parameters
         result = await client.stt.transcribe_async(
             "audio.wav",
-            model="hi-en",      # Required for streaming
+            model="indus-stt-hi-en",      # Required for streaming
             streaming=True,     # Enable streaming
             language="hindi",
             on_segment=on_segment
         )
         
-        print(f"Final Text (Hi-En): {result.text}")
+        print(f"Final Text (Indus-STT-Hi-En): {result.text}")
 
 asyncio.run(main())`}</CopyableCode>
         </div>
@@ -710,19 +710,19 @@ async def main():
         # Create multiple tasks with different configurations
         tasks = []
         
-        # Task 1: Default model (non-streaming)
+        # Task 1: Indus-STT-V1 model (non-streaming)
         tasks.append(client.stt.transcribe_async(
-            audio_file, model="default", streaming=False
+            audio_file, model="indus-stt-v1", streaming=False
         ))
         
-        # Task 2: Hi-En model (non-streaming)
+        # Task 2: Indus-STT-Hi-En model (non-streaming)
         tasks.append(client.stt.transcribe_async(
-            audio_file, model="hi-en", streaming=False, language="hindi"
+            audio_file, model="indus-stt-hi-en", streaming=False, language="hindi"
         ))
         
-        # Task 3: Hi-En model (streaming)
+        # Task 3: Indus-STT-Hi-En model (streaming)
         tasks.append(client.stt.transcribe_async(
-            audio_file, model="hi-en", streaming=True, language="hindi"
+            audio_file, model="indus-stt-hi-en", streaming=True, language="hindi"
         ))
         
         # Run concurrently

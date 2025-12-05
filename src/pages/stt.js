@@ -6,6 +6,7 @@ import {getSidebarSections} from '@site/src/sidebarConfig';
 import styles from './api.module.css';
 
 const STT_BASE_URL = 'https://voice.induslabs.io';
+const STT_WS_URL = 'wss://voice.induslabs.io';
 
 const sttQuickIntegration = {
   title: 'Quick Integration',
@@ -199,6 +200,162 @@ console.log('Max file size (MB):', config.max_file_size_mb);`,
         },
       ],
     },
+    {
+      id: 'stt-ws-v1-audio-transcribe',
+      label: 'WS /v1/audio/transcribe_ws',
+      defaultLanguage: 'python-sdk',
+      languages: [
+        {
+          id: 'python-sdk',
+          label: 'Python SDK',
+          language: 'python',
+          code: `from induslabs import Client, STTSegment
+
+client = Client(api_key="YOUR_API_KEY")
+
+def on_segment(segment: STTSegment):
+    """Called for each transcribed segment in real-time"""
+    print(f"📝 {segment.text}")
+
+# Stream transcription with real-time callbacks
+result = client.stt.transcribe(
+    file="audio.wav",
+    model="indus-stt-hi-en",  # Use indus-stt-hi-en for streaming
+    streaming=True,
+    language="hindi",
+    on_segment=on_segment
+)
+
+print(f"\\n✅ Final transcript: {result.text}")
+if result.metrics:
+    print(f"RTF: {result.metrics.rtf:.3f}")`,
+        },
+        {
+          id: 'python-async',
+          label: 'Python Async',
+          language: 'python',
+          code: `import asyncio
+from induslabs import Client, STTSegment
+
+async def stream_transcription():
+    async with Client(api_key="YOUR_API_KEY") as client:
+        segments_received = []
+        
+        def on_segment(segment: STTSegment):
+            segments_received.append(segment)
+            print(f"📝 {segment.text}")
+        
+        result = await client.stt.transcribe_async(
+            "audio.wav",
+            model="indus-stt-hi-en",
+            streaming=True,
+            language="hindi",
+            on_segment=on_segment
+        )
+        
+        print(f"\\n✅ Final: {result.text}")
+        print(f"Total segments: {len(segments_received)}")
+        if result.metrics:
+            print(f"RTF: {result.metrics.rtf:.3f}")
+
+asyncio.run(stream_transcription())`,
+        },
+        {
+          id: 'python-websocket',
+          label: 'Python (WebSocket)',
+          language: 'python',
+          code: `import asyncio
+import websockets
+import json
+
+async def transcribe_ws():
+    # Pass API key and parameters in the URL query string
+    params = {
+        "api_key": "YOUR_API_KEY",
+        "model": "indus-stt-hi-en",
+        "language": "hindi",
+        "streaming": "true"  # Use "true" for streaming, "false" for non-streaming
+    }
+    query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+    uri = f"${STT_WS_URL}/v1/audio/transcribe_ws?{query_string}"
+    
+    async with websockets.connect(uri) as ws:
+        # Read and send audio in chunks
+        with open("audio.wav", "rb") as f:
+            while chunk := f.read(4096):
+                await ws.send(chunk)
+        
+        # Signal end of audio with __END__ marker
+        await ws.send(b"__END__")
+        
+        # Receive transcription results
+        async for message in ws:
+            data = json.loads(message)
+            msg_type = data.get("type")
+            
+            if msg_type == "chunk_interim":
+                print(f"📝 [INTERIM] {data.get('text', '')}")
+            elif msg_type == "chunk_final":
+                print(f"✅ [CHUNK] {data.get('text', '')}")
+            elif msg_type == "final":
+                print(f"\\n✅ Final: {data.get('text', '')}")
+                break
+
+asyncio.run(transcribe_ws())`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript (WebSocket)',
+          language: 'javascript',
+          code: `const WebSocket = require('ws');
+const fs = require('fs');
+
+// Pass API key and parameters in the URL query string
+const params = new URLSearchParams({
+  api_key: 'YOUR_API_KEY',
+  model: 'indus-stt-hi-en',
+  language: 'hindi',
+  streaming: 'true'  // Use 'true' for streaming, 'false' for non-streaming
+});
+
+const ws = new WebSocket(\`${STT_WS_URL}/v1/audio/transcribe_ws?\${params}\`);
+
+ws.on('open', () => {
+  console.log('WebSocket connected');
+  
+  // Stream audio file in chunks
+  const audioStream = fs.createReadStream('audio.wav', { 
+    highWaterMark: 4096 
+  });
+  
+  audioStream.on('data', (chunk) => {
+    ws.send(chunk);
+  });
+  
+  audioStream.on('end', () => {
+    // Send __END__ marker as binary
+    ws.send(Buffer.from('__END__'));
+    console.log('Audio sent, waiting for transcription...');
+  });
+});
+
+ws.on('message', (data) => {
+  const msg = JSON.parse(data);
+  if (msg.type === 'chunk_interim') {
+    console.log(\`📝 [INTERIM] \${msg.text}\`);
+  } else if (msg.type === 'chunk_final') {
+    console.log(\`✅ [CHUNK] \${msg.text}\`);
+  } else if (msg.type === 'final') {
+    console.log(\`\\n✅ Final: \${msg.text}\`);
+    ws.close();
+  }
+});
+
+ws.on('error', (err) => console.error('WebSocket error:', err));
+ws.on('close', (code, reason) => console.log(\`WebSocket closed: \${code} \${reason}\`));`,
+        },
+      ],
+    },
   ],
 };
 
@@ -276,42 +433,31 @@ const validationError = `{
 }`;
 
 const sttConfigResponse = `{
-  "supported_formats": [
-    "wav",
-    "mp3",
-    "mp4",
-    "m4a",
-    "flac",
-    "ogg"
-  ],
+  "model_id": "openai/whisper-large-v3",
+  "supported_formats": ["wav", "mp3", "mp4", "m4a", "flac", "ogg"],
   "max_file_size_mb": 25,
+  "hindi_model": {
+    "enabled": true,
+    "model_id": null
+  },
   "defaults": {
-    "chunk_length_s": 6,
+    "chunk_length_s": 6.0,
     "stride_s": 5.9,
     "overlap_words": 7
   },
   "limits": {
-    "chunk_length_range": [
-      1,
-      30
-    ],
-    "stride_range": [
-      1,
-      29
-    ],
-    "overlap_words_range": [
-      0,
-      20
-    ],
+    "chunk_length_range": [1.0, 30.0],
+    "stride_range": [1.0, 29.0],
+    "overlap_words_range": [0, 20],
     "timeout_seconds": 30
   },
   "supported_languages": [
-    "en",
-    "es",
-    "fr",
-    "de",
-    "it",
-    "pt"
+    "en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh",
+    "ar", "hi", "tr", "pl", "nl", "sv", "da", "no", "fi", "cs",
+    "sk", "hu", "ro", "bg", "hr", "sl", "et", "lv", "lt", "mt",
+    "ga", "cy", "is", "mk", "sq", "az", "kk", "ky", "uz", "tg",
+    "am", "my", "km", "lo", "si", "ne", "bn", "as", "or", "pa",
+    "gu", "ta", "te", "kn", "ml", "th", "vi", "id", "ms", "tl"
   ],
   "output_formats": {
     "streaming": "Server-Sent Events (SSE) with real-time partial results",
@@ -357,39 +503,93 @@ const configOutputs = [
   },
 ];
 
+// WebSocket-specific definitions
+const wsInputs = [
+  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key passed in URL query string.'},
+  {name: 'model', type: 'string', defaultValue: 'indus-stt-hi-en', description: 'Model to use (e.g., "indus-stt-hi-en").'},
+  {name: 'language', type: 'string', defaultValue: '-', description: 'Full language name (e.g., "english", "hindi") — NOT language codes like "en" or "hi".'},
+  {name: 'streaming', type: 'string', defaultValue: '"true"', description: 'Use "true" for streaming mode (interim results), "false" for non-streaming.'},
+];
+
+const wsMessageTypes = [
+  {name: 'URL Query Params', type: 'URL', defaultValue: 'connection', description: 'Pass api_key, model, language, streaming as URL query parameters when connecting.'},
+  {name: 'Audio Chunks', type: 'binary', defaultValue: 'continuous', description: 'Raw audio data sent as binary WebSocket frames (recommended: 4096 bytes per chunk).'},
+  {name: 'End Signal', type: 'binary', defaultValue: 'last', description: 'Send b"__END__" to signal audio stream completion.'},
+];
+
+const wsOutputs = [
+  {name: 'chunk_interim', type: 'JSON', defaultValue: '-', description: 'Interim transcription result during processing (when streaming="true").'},
+  {name: 'chunk_final', type: 'JSON', defaultValue: '-', description: 'Final transcription for a processed audio chunk.'},
+  {name: 'final', type: 'JSON', defaultValue: '-', description: 'Complete transcription with full text after all chunks processed.'},
+  {name: 'error', type: 'JSON', defaultValue: '-', description: 'Error message if processing fails.'},
+];
+
+const wsResponseExamples = [
+  {
+    label: 'Chunk Interim Response',
+    language: 'json',
+    code: `{
+  "type": "chunk_interim",
+  "text": "यह एक टेस्ट है"
+}`,
+  },
+  {
+    label: 'Chunk Final Response',
+    language: 'json',
+    code: `{
+  "type": "chunk_final",
+  "text": "यह एक टेस्ट है, भाषन से पाट रूपांतरन का परिच्छन।",
+  "chunk_index": 1,
+  "total_chunks": 1
+}`,
+  },
+  {
+    label: 'Final Response',
+    language: 'json',
+    code: `{
+  "type": "final",
+  "text": "यह एक टेस्ट है, भाषन से पाट रूपांतरन का परिच्छन।",
+  "audio_duration_seconds": 3.413375,
+  "language_detected": "hi",
+  "request_id": "df3a5974-6b24-4b15-a9d9-7c9df9513306"
+}`,
+  },
+  {
+    label: 'Error Response',
+    language: 'json',
+    code: `{
+  "type": "error",
+  "message": "Invalid API key",
+  "code": "AUTH_ERROR"
+}`,
+  },
+];
+
 const responseExamples = [
   {
     label: '200 OK (SSE stream)',
     language: 'json',
-    code: `{
-  "type": "partial",
-  "word": "hello",
-  "provisional": true,
-  "chunk_start": 0.0,
-  "chunk_end": 6.0
-}
+    code: `data: {"type": "partial", "word": "यह", "provisional": true, "chunk_start": 0.0, "chunk_end": 3.413375, "chunk_index": 1, "total_chunks": 1}
 
-{
-  "type": "chunk_final",
-  "text": "full chunk text",
-  "chunk_start": 0.0,
-  "chunk_end": 6.0
-}
+data: {"type": "partial", "word": "एक", "provisional": true, "chunk_start": 0.0, "chunk_end": 3.413375, "chunk_index": 1, "total_chunks": 1}
 
-{
-  "type": "final",
-  "text": "final transcript",
-  "audio_duration_seconds": 10.5,
-  "processing_time_seconds": 2.1
-}`,
+data: {"type": "partial", "word": "टेस्ट", "provisional": true, "chunk_start": 0.0, "chunk_end": 3.413375, "chunk_index": 1, "total_chunks": 1}
+
+data: {"type": "chunk_final", "text": "यह एक टेस्ट है, भाषन से पाट रूपांतरन का परिच्छन।", "chunk_start": 0.0, "chunk_end": 3.413375, "chunk_index": 1, "total_chunks": 1}
+
+data: {"type": "final", "text": "यह एक टेस्ट है, भाषन से पाट रूपांतरन का परिच्छन।", "audio_duration_seconds": 3.413375, "processing_time_seconds": 1.44447922706604, "first_token_time_seconds": 0.136627197265625, "language_detected": "hi", "request_id": "df3a5974-6b24-4b15-a9d9-7c9df9513306"}`,
   },
   {
     label: '200 OK (JSON)',
     language: 'json',
     code: `{
-  "text": "This is the complete transcript of the audio file.",
-  "audio_duration_seconds": 10.5,
-  "processing_time_seconds": 2.1
+  "request_id": "dcb7ca67-d379-45eb-aa45-7c31a6aa7946",
+  "text": "यह एक टेस्ट है, भाषन से पाट रूपांतरन का परिच्छन।",
+  "language_detected": "hi",
+  "audio_duration_seconds": 3.413375,
+  "processing_time_seconds": 1.0817227363586426,
+  "first_token_time_seconds": 0.0055081844329833984,
+  "credits_used": 0.017066875
 }`,
   },
   {
@@ -444,6 +644,30 @@ const endpoints = [
       inputs: [],
       outputs: configOutputs,
       examples: [responseExamples[3], responseExamples[2]],
+    },
+    {
+      id: 'stt-ws-v1-audio-transcribe',
+      method: 'WS',
+      path: '/v1/audio/transcribe_ws',
+      title: 'WebSocket Streaming Transcription',
+      description: 'Real-time speech-to-text transcription using WebSocket for bidirectional streaming. Perfect for live audio, voice assistants, and low-latency applications.',
+      notes: [
+        '🔌 **Persistent Connection**: Maintains a WebSocket connection for continuous audio streaming.',
+        '⚡ **Real-time Results**: Receive transcription segments as audio is processed—no waiting for the complete file.',
+        '🎯 **Low Latency**: Optimized for live microphone input and real-time voice applications.',
+        '📊 **Segment Callbacks**: Get word-level and segment-level results via callbacks as they become available.',
+        '🔄 **Bidirectional**: Send audio chunks and receive transcriptions simultaneously.',
+        '⚠️ **Language Format**: Use full language names (e.g., "hindi", "english") instead of ISO codes ("hi", "en").',
+      ],
+      models: [
+        {name: 'indus-stt-v1', description: 'Default model that supports all languages.'},
+        {name: 'indus-stt-hi-en', description: 'Specialized model for Hindi and English with real-time streaming input/output and very low processing time.'},
+      ],
+      inputs: wsInputs,
+      outputs: wsOutputs,
+      messageTypes: wsMessageTypes,
+      examples: wsResponseExamples,
+      isWebSocket: true,
     },
 ];
 
@@ -518,10 +742,43 @@ function OutputCard({rows}) {
         </div>
     );
 }
+
+function MessageTypeCard({rows}) {
+    const headerLabels = ['Message', 'Type', 'Order', 'Description'];
+    return (
+        <div className={styles.tableCard}>
+        <h4>WebSocket Message Flow</h4>
+        <div className={styles.tableScroll}>
+            <table>
+            <thead>
+                <tr>
+                {headerLabels.map(label => (
+                    <th key={label}>{label}</th>
+                ))}
+                </tr>
+            </thead>
+            <tbody>
+                {rows.map(row => (
+                <tr key={row.name}>
+                    <td data-label={headerLabels[0]}><code>{row.name}</code></td>
+                    <td data-label={headerLabels[1]}>{row.type}</td>
+                    <td data-label={headerLabels[2]}>{row.defaultValue}</td>
+                    <td data-label={headerLabels[3]}>{row.description}</td>
+                </tr>
+                ))}
+            </tbody>
+            </table>
+        </div>
+        </div>
+    );
+}
   
 function EndpointSection({endpoint}) {
   const [copied, setCopied] = useState(false);
-  const copyValue = `${STT_BASE_URL}${endpoint.path}`;
+  const isWebSocket = endpoint.isWebSocket || endpoint.method === 'WS';
+  const copyValue = isWebSocket 
+    ? `${STT_WS_URL}${endpoint.path}`
+    : `${STT_BASE_URL}${endpoint.path}`;
   
     const handleCopy = async () => {
       try {
@@ -546,16 +803,53 @@ function EndpointSection({endpoint}) {
         <p>{endpoint.description}</p>
         {endpoint.notes.length > 0 && (
           <div className={styles.callout}>
-            <strong>Functionality</strong>
+            <strong>{isWebSocket ? 'Key Features' : 'Functionality'}</strong>
             <ul>
               {endpoint.notes.map(note => (
-                <li key={note}>{note}</li>
+                <li key={note} dangerouslySetInnerHTML={{ __html: note.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
               ))}
             </ul>
           </div>
         )}
+        
+        {/* WebSocket-specific connection info */}
+        {isWebSocket && (
+          <div className={styles.callout} style={{ background: 'rgba(156, 39, 176, 0.06)', borderColor: 'rgba(156, 39, 176, 0.2)' }}>
+            <strong>🔌 WebSocket Connection</strong>
+            <p style={{ margin: '0.5rem 0 0' }}>
+              Connect to: <code>{STT_WS_URL}{endpoint.path}</code>
+            </p>
+            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', opacity: 0.85 }}>
+              Unlike REST endpoints, WebSocket maintains a persistent bidirectional connection for real-time streaming.
+            </p>
+          </div>
+        )}
+        
+        {/* Available Models */}
+        {endpoint.models && endpoint.models.length > 0 && (
+          <div className={styles.callout} style={{ background: 'rgba(46, 125, 50, 0.06)', borderColor: 'rgba(46, 125, 50, 0.2)' }}>
+            <strong>🤖 Available Models</strong>
+            <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.5rem' }}>
+              {endpoint.models.map(model => (
+                <li key={model.name} style={{ marginBottom: '0.4rem' }}>
+                  <code style={{ fontWeight: 600 }}>{model.name}</code>: {model.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
+        {/* WebSocket message flow */}
+        {isWebSocket && endpoint.messageTypes && (
+          <MessageTypeCard rows={endpoint.messageTypes} />
+        )}
+        
         <div className={styles.ioGrid}>
-            <TableCard title="Form Fields" rows={endpoint.inputs} headerLabels={['Name', 'Type', 'Default', 'Description']} />
+            <TableCard 
+              title={isWebSocket ? "Configuration Parameters" : "Form Fields"} 
+              rows={endpoint.inputs} 
+              headerLabels={['Name', 'Type', 'Default', 'Description']} 
+            />
             <OutputCard rows={endpoint.outputs} />
         </div>
         <div className={styles.responseExamples}>
@@ -582,7 +876,7 @@ export default function SttPage() {
         <h1>Speech-to-Text Service</h1>
         <p>
           Convert spoken audio into accurate transcripts using flexible endpoints.  
-          Use <code>/v1/audio/transcribe</code> for streaming SSE results, <code>/v1/audio/transcribe/file</code> for complete JSON output, and <code>GET /v1/audio/transcribe/config</code> to inspect supported formats and defaults before uploading.
+          Use <code>/v1/audio/transcribe</code> for streaming SSE results, <code>/v1/audio/transcribe/file</code> for complete JSON output, <code>/v1/audio/transcribe_ws</code> for real-time WebSocket streaming, and <code>GET /v1/audio/transcribe/config</code> to inspect supported formats and defaults before uploading.
         </p>
         <div className={styles.apiKeyNotice} style={{
           background: 'rgba(84, 104, 255, 0.08)',
