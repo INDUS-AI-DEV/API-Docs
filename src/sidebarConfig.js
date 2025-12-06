@@ -5,6 +5,7 @@ const sections = [
       {label: 'Introduction', page: 'home', id: 'home-introduction'},
       {label: 'Text-to-Speech', page: 'tts', id: 'tts-introduction'},
       {label: 'Speech-to-Text', page: 'stt', id: 'stt-introduction'},
+      {label: 'Large Language Models', page: 'llm', id: 'llm-introduction'},
       {label: 'Voice Agents', page: 'voice-agents', id: 'voice-agents-introduction'},
       {label: 'SDK Documentation', page: 'sdk', id: 'sdk-introduction'},
     ],
@@ -30,6 +31,18 @@ const sections = [
       {label: 'WS /v1/audio/transcribe_ws', page: 'stt', id: 'stt-ws-v1-audio-transcribe', method: 'WS'},
     ],
   },
+  {
+    title: 'LLM Services',
+    items: [
+      {label: 'Introduction', page: 'llm', id: 'llm-introduction'},
+      {label: 'Authentication', page: 'llm', id: 'llm-authentication'},
+      {label: 'Usage Examples', page: 'llm', id: 'llm-usage-examples'},
+      {label: 'POST /v1/chat/completions', page: 'llm', id: 'llm-post-v1-chat-completions', method: 'POST'},
+      {label: 'Streaming Completions', page: 'llm', id: 'llm-post-v1-chat-completions-streaming', method: 'POST'},
+      {label: 'GET /v1/chat/models', page: 'llm', id: 'llm-get-v1-chat-models', method: 'GET'},
+      {label: 'Credit System', page: 'llm', id: 'llm-credit-system'},
+    ],
+  },
   // Voice Agent services
   {
     title: 'Voice Agent Services',
@@ -40,7 +53,6 @@ const sections = [
       {label: 'React + TypeScript Integration', page: 'voice-agents', id: 'voice-agents-react-typescript'},
     ],
   },
-
   {
     title: 'SDK Documentation',
     items: [
@@ -67,7 +79,6 @@ function pageToPath(page) {
 
 function buildLink(item, activePage) {
   const method = item.method ? item.method.toUpperCase() : undefined;
-
   if (item.page === activePage && item.id) {
     return {
       label: item.label,
@@ -75,7 +86,6 @@ function buildLink(item, activePage) {
       method,
     };
   }
-
   const basePath = pageToPath(item.page);
   const hash = item.id ? `#${item.id}` : '';
   return {
@@ -91,4 +101,3 @@ export function getSidebarSections(activePage) {
     links: section.items.map(item => buildLink(item, activePage)),
   }));
 }
-
