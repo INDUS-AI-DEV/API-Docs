@@ -40,6 +40,34 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)`,
         },
         {
+          id: 'python-sdk-voice',
+          label: 'Python (Voice Agent)',
+          language: 'python',
+          code: `from openai import OpenAI
+
+client = OpenAI(
+    base_url="${LLM_BASE_URL}/v1",
+    api_key="YOUR_API_KEY"
+)
+
+response = client.chat.completions.create(
+    model="llama-4-maverick",
+    messages=[
+        {"role": "user", "content": "Hello! How are you?"}
+    ],
+    temperature=0.7,
+    max_tokens=1000,
+    extra_body={
+        "finetune": True,
+        "language": "en",
+        "gender": "female",
+        "accent": "american"
+    }
+)
+
+print(response.choices[0].message.content)`,
+        },
+        {
           id: 'python-rest',
           label: 'Python (REST API)',
           language: 'python',
@@ -56,7 +84,13 @@ data = {
         {"role": "user", "content": "Hello! How are you?"}
     ],
     "temperature": 0.7,
-    "max_tokens": 1000
+    "max_tokens": 1000,
+    "extra_body": {
+        "finetune": True,
+        "language": "en",
+        "gender": "male",
+        "accent": "british"
+    }
 }
 
 response = requests.post(url, headers=headers, json=data, timeout=60)
@@ -81,6 +115,12 @@ const response = await client.chat.completions.create({
   ],
   temperature: 0.7,
   max_tokens: 1000,
+  extra_body: {
+    finetune: true,
+    language: 'en',
+    gender: 'female',
+    accent: 'american'
+  }
 });
 
 console.log(response.choices[0].message.content);`,
@@ -99,7 +139,13 @@ console.log(response.choices[0].message.content);`,
       {"role": "user", "content": "Hello! How are you?"}
     ],
     "temperature": 0.7,
-    "max_tokens": 1000
+    "max_tokens": 1000,
+    "extra_body": {
+      "finetune": true,
+      "language": "en",
+      "gender": "female",
+      "accent": "american"
+    }
   }'`,
         },
       ],
@@ -287,6 +333,14 @@ const llmInputs = [
   {name: 'top_p', type: 'number', defaultValue: '1.0', description: 'Nucleus sampling parameter (0–1).'},
   {name: 'stream', type: 'boolean', defaultValue: 'false', description: 'Whether to stream responses via SSE.'},
   {name: 'stop', type: 'array', defaultValue: 'null', description: 'Stop sequences to end generation early.'},
+  {name: 'extra_body', type: 'object', defaultValue: 'null', description: 'Additional parameters for voice agent optimization (see below).'},
+];
+
+const extraBodyInputs = [
+  {name: 'finetune', type: 'boolean', defaultValue: 'false', description: 'Enable fine-tuned model optimized for voice agent use cases.'},
+  {name: 'language', type: 'string', defaultValue: 'null', description: 'Target language code (e.g., "en", "hi", "es", "fr").'},
+  {name: 'gender', type: 'string', defaultValue: 'null', description: 'Voice gender preference: "male" or "female".'},
+  {name: 'accent', type: 'string', defaultValue: 'null', description: 'Accent/dialect (e.g., "american", "british", "indian", "mexican").'},
 ];
 
 const nonStreamingOutputs = [
@@ -376,12 +430,13 @@ const endpoints = [
     method: 'POST',
     path: '/v1/chat/completions',
     title: 'Chat Completions',
-    description: 'Generate chat completions using large language models. Supports both streaming and non-streaming responses.',
+    description: 'Generate chat completions using large language models. Supports both streaming and non-streaming responses, with optional voice agent optimization.',
     notes: [
       'OpenAI SDK compatible - use the official OpenAI SDK with a custom base URL.',
       'Supports multi-turn conversations by including message history.',
       'Streaming mode returns Server-Sent Events (SSE) for real-time responses.',
       'Non-streaming mode returns complete response with usage metrics.',
+      'Use extra_body.finetune=true to enable our fine-tuned model, which performs significantly better for voice agent use cases.',
     ],
     inputs: llmInputs,
     outputs: nonStreamingOutputs,
@@ -531,6 +586,11 @@ function EndpointSection({endpoint}) {
         <TableCard title="Request Parameters" rows={endpoint.inputs} headerLabels={['Name', 'Type', 'Default', 'Description']} />
         <OutputCard rows={endpoint.outputs} />
       </div>
+      {endpoint.id === 'llm-post-v1-chat-completions' && (
+        <div style={{marginTop: '1.5rem'}}>
+          <TableCard title="extra_body Parameters (Optional)" rows={extraBodyInputs} headerLabels={['Name', 'Type', 'Default', 'Description']} />
+        </div>
+      )}
       <div className={styles.responseExamples}>
         {endpoint.examples.map(example => (
           <div key={example.label} className={styles.responseExampleCard}>
@@ -586,6 +646,13 @@ export default function LlmPage() {
           <strong>OpenAI SDK Compatibility</strong>
           <p style={{marginTop: '0.5rem', marginBottom: 0}}>
             Our LLM service is fully compatible with the OpenAI Python and JavaScript SDKs. Simply set the <code>base_url</code> parameter to <code>https://voice.induslabs.io/v1</code> and use your API key.
+          </p>
+        </div>
+
+        <div className={styles.callout} style={{marginTop: '1.5rem', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.2)'}}>
+          <strong>Voice Agent Optimization</strong>
+          <p style={{marginTop: '0.5rem', marginBottom: 0}}>
+            Enable <code>finetune: true</code> in the <code>extra_body</code> parameter to use our fine-tuned model specifically optimized for voice agent use cases. This model delivers superior performance in conversational AI applications with more natural, context-aware responses tailored for voice interactions.
           </p>
         </div>
 
@@ -647,7 +714,7 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)`}</CopyableCode>
 
-        <h3 style={{marginTop: '1.5rem'}}>Streaming Response</h3>
+        <h3 style={{marginTop: '1.5rem'}}>Voice Agent with Fine-tuned Model</h3>
         <CopyableCode language="python">{`from openai import OpenAI
 
 # Initialize the client
@@ -656,98 +723,127 @@ client = OpenAI(
     api_key="YOUR_API_KEY"
 )
 
-# Streaming completion
-stream = client.chat.completions.create(
-    model="gpt-oss-120b",
-    messages=[
-        {"role": "user", "content": "Tell me a story about a brave knight"}
-    ],
-    temperature=0.9,
-    max_tokens=2000,
-    stream=True
-)
-
-print("Streaming response:")
-for chunk in stream:
-    if chunk.choices[0].delta.content:
-        print(chunk.choices[0].delta.content, end="", flush=True)
-print("\\n")`}</CopyableCode>
-
-        <h3 style={{marginTop: '1.5rem'}}>Multi-turn Conversation</h3>
-        <CopyableCode language="python">{`from openai import OpenAI
-
-# Initialize the client
-client = OpenAI(
-    base_url="https://voice.induslabs.io/v1",
-    api_key="YOUR_API_KEY"
-)
-
-# Multi-turn conversation
-messages = [
-    {"role": "user", "content": "What is Python?"},
-    {"role": "assistant", "content": "Python is a high-level programming language."},
-    {"role": "user", "content": "What are its main features?"}
-]
-
-response = client.chat.completions.create(
-    model="gpt-oss-120b",
-    messages=messages,
-    temperature=0.8,
-    max_tokens=1500
-)
-
-print(response.choices[0].message.content)`}</CopyableCode>
-
-        <h3 style={{marginTop: '1.5rem'}}>Using Stop Sequences</h3>
-        <CopyableCode language="python">{`from openai import OpenAI
-
-# Initialize the client
-client = OpenAI(
-    base_url="https://voice.induslabs.io/v1",
-    api_key="YOUR_API_KEY"
-)
-
-# With stop sequences
+# Voice agent optimized completion
 response = client.chat.completions.create(
     model="llama-4-maverick",
     messages=[
-        {"role": "user", "content": "Count from 1 to 10"}
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Hi, introduce yourself?"}
     ],
-    temperature=0.5,
+    temperature=0.7,
     max_tokens=1000,
-    stop=["5", "6"]  # Will stop when encountering these sequences
+    extra_body={
+        "finetune": True,  # Enable voice-optimized model
+        "language": "en",
+        "gender": "female",
+        "accent": "american"
+    }
 )
 
 print(response.choices[0].message.content)`}</CopyableCode>
 
-        <h3 style={{marginTop: '1.5rem'}}>Interactive Chat Loop</h3>
+        <h3 style={{marginTop: '1.5rem'}}>Multilingual Voice Agent (Hindi)</h3>
         <CopyableCode language="python">{`from openai import OpenAI
 
-# Initialize the client
 client = OpenAI(
     base_url="https://voice.induslabs.io/v1",
     api_key="YOUR_API_KEY"
 )
-        
-messages = []
-print("Chat with the LLM (type 'quit' to exit)\\n")
 
-while True:
-    user_input = input("You: ")
-    if user_input.lower() in ['quit', 'exit']:
-        break
-    
-    messages.append({"role": "user", "content": user_input})
-    
-    response = client.chat.completions.create(
-        model="gpt-oss-120b",
-        messages=messages
-    )
-    
-    assistant_message = response.choices[0].message.content
-    messages.append({"role": "assistant", "content": assistant_message})
-    
-    print(f"Assistant: {assistant_message}\\n")`}</CopyableCode>
+# Hindi language with Indian accent
+response = client.chat.completions.create(
+    model="llama-4-maverick",
+    messages=[
+        {"role": "user", "content": "नमस्ते, आप कैसे हैं?"}
+    ],
+    temperature=0.7,
+    max_tokens=1000,
+    extra_body={
+        "finetune": True,
+        "language": "hi",
+        "gender": "female",
+        "accent": "indian"
+    }
+)
+
+print(response.choices[0].message.content)`}</CopyableCode>
+
+        <h3 style={{marginTop: '1.5rem'}}>Spanish Voice Agent</h3>
+        <CopyableCode language="python">{`from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://voice.induslabs.io/v1",
+    api_key="YOUR_API_KEY"
+)
+
+# Spanish with Mexican accent
+response = client.chat.completions.create(
+    model="llama-4-maverick",
+    messages=[
+        {"role": "user", "content": "¿Puedes presentarte?"}
+    ],
+    temperature=0.7,
+    max_tokens=1000,
+    extra_body={
+        "finetune": True,
+        "language": "es",
+        "gender": "female",
+        "accent": "mexican"
+    }
+)
+
+print(response.choices[0].message.content)`}</CopyableCode>
+
+        <h3 style={{marginTop: '1.5rem'}}>Gender-Specific Voice Response</h3>
+        <CopyableCode language="python">{`from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://voice.induslabs.io/v1",
+    api_key="YOUR_API_KEY"
+)
+
+# Male voice with British accent
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[
+        {"role": "user", "content": "Tell me something interesting!"}
+    ],
+    temperature=0.7,
+    max_tokens=1000,
+    extra_body={
+        "finetune": True,
+        "language": "en",
+        "gender": "male",
+        "accent": "british"
+    }
+)
+
+print(response.choices[0].message.content)`}</CopyableCode>
+
+        <h3 style={{marginTop: '1.5rem'}}>Voice Agent with Stop Sequences</h3>
+        <CopyableCode language="python">{`from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://voice.induslabs.io/v1",
+    api_key="YOUR_API_KEY"
+)
+
+# With stop sequences and max tokens
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[
+        {"role": "user", "content": "Write a short motivational quote!"}
+    ],
+    temperature=0.7,
+    max_tokens=150,
+    stop=["!", "\n"],
+    extra_body={
+        "finetune": True,
+        "language": "en"
+    }
+)
+
+print(response.choices[0].message.content)`}</CopyableCode>
       </section>
 
       {endpoints.map(endpoint => (
