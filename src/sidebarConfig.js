@@ -29,6 +29,8 @@ const sections = [
       {label: 'POST /v1/audio/transcribe/file', page: 'stt', id: 'stt-post-v1-audio-transcribe-file', method: 'POST'},
       {label: 'GET /v1/audio/transcribe/config', page: 'stt', id: 'stt-get-v1-audio-transcribe-config', method: 'GET'},
       {label: 'WS /v1/audio/transcribe_ws', page: 'stt', id: 'stt-ws-v1-audio-transcribe', method: 'WS'},
+      {label: 'POST /v1/audio/transcribe_file', page: 'stt', id: 'stt-post-v1-audio-transcribe-file-async', method: 'POST'},
+      {label: 'GET /v1/audio/transcribe_status/{request_id}', page: 'stt', id: 'stt-get-v1-audio-transcribe-status', method: 'GET'},
     ],
   },
   {

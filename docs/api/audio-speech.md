@@ -205,6 +205,66 @@ curl -X POST "http://164.52.214.239:8012/stt/transcribe" \
 - `200 OK`: Returns the transcription text as a JSON string.
 - `422 Unprocessable Entity`: Validation error payload matches the structure used by TTS endpoints.
 
+## POST /v1/audio/transcribe_file - Async Speech-to-Text (Web Only)
+
+Queue a longer audio file (up to 10 minutes / 600 seconds) for background transcription. The service immediately returns a `request_id` plus a status URL that you can poll until processing completes. This endpoint currently ships only through the web/REST API—SDK bindings are not yet available.
+
+### Request
+
+- **URL**: `https://voice.induslabs.io/v1/audio/transcribe_file`
+- **Headers**: `accept: application/json`, `Content-Type: multipart/form-data`
+- **Form fields**:
+  - `file` (required): Audio upload. Supports WAV, MP3, M4A, FLAC, and other Whisper-compatible formats.
+  - `api_key` (required): Playground or production API key.
+  - `model` (optional): One of `default`, `indus-stt-v1`, `hi-en`, `indus-stt-hi-en`. Defaults to `default`.
+  - `language` (optional): Language code or name to bypass auto-detect.
+  - `noise_cancellation` (optional, default `false`): Enable server-side denoising for noisy environments.
+
+#### Example
+
+```bash
+curl -X POST "https://voice.induslabs.io/v1/audio/transcribe_file" \
+  -H "accept: application/json" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@meeting.wav;type=audio/wav" \
+  -F "api_key=YOUR_API_KEY" \
+  -F "model=indus-stt-v1" \
+  -F "language=en"
+```
+
+### Responses
+
+- `202 Accepted`: Job queued successfully. Example payload:
+
+```json
+{
+  "request_id": "4b982cb1-0d5b-40ad-93b2-3cb4da4942b5",
+  "status": "processing",
+  "message": "File uploaded successfully. Processing in background.",
+  "duration": 542.38,
+  "estimated_time": 81.36,
+  "status_url": "/v1/audio/transcribe_status/4b982cb1-0d5b-40ad-93b2-3cb4da4942b5",
+  "poll_interval": 5
+}
+```
+
+- `400 Bad Request`: Returned when the file exceeds 10 minutes or the audio bytes cannot be parsed.
+- `401/402`: Authentication failure or insufficient credits.
+
+### Poll the Job Status
+
+Use `GET /v1/audio/transcribe_status/{request_id}` to fetch progress, pull interim transcripts, or retrieve the final text once ready.
+
+- **URL**: `https://voice.induslabs.io/v1/audio/transcribe_status/{request_id}`
+- **Query**: `api_key` (required)
+
+```bash
+curl -G "https://voice.induslabs.io/v1/audio/transcribe_status/4b982cb1-0d5b-40ad-93b2-3cb4da4942b5" \
+  --data-urlencode "api_key=YOUR_API_KEY"
+```
+
+On completion the response includes `text`, `segments`, `word_timestamps`, `processing_time`, and the `model` used. Failed jobs return `status: "failed"` with an `error` message.
+
 ## Error Handling
 
 All endpoints use HTTP status `422` to report validation problems. The `detail` array identifies the parameter that failed validation, the reason, and the error type. Log the response body when troubleshooting invalid requests.
