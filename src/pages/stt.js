@@ -158,6 +158,115 @@ console.log(transcript);`,
       ],
     },
     {
+      id: 'stt-post-v1-audio-transcribe-file-async',
+      label: 'POST /v1/audio/transcribe_file (Batch)',
+      defaultLanguage: 'python-rest',
+      languages: [
+        {
+          id: 'python-rest',
+          label: 'Python (REST API)',
+          language: 'python',
+          code: `import time
+import requests
+
+upload_url = "${STT_BASE_URL}/v1/audio/transcribe_file"
+
+with open("meeting.wav", "rb") as audio_file:
+    files = {"file": ("meeting.wav", audio_file, "audio/wav")}
+    data = {
+        "api_key": "YOUR_API_KEY",
+        "model": "indus-stt-v1",
+        "language": "en",
+        "noise_cancellation": "true"
+    }
+    response = requests.post(upload_url, files=files, data=data, timeout=60)
+    response.raise_for_status()
+    job = response.json()
+
+status_url = f"${STT_BASE_URL}/v1/audio/transcribe_status/{job['request_id']}?api_key=YOUR_API_KEY"
+
+while True:
+    poll = requests.get(status_url, timeout=30)
+    poll.raise_for_status()
+    payload = poll.json()
+    if payload["status"] == "completed":
+        print(payload["text"])
+        break
+    if payload["status"] == "failed":
+        raise RuntimeError(payload.get("error", "transcription failed"))
+    time.sleep(job.get("poll_interval", 5))`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript',
+          language: 'javascript',
+          code: `import fs from 'fs';
+import FormData from 'form-data';
+import fetch from 'node-fetch';
+
+const uploadUrl = '${STT_BASE_URL}/v1/audio/transcribe_file';
+const statusBase = '${STT_BASE_URL}/v1/audio/transcribe_status';
+
+async function transcribeBatch() {
+  const form = new FormData();
+  form.append('file', fs.createReadStream('meeting.wav'));
+  form.append('api_key', 'YOUR_API_KEY');
+  form.append('model', 'indus-stt-v1');
+  form.append('language', 'en');
+  form.append('noise_cancellation', 'true');
+
+  const upload = await fetch(uploadUrl, {
+    method: 'POST',
+    body: form,
+    headers: form.getHeaders(),
+  });
+  if (!upload.ok) throw new Error(\`Upload failed: \${upload.status}\`);
+  const job = await upload.json();
+
+  async function poll() {
+    const res = await fetch(
+      \`\${statusBase}/\${job.request_id}?api_key=YOUR_API_KEY\`
+    );
+    if (!res.ok) throw new Error(\`Status failed: \${res.status}\`);
+    const payload = await res.json();
+    if (payload.status === 'completed') {
+      console.log(payload.text);
+      return;
+    }
+    if (payload.status === 'failed') {
+      throw new Error(payload.error || 'Transcription failed');
+    }
+    await new Promise(resolve => setTimeout(resolve, (job.poll_interval || 5) * 1000));
+    return poll();
+  }
+
+  await poll();
+}
+
+transcribeBatch();`,
+        },
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: `curl -X POST \\
+  "${STT_BASE_URL}/v1/audio/transcribe_file" \\
+  -H "accept: application/json" \\
+  -H "Content-Type: multipart/form-data" \\
+  -F "file=@meeting.wav;type=audio/wav" \\
+  -F "api_key=YOUR_API_KEY" \\
+  -F "model=indus-stt-v1" \\
+  -F "language=en" \\
+  -F "noise_cancellation=false"
+
+# Poll using the returned request_id
+curl -X GET \\
+  "${STT_BASE_URL}/v1/audio/transcribe_status/REQUEST_ID?api_key=YOUR_API_KEY" \\
+  -H "accept: application/json"`,
+        },
+      ],
+    },
+    {
       id: 'stt-get-v1-audio-transcribe-config',
       label: 'GET /v1/audio/transcribe/config',
       defaultLanguage: 'python-rest',
@@ -490,6 +599,31 @@ const fileOutputs = [
   {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
 ];
 
+const asyncFileInputs = [
+  {name: 'file', type: 'file', defaultValue: 'required', description: 'Audio file up to 10 minutes (600 seconds).'},
+  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
+  {name: 'model', type: 'string', defaultValue: '"default"', description: 'Use "default", "indus-stt-v1", "hi-en", or "indus-stt-hi-en".'},
+  {name: 'language', type: 'string', defaultValue: '-', description: 'Language hint (ISO code or name).'},
+  {name: 'noise_cancellation', type: 'boolean', defaultValue: 'false', description: 'Enable server-side denoising before inference.'},
+];
+
+const asyncFileOutputs = [
+  {name: '202 Accepted', type: 'application/json', defaultValue: '-', description: 'Returns request_id, duration, estimated_time, and status_url for polling.'},
+  {name: '400 Bad Request', type: 'application/json', defaultValue: '-', description: 'Audio rejected (e.g., longer than 10 minutes or invalid format).'},
+  {name: '401 / 402', type: 'application/json', defaultValue: '-', description: 'Authentication failure or insufficient credits.'},
+];
+
+const asyncStatusInputs = [
+  {name: 'request_id', type: 'path', defaultValue: 'required', description: 'Identifier returned from /v1/audio/transcribe_file.'},
+  {name: 'api_key', type: 'string (query)', defaultValue: 'required', description: 'Same key used when creating the job.'},
+];
+
+const asyncStatusOutputs = [
+  {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Current status plus transcript, segments, and metrics when completed.'},
+  {name: '404 Not Found', type: 'application/json', defaultValue: '-', description: 'Unknown or expired request_id.'},
+  {name: '500 Internal Server Error', type: 'application/json', defaultValue: '-', description: 'Job failed; see error field for details.'},
+];
+
 const configOutputs = [
   {
     name: '200 OK',
@@ -601,6 +735,35 @@ data: {"type": "final", "text": "यह एक टेस्ट है, भाष
     code: sttConfigResponse,
   },
   {label: '422 Validation Error', language: 'json', code: validationError},
+  {
+    label: '202 Accepted (Batch Upload)',
+    language: 'json',
+    code: `{
+  "request_id": "13c8b15a-59f9-4cda-a3bb-3bf06f5e2c9b",
+  "status": "processing",
+  "message": "File uploaded successfully. Processing in background.",
+  "duration": 126.42,
+  "estimated_time": 18.96,
+  "status_url": "/v1/audio/transcribe_status/13c8b15a-59f9-4cda-a3bb-3bf06f5e2c9b",
+  "poll_interval": 5
+}`,
+  },
+  {
+    label: '200 OK (Batch Status)',
+    language: 'json',
+    code: `{
+  "request_id": "13c8b15a-59f9-4cda-a3bb-3bf06f5e2c9b",
+  "status": "completed",
+  "progress_percentage": 100,
+  "progress": "3/3",
+  "text": "Final transcription text...",
+  "segments": [
+    {"text": "segment text", "start": 0, "end": 12.5}
+  ],
+  "processing_time": 98.11,
+  "model": "indus-stt-v1"
+}`,
+  },
 ];
 
 const endpoints = [
@@ -632,6 +795,37 @@ const endpoints = [
       inputs: sttInputs,
       outputs: fileOutputs,
       examples: [responseExamples[1], responseExamples[2]],
+    },
+    {
+      id: 'stt-post-v1-audio-transcribe-file-async',
+      method: 'POST',
+      path: '/v1/audio/transcribe_file',
+      title: 'Transcribe Audio File (Batch Async)',
+      description: 'Launches background transcription for files up to 10 minutes and immediately returns a request_id to poll later.',
+      notes: [
+        'Designed for long recordings up to 10 minutes (600 seconds).',
+        'Returns immediately so your UI can poll the status endpoint or notify the user.',
+        'Available via REST on the web — SDK helpers are not yet available.',
+        'Supports optional noise cancellation before inference begins.',
+      ],
+      inputs: asyncFileInputs,
+      outputs: asyncFileOutputs,
+      examples: [responseExamples[4]],
+    },
+    {
+      id: 'stt-get-v1-audio-transcribe-status',
+      method: 'GET',
+      path: '/v1/audio/transcribe_status/{request_id}',
+      title: 'Get Batch Transcription Status',
+      description: 'Polls the progress of a batch job created by /v1/audio/transcribe_file and returns the final transcript when completed.',
+      notes: [
+        'Call every poll_interval seconds until the job reports completed or failed.',
+        'Completed responses include full text, segments, word-level timestamps (if available), and processing metrics.',
+        'Failed jobs return an error string so that you can surface actionable feedback to users.',
+      ],
+      inputs: asyncStatusInputs,
+      outputs: asyncStatusOutputs,
+      examples: [responseExamples[5]],
     },
     {
       id: 'stt-get-v1-audio-transcribe-config',
@@ -879,7 +1073,7 @@ export default function SttPage() {
         <h1>Speech-to-Text Service</h1>
         <p>
           Convert spoken audio into accurate transcripts using flexible endpoints.  
-          Use <code>/v1/audio/transcribe</code> for streaming SSE results, <code>/v1/audio/transcribe/file</code> for complete JSON output, <code>/v1/audio/transcribe_ws</code> for real-time WebSocket streaming, and <code>GET /v1/audio/transcribe/config</code> to inspect supported formats and defaults before uploading.
+          Use <code>/v1/audio/transcribe</code> for streaming SSE results, <code>/v1/audio/transcribe/file</code> for complete JSON output, <code>/v1/audio/transcribe_file</code> + <code>GET /v1/audio/transcribe_status/{'{'}request_id{'}'}</code> for web-only batch jobs up to 10 minutes, <code>/v1/audio/transcribe_ws</code> for real-time WebSocket streaming, and <code>GET /v1/audio/transcribe/config</code> to inspect supported formats and defaults before uploading.
         </p>
         <div className={styles.apiKeyNotice} style={{
           background: 'rgba(84, 104, 255, 0.08)',
