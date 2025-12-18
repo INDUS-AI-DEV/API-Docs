@@ -76,7 +76,8 @@ const payload = {
   normalize: true,
   speed: 1,
   pitch_shift: 0,
-  loudness_db: 0
+  loudness_db: 0,
+  sample_rate: 24000
 };
 
 const response = await fetch(url, {
@@ -107,7 +108,8 @@ console.log('Audio saved to output.mp3');`,
   "normalize": true,
   "speed": 1,
   "pitch_shift": 0,
-  "loudness_db": 0
+  "loudness_db": 0,
+  "sample_rate": 24000
 }' \\
   -o output.mp3`,
         },
@@ -227,7 +229,8 @@ payload = {
     "normalize": True,
     "speed": 1,
     "pitch_shift": 0,
-    "loudness_db": 0
+    "loudness_db": 0,
+    "sample_rate": 24000
 }
 
 response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload, timeout=30)
@@ -253,7 +256,8 @@ const payload = {
   normalize: true,
   speed: 1,
   pitch_shift: 0,
-  loudness_db: 0
+  loudness_db: 0,
+  sample_rate: 24000
 };
 
 const response = await fetch(url, {
@@ -283,7 +287,8 @@ console.log('Estimated duration (s):', preview.analysis.estimated_duration_secon
   "normalize": true,
   "speed": 1,
   "pitch_shift": 0,
-  "loudness_db": 0
+  "loudness_db": 0,
+  "sample_rate": 24000
 }'`,
         },
       ],
@@ -356,7 +361,8 @@ const sharedPayload = `{
   "stream": true,
   "speed": 1,
   "pitch_shift": 0,
-  "loudness_db": 0
+  "loudness_db": 0,
+  "sample_rate": 24000
 }`;
 
 const validationError = `{
@@ -441,6 +447,7 @@ const sharedInputs = [
   {name: 'speed', type: 'number', defaultValue: '1', description: 'Speed of speech synthesis (default: 1).'},
   {name: 'pitch_shift', type: 'number', defaultValue: '0', description: 'Pitch shift adjustment (default: 0).'},
   {name: 'loudness_db', type: 'number', defaultValue: '0', description: 'Loudness adjustment in decibels (default: 0).'},
+  {name: 'sample_rate', type: 'number', defaultValue: '24000', description: 'Audio sample rate in Hz. Accepted values: 24000 (recommended), 16000, 8000.'},
 ];
 
 const voiceListExample = `{
