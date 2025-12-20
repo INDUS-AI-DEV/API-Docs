@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import DocsLayout from '@site/src/components/DocsLayout/DocsLayout';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
-import {getSidebarSections} from '@site/src/sidebarConfig';
+import { getSidebarSections } from '@site/src/sidebarConfig';
 
 const styles = {
   pageIntro: {
@@ -137,7 +137,8 @@ response.save("output.wav")
 # Speech-to-Text (Indus-STT-V1 Model)
 result = client.stt.transcribe(
     file="audio.wav", 
-    model="indus-stt-v1"
+    model="indus-stt-v1",
+    noise_cancellation=True  # Enable noise suppression
 )
 print(result.text)`,
   },
@@ -185,25 +186,25 @@ export default function SdkPage() {
       <section id="sdk-introduction" style={styles.pageIntro}>
         <h1>IndusLabs Python SDK</h1>
         <p>
-          Official Python SDK for IndusLabs Voice API - providing seamless Text-to-Speech (TTS) 
+          Official Python SDK for IndusLabs Voice API - providing seamless Text-to-Speech (TTS)
           and Speech-to-Text (STT) capabilities with both synchronous and asynchronous support.
         </p>
-        <p style={{margin: 0}}>
-            <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
-            <a 
-              href="https://playground.induslabs.io/register" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{
-                color: '#5468ff',
-                fontWeight: 600,
-                textDecoration: 'none',
-                borderBottom: '1px solid rgba(84, 104, 255, 0.3)',
-              }}
-            >
-              https://playground.induslabs.io/register
-            </a>
-          </p>
+        <p style={{ margin: 0 }}>
+          <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
+          <a
+            href="https://playground.induslabs.io/register"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: '#5468ff',
+              fontWeight: 600,
+              textDecoration: 'none',
+              borderBottom: '1px solid rgba(84, 104, 255, 0.3)',
+            }}
+          >
+            https://playground.induslabs.io/register
+          </a>
+        </p>
       </section>
 
       <section id="sdk-installation" style={styles.sectionCard}>
@@ -242,7 +243,8 @@ response.save("output.wav")
 result = client.stt.transcribe(
     file="audio.wav", 
     model="indus-stt-v1",
-    streaming=False
+    streaming=False,
+    noise_cancellation=True  # Enable noise suppression
 )
 print(result.text)
 if result.metrics:
@@ -570,7 +572,8 @@ client = Client(api_key="your_api_key")
 result = client.stt.transcribe(
     file="audio.wav",
     model="indus-stt-v1",
-    streaming=False
+    streaming=False,
+    noise_cancellation=True  # Enable noise suppression for better quality
 )
 
 # Access transcription
@@ -615,7 +618,11 @@ result = client.stt.transcribe(
 print(f"\n✅ Complete transcription: {result.text}")`}</CopyableCode>
         </div>
         <div style={styles.callout}>
-          <strong>Note:</strong> The <code>indus-stt-v1</code> model does not support streaming. Attempting to use <code>streaming=True</code> with <code>model="indus-stt-v1"</code> will raise a ValueError.
+          <strong>Important Notes:</strong>
+          <ul>
+            <li>The <code>indus-stt-v1</code> model does not support streaming. Attempting to use <code>streaming=True</code> with <code>model="indus-stt-v1"</code> will raise a ValueError.</li>
+            <li>Noise cancellation is currently only supported in non-streaming mode. Using <code>noise_cancellation=True</code> with <code>streaming=True</code> will issue a warning and noise cancellation will not be applied.</li>
+          </ul>
         </div>
       </section>
 
@@ -634,7 +641,8 @@ client = Client(api_key="your_api_key")
 with open("audio.wav", "rb") as f:
     result = client.stt.transcribe(
         file=f,
-        model="indus-stt-v1"
+        model="indus-stt-v1",
+        noise_cancellation=True
     )
     print(f"File handle transcription: {result.text}")
 
@@ -646,9 +654,80 @@ with open("audio.wav", "rb") as f:
 audio_buffer = BytesIO(audio_bytes)
 result = client.stt.transcribe(
     file=audio_buffer,
-    model="indus-stt-v1"
+    model="indus-stt-v1",
+    noise_cancellation=True
 )
 print(f"BytesIO transcription: {result.text}")`}</CopyableCode>
+        </div>
+      </section>
+
+      <section id="stt-noise-cancellation" style={styles.sectionCard}>
+        <h2 style={styles.sectionTitle}>Noise Cancellation</h2>
+        <p style={styles.sectionDescription}>
+          Enable server-side noise suppression to improve transcription quality for audio with background noise.
+          This feature is available for non-streaming transcriptions with both <code>indus-stt-v1</code> and <code>indus-stt-hi-en</code> models.
+        </p>
+        <div style={styles.codeExample}>
+          <CopyableCode language="python">{`from induslabs import Client
+
+client = Client(api_key="your_api_key")
+
+# Example 1: Noise cancellation with Indus-STT-V1
+result = client.stt.transcribe(
+    file="noisy_audio.wav",
+    model="indus-stt-v1",
+    streaming=False,
+    noise_cancellation=True  # Enable noise suppression
+)
+print(f"Transcription: {result.text}")
+if result.metrics:
+    print(f"RTF: {result.metrics.rtf:.3f}")
+
+# Example 2: Noise cancellation with Indus-STT-Hi-En
+result = client.stt.transcribe(
+    file="noisy_audio.wav",
+    model="indus-stt-hi-en",
+    streaming=False,
+    language="hindi",
+    noise_cancellation=True
+)
+print(f"Transcription: {result.text}")`}</CopyableCode>
+        </div>
+
+        <div style={styles.callout}>
+          <strong>⚠️ Important Compatibility Notes:</strong>
+          <ul>
+            <li><strong>Non-Streaming Only:</strong> Noise cancellation is currently only supported in non-streaming mode (<code>streaming=False</code>).</li>
+            <li><strong>Warning Behavior:</strong> If you set both <code>streaming=True</code> and <code>noise_cancellation=True</code>, the SDK will issue a UserWarning and noise cancellation will not be applied.</li>
+            <li><strong>Model Support:</strong> Works with both <code>indus-stt-v1</code> and <code>indus-stt-hi-en</code> models.</li>
+          </ul>
+        </div>
+
+        <h3 style={{ marginTop: '2rem', fontSize: '1.2rem', fontWeight: '600' }}>Example with Warning</h3>
+        <div style={styles.codeExample}>
+          <CopyableCode language="python">{`import warnings
+from induslabs import Client
+
+client = Client()
+
+# This will trigger a warning
+with warnings.catch_warnings(record=True) as caught:
+    warnings.simplefilter("always")
+    
+    result = client.stt.transcribe(
+        file="audio.wav",
+        model="indus-stt-hi-en",
+        streaming=True,              # Streaming enabled
+        noise_cancellation=True,     # Noise cancellation requested
+        language="hindi"
+    )
+    
+    if caught:
+        for warn in caught:
+            print(f"⚠️ Warning: {warn.message}")
+            # Output: "Noise cancellation is only supported in non-streaming mode right now."
+
+print(f"Result: {result.text}")`}</CopyableCode>
         </div>
       </section>
 
@@ -668,7 +747,8 @@ async def main():
         result = await client.stt.transcribe_async(
             "audio.wav", 
             model="indus-stt-v1",
-            streaming=False
+            streaming=False,
+            noise_cancellation=True
         )
         print(f"Result (Indus-STT-V1): {result.text}")
 
@@ -710,14 +790,14 @@ async def main():
         # Create multiple tasks with different configurations
         tasks = []
         
-        # Task 1: Indus-STT-V1 model (non-streaming)
+        # Task 1: Indus-STT-V1 model (non-streaming with noise cancellation)
         tasks.append(client.stt.transcribe_async(
-            audio_file, model="indus-stt-v1", streaming=False
+            audio_file, model="indus-stt-v1", streaming=False, noise_cancellation=True
         ))
         
-        # Task 2: Indus-STT-Hi-En model (non-streaming)
+        # Task 2: Indus-STT-Hi-En model (non-streaming with noise cancellation)
         tasks.append(client.stt.transcribe_async(
-            audio_file, model="indus-stt-hi-en", streaming=False, language="hindi"
+            audio_file, model="indus-stt-hi-en", streaming=False, language="hindi", noise_cancellation=True
         ))
         
         # Task 3: Indus-STT-Hi-En model (streaming)
@@ -742,7 +822,7 @@ asyncio.run(main())`}</CopyableCode>
         <p style={styles.sectionDescription}>
           Understanding the data structures returned by the SDK.
         </p>
-        
+
         <h3>TTSResponse</h3>
         <div style={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
@@ -875,12 +955,12 @@ client = Client()  # Automatically uses INDUSLABS_API_KEY`}</CopyableCode>
 
       <section id="troubleshooting" style={styles.sectionCard}>
         <h2 style={styles.sectionTitle}>Troubleshooting</h2>
-        
+
         <div style={styles.methodSection}>
           <h3 style={styles.methodTitle}>Common Issues</h3>
-          
-          <div style={{marginTop: '1rem'}}>
-            <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>Authentication Errors</h4>
+
+          <div style={{ marginTop: '1rem' }}>
+            <h4 style={{ color: '#2730a6', marginBottom: '0.5rem' }}>Authentication Errors</h4>
             <div style={styles.codeExample}>
               <CopyableCode language="python">{`# Error: API key must be provided
 # Solution: Set API key via parameter or environment variable
@@ -894,8 +974,8 @@ client = Client(api_key="your_api_key")`}</CopyableCode>
             </div>
           </div>
 
-          <div style={{marginTop: '1.5rem'}}>
-            <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>Import Errors</h4>
+          <div style={{ marginTop: '1.5rem' }}>
+            <h4 style={{ color: '#2730a6', marginBottom: '0.5rem' }}>Import Errors</h4>
             <div style={styles.codeExample}>
               <CopyableCode language="bash">{`# Error: No module named 'induslabs'
 # Solution: Install the package
@@ -906,8 +986,8 @@ pip install --upgrade induslabs`}</CopyableCode>
             </div>
           </div>
 
-          <div style={{marginTop: '1.5rem'}}>
-            <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>Async Session Warnings</h4>
+          <div style={{ marginTop: '1.5rem' }}>
+            <h4 style={{ color: '#2730a6', marginBottom: '0.5rem' }}>Async Session Warnings</h4>
             <div style={styles.codeExample}>
               <CopyableCode language="python">{`# Warning: Unclosed client session
 from induslabs import Client
@@ -927,8 +1007,8 @@ finally:
             </div>
           </div>
 
-          <div style={{marginTop: '1.5rem'}}>
-            <h4 style={{color: '#2730a6', marginBottom: '0.5rem'}}>File Format Errors</h4>
+          <div style={{ marginTop: '1.5rem' }}>
+            <h4 style={{ color: '#2730a6', marginBottom: '0.5rem' }}>File Format Errors</h4>
             <div style={styles.codeExample}>
               <CopyableCode language="python">{`# Error: ValueError: output_format must be 'wav', 'mp3', or 'pcm'
 from induslabs import Client

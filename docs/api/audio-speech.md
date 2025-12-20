@@ -246,7 +246,7 @@ Launches background transcription for files up to **10 minutes (600 seconds)**. 
   - `api_key` (required): API credential string.
   - `model` (optional): `default`, `indus-stt-v1`, `hi-en`, or `indus-stt-hi-en`. Defaults to `default`.
   - `language` (optional): Language name or ISO code.
-  - `noise_cancellation` (optional, boolean): Apply server-side denoising before inference.
+  - `noise_cancellation` (optional, boolean): Apply server-side noise suppression before inference. Default: `false`. Note: Currently only supported in non-streaming mode.
 
 #### Example
 
