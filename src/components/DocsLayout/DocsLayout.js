@@ -1,8 +1,8 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
-import {useColorMode} from '@docusaurus/theme-common';
+import { useColorMode } from '@docusaurus/theme-common';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
 
 import styles from './DocsLayout.module.css';
@@ -23,7 +23,7 @@ function scrollToTarget(targetId, onNavigate) {
   }
   const element = document.getElementById(targetId);
   if (element) {
-    element.scrollIntoView({behavior: 'smooth', block: 'start'});
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (typeof history !== 'undefined' && history.replaceState) {
       const url = `${window.location.pathname}#${targetId}`;
       history.replaceState(null, '', url);
@@ -34,7 +34,7 @@ function scrollToTarget(targetId, onNavigate) {
   }
 }
 
-export function MethodBadge({method = 'POST'}) {
+export function MethodBadge({ method = 'POST' }) {
   const normalized = method?.toUpperCase?.() ?? 'POST';
   return (
     <span className={clsx(styles.methodBadge, methodBadgeClass[normalized])}>{normalized}</span>
@@ -43,9 +43,9 @@ export function MethodBadge({method = 'POST'}) {
 
 // Theme toggle component - must be used inside Layout
 function ThemeToggle() {
-  const {colorMode, setColorMode} = useColorMode();
+  const { colorMode, setColorMode } = useColorMode();
   const isDark = colorMode === 'dark';
-  
+
   return (
     <button
       type="button"
@@ -56,12 +56,12 @@ function ThemeToggle() {
     >
       {isDark ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="5"/>
-          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          <circle cx="12" cy="12" r="5" />
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
         </svg>
       ) : (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       )}
     </button>
@@ -70,13 +70,13 @@ function ThemeToggle() {
 
 // Logo component that switches based on theme - must be used inside Layout
 function ThemedLogo() {
-  const {colorMode} = useColorMode();
+  const { colorMode } = useColorMode();
   const currentLogo = colorMode === 'dark' ? logoImageDark : logoImage;
   return <img src={currentLogo} alt="Induslabs" className={styles.logoImage} />;
 }
 
 // Collapsible sidebar group
-function SidebarGroup({title, links, activeId, onNavigate, isExpanded, onToggle}) {
+function SidebarGroup({ title, links, activeId, onNavigate, isExpanded, onToggle }) {
   if (!links?.length) {
     return null;
   }
@@ -88,23 +88,23 @@ function SidebarGroup({title, links, activeId, onNavigate, isExpanded, onToggle}
 
   return (
     <div className={styles.sidebarGroup}>
-      <button 
+      <button
         type="button"
         className={clsx(styles.sidebarGroupTitle, shouldExpand && styles.sidebarGroupTitleExpanded)}
         onClick={onToggle}
         aria-expanded={shouldExpand}
       >
         <span>{title}</span>
-        <svg 
-          className={clsx(styles.sidebarChevron, shouldExpand && styles.sidebarChevronExpanded)} 
-          width="12" 
-          height="12" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className={clsx(styles.sidebarChevron, shouldExpand && styles.sidebarChevronExpanded)}
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
           strokeWidth="2"
         >
-          <polyline points="6 9 12 15 18 9"/>
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
       {shouldExpand && (
@@ -155,7 +155,7 @@ function SidebarGroup({title, links, activeId, onNavigate, isExpanded, onToggle}
   );
 }
 
-function IntegrationPanel({integration}) {
+function IntegrationPanel({ integration }) {
   const {
     title = 'Quick Integration',
     description,
@@ -330,13 +330,13 @@ export default function DocsLayout({
   const [isHeaderElevated, setIsHeaderElevated] = useState(false);
   const headerRef = useRef(null);
   const sidebarRef = useRef(null);
-  
+
   // Track which sidebar sections are expanded
   const [expandedSections, setExpandedSections] = useState(() => {
     // Start with first section expanded
     return new Set(sidebarSections.length > 0 ? [sidebarSections[0]?.title] : []);
   });
-  
+
   const toggleSection = (title) => {
     setExpandedSections(prev => {
       const next = new Set(prev);
@@ -503,7 +503,7 @@ export default function DocsLayout({
 
     handleScroll();
 
-    window.addEventListener('scroll', handleScroll, {passive: true});
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -542,7 +542,7 @@ export default function DocsLayout({
     if (typeof window === 'undefined') {
       return;
     }
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const headerText = title;
@@ -569,8 +569,8 @@ export default function DocsLayout({
             <div className={styles.headerControls}>
               <Link to="/" className={styles.homeLink} title="Back to Docs Home">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                  <polyline points="9 22 9 12 15 12 15 22"/>
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </Link>
               <ThemeToggle />
@@ -685,9 +685,9 @@ export default function DocsLayout({
             </aside>
           )}
           <div className={styles.content}>
-            {hasIntegration && <IntegrationPanel integration={integration} />}
             {children}
           </div>
+          {hasIntegration && <IntegrationPanel integration={integration} />}
         </div>
       </div>
       {showScrollTop && (

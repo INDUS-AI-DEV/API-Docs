@@ -15,7 +15,7 @@ _Screenshot: where to find your API key. Create one at [playground.induslabs.io/
 ## Base URLs
 
 - TTS endpoints: Append the listed paths to your deployment host, for example `https://<host>/v1/audio/speech`.
-- STT endpoint: Hosted at `http://164.52.214.239:8012`.
+- STT endpoints: Hosted at `https://voice.induslabs.io`. Append the REST paths below (for example `https://voice.induslabs.io/v1/audio/transcribe`).
 
 ## Endpoint Overview
 
@@ -24,7 +24,10 @@ _Screenshot: where to find your API key. Create one at [playground.induslabs.io/
 | `POST` | `/v1/audio/speech` | Synthesize speech. Supports streaming and non-streaming replies in OpenAI-compatible format. |
 | `POST` | `/v1/audio/speech/file` | Synthesize speech and return the full audio file as base64. |
 | `POST` | `/v1/audio/speech/preview` | Preview how text will be chunked and processed without generating audio. |
-| `POST` | `/stt/transcribe` | Submit audio for speech-to-text transcription. |
+| `POST` | `/v1/audio/transcribe` | Submit audio for SSE streaming transcription (REST). |
+| `POST` | `/v1/audio/transcribe/file` | Submit audio for blocking JSON transcription. |
+| `POST` | `/v1/audio/transcribe_file` | Launch batch processing for files up to 10 minutes (web-only). |
+| `GET` | `/v1/audio/transcribe_status/{request_id}` | Poll background jobs created by `/v1/audio/transcribe_file`. |
 
 ## Shared TTS Request Payload
 
@@ -174,36 +177,148 @@ curl -X POST "https://<host>/v1/audio/speech/preview" \
 - `200 OK`: Returns a preview string describing chunking decisions.
 - `422 Unprocessable Entity`: Validation error payload identical to `/v1/audio/speech`.
 
-## POST /stt/transcribe - Speech to Text
+## POST /v1/audio/transcribe - Streaming Speech to Text
 
-Uploads audio and returns a transcription. Requires multipart form data.
+Uploads audio via multipart form data and streams transcription events over Server-Sent Events (SSE).
 
 ### Request
 
-- **URL**: `http://164.52.214.239:8012/stt/transcribe`
-- **Headers**: `accept: application/json`, `Content-Type: multipart/form-data`
+- **URL**: `https://voice.induslabs.io/v1/audio/transcribe`
+- **Headers**: `accept: text/event-stream`, `Content-Type: multipart/form-data`
 - **Form fields**:
   - `file` (required): Audio file upload. Include the MIME type (e.g., `audio/mpeg`).
-  - `language` (optional): Override automatic language detection by providing an ISO code.
-  - `secret_key` (required): API credential string.
-  - `deduct_url` (optional): Callback URL for metering or billing hooks.
+  - `api_key` (required): API credential string.
+  - `language` (optional): ISO or language name hint to bypass auto-detect.
+  - `chunk_length_s`, `stride_s`, `overlap_words` (optional): Advanced chunking controls.
 
 #### Example
 
 ```bash
-curl -X POST "http://164.52.214.239:8012/stt/transcribe" \
-  -H "accept: application/json" \
+curl -N -X POST "https://voice.induslabs.io/v1/audio/transcribe" \
+  -H "accept: text/event-stream" \
   -H "Content-Type: multipart/form-data" \
-  -F "file=@synthetic_0038.mp3;type=audio/mpeg" \
-  -F "language=" \
-  -F "secret_key=YOUR_SECRET_KEY" \
-  -F "deduct_url="
+  -F "file=@audio.mp3;type=audio/mpeg" \
+  -F "api_key=YOUR_API_KEY" \
+  -F "language=en"
 ```
 
 ### Responses
 
-- `200 OK`: Returns the transcription text as a JSON string.
+- `200 OK`: SSE stream emitting `partial`, `chunk_final`, and `final` events.
 - `422 Unprocessable Entity`: Validation error payload matches the structure used by TTS endpoints.
+
+<!--
+## POST /v1/audio/transcribe/file - Synchronous Speech to Text
+
+Processes the uploaded audio and returns the entire transcript plus metrics as JSON once processing completes.
+
+### Request
+
+- **URL**: `https://voice.induslabs.io/v1/audio/transcribe/file`
+- **Headers**: `accept: application/json`, `Content-Type: multipart/form-data`
+- **Form fields**: Same as `/v1/audio/transcribe`. Streaming is disabled; the response blocks until transcription finishes.
+
+#### Example
+
+```bash
+curl -X POST "https://voice.induslabs.io/v1/audio/transcribe/file" \
+  -H "accept: application/json" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@audio.mp3;type=audio/mpeg" \
+  -F "api_key=YOUR_API_KEY" \
+  -F "language=en"
+```
+
+### Responses
+
+- `200 OK`: Final transcript and metrics as JSON.
+- `422 Unprocessable Entity`: Validation error payload matches the structure used by TTS endpoints.
+-->
+
+## POST /v1/audio/transcribe_file - Batch Speech to Text (Web only)
+
+Launches background transcription for files up to **10 minutes (600 seconds)**. The endpoint returns immediately with a `request_id`; clients poll the status endpoint to retrieve the transcript. This flow is only exposed through the REST interface (no SDK helpers yet).
+
+### Request
+
+- **URL**: `https://voice.induslabs.io/v1/audio/transcribe_file`
+- **Headers**: `accept: application/json`, `Content-Type: multipart/form-data`
+- **Form fields**:
+  - `file` (required): Audio file to upload (max 10 minutes).
+  - `api_key` (required): API credential string.
+  - `model` (optional): `default`, `indus-stt-v1`, `hi-en`, or `indus-stt-hi-en`. Defaults to `default`.
+  - `language` (optional): Language name or ISO code.
+  - `noise_cancellation` (optional, boolean): Apply server-side noise suppression before inference. Default: `false`. Note: Currently only supported in non-streaming mode.
+
+#### Example
+
+```bash
+curl -X POST "https://voice.induslabs.io/v1/audio/transcribe_file" \
+  -H "accept: application/json" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@meeting.wav;type=audio/wav" \
+  -F "api_key=YOUR_API_KEY" \
+  -F "model=indus-stt-v1" \
+  -F "language=en" \
+  -F "noise_cancellation=false"
+```
+
+### Responses
+
+- `202 Accepted`: Returns `request_id`, original duration, estimated processing time, and a relative `status_url`.
+- `400 Bad Request`: The payload explains issues such as exceeding the 10-minute limit or invalid audio format.
+- `401/402`: Authentication failure or insufficient credits.
+
+```json
+{
+  "request_id": "13c8b15a-59f9-4cda-a3bb-3bf06f5e2c9b",
+  "status": "processing",
+  "message": "File uploaded successfully. Processing in background.",
+  "duration": 126.42,
+  "estimated_time": 18.96,
+  "status_url": "/v1/audio/transcribe_status/13c8b15a-59f9-4cda-a3bb-3bf06f5e2c9b",
+  "poll_interval": 5
+}
+```
+
+## GET /v1/audio/transcribe_status/{request_id} - Check Batch Status
+
+Poll this endpoint with the `request_id` returned by `/v1/audio/transcribe_file`. Continue polling every `poll_interval` seconds until the job reports `completed` or `failed`.
+
+### Request
+
+- **URL**: `https://voice.induslabs.io/v1/audio/transcribe_status/{request_id}`
+- **Headers**: `accept: application/json`
+- **Query parameters**:
+  - `api_key` (required): Same key used for the upload request.
+
+#### Example
+
+```bash
+curl -X GET "https://voice.induslabs.io/v1/audio/transcribe_status/13c8b15a-59f9-4cda-a3bb-3bf06f5e2c9b?api_key=YOUR_API_KEY" \
+  -H "accept: application/json"
+```
+
+### Responses
+
+- `200 OK`: Returns progress metrics. When `status` becomes `completed`, the payload also includes `text`, `segments`, optional `word_timestamps`, `processing_time`, and the `model` used.
+- `404 Not Found`: Unknown or expired `request_id`.
+- `500 Internal Server Error`: The response includes an `error` field describing what failed.
+
+```json
+{
+  "request_id": "13c8b15a-59f9-4cda-a3bb-3bf06f5e2c9b",
+  "status": "completed",
+  "progress_percentage": 100,
+  "progress": "3/3",
+  "text": "Final transcription text...",
+  "segments": [
+    {"text": "segment text", "start": 0, "end": 12.5}
+  ],
+  "processing_time": 98.11,
+  "model": "indus-stt-v1"
+}
+```
 
 ## Error Handling
 
