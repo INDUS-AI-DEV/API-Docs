@@ -207,6 +207,7 @@ curl -N -X POST "https://voice.induslabs.io/v1/audio/transcribe" \
 - `200 OK`: SSE stream emitting `partial`, `chunk_final`, and `final` events.
 - `422 Unprocessable Entity`: Validation error payload matches the structure used by TTS endpoints.
 
+<!--
 ## POST /v1/audio/transcribe/file - Synchronous Speech to Text
 
 Processes the uploaded audio and returns the entire transcript plus metrics as JSON once processing completes.
@@ -232,6 +233,7 @@ curl -X POST "https://voice.induslabs.io/v1/audio/transcribe/file" \
 
 - `200 OK`: Final transcript and metrics as JSON.
 - `422 Unprocessable Entity`: Validation error payload matches the structure used by TTS endpoints.
+-->
 
 ## POST /v1/audio/transcribe_file - Batch Speech to Text (Web only)
 
