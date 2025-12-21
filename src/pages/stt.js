@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
+import React, { useState } from 'react';
+import DocsLayout, { MethodBadge } from '@site/src/components/DocsLayout/DocsLayout';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
-import {getSidebarSections} from '@site/src/sidebarConfig';
+import { getSidebarSections } from '@site/src/sidebarConfig';
 
 import styles from './api.module.css';
 
@@ -76,6 +76,7 @@ for await (const chunk of response.body) {
         },
       ],
     },
+    /*
     {
       id: 'stt-post-v1-audio-transcribe-file',
       label: 'POST /v1/audio/transcribe/file',
@@ -157,6 +158,7 @@ console.log(transcript);`,
         },
       ],
     },
+    */
     {
       id: 'stt-post-v1-audio-transcribe-file-async',
       label: 'POST /v1/audio/transcribe_file (Batch)',
@@ -471,66 +473,66 @@ ws.on('close', (code, reason) => console.log(\`WebSocket closed: \${code} \${rea
 };
 
 const supportedLanguageList = [
-  {name: 'English', code: 'en'},
-  {name: 'Spanish', code: 'es'},
-  {name: 'French', code: 'fr'},
-  {name: 'German', code: 'de'},
-  {name: 'Italian', code: 'it'},
-  {name: 'Portuguese', code: 'pt'},
-  {name: 'Russian', code: 'ru'},
-  {name: 'Japanese', code: 'ja'},
-  {name: 'Korean', code: 'ko'},
-  {name: 'Chinese', code: 'zh'},
-  {name: 'Arabic', code: 'ar'},
-  {name: 'Hindi', code: 'hi'},
-  {name: 'Turkish', code: 'tr'},
-  {name: 'Polish', code: 'pl'},
-  {name: 'Dutch', code: 'nl'},
-  {name: 'Swedish', code: 'sv'},
-  {name: 'Danish', code: 'da'},
-  {name: 'Norwegian', code: 'no'},
-  {name: 'Finnish', code: 'fi'},
-  {name: 'Czech', code: 'cs'},
-  {name: 'Slovak', code: 'sk'},
-  {name: 'Hungarian', code: 'hu'},
-  {name: 'Romanian', code: 'ro'},
-  {name: 'Bulgarian', code: 'bg'},
-  {name: 'Croatian', code: 'hr'},
-  {name: 'Slovenian', code: 'sl'},
-  {name: 'Estonian', code: 'et'},
-  {name: 'Latvian', code: 'lv'},
-  {name: 'Lithuanian', code: 'lt'},
-  {name: 'Maltese', code: 'mt'},
-  {name: 'Irish', code: 'ga'},
-  {name: 'Welsh', code: 'cy'},
-  {name: 'Icelandic', code: 'is'},
-  {name: 'Macedonian', code: 'mk'},
-  {name: 'Albanian', code: 'sq'},
-  {name: 'Azerbaijani', code: 'az'},
-  {name: 'Kazakh', code: 'kk'},
-  {name: 'Kyrgyz', code: 'ky'},
-  {name: 'Uzbek', code: 'uz'},
-  {name: 'Tajik', code: 'tg'},
-  {name: 'Amharic', code: 'am'},
-  {name: 'Burmese', code: 'my'},
-  {name: 'Khmer', code: 'km'},
-  {name: 'Lao', code: 'lo'},
-  {name: 'Sinhala', code: 'si'},
-  {name: 'Nepali', code: 'ne'},
-  {name: 'Bengali', code: 'bn'},
-  {name: 'Assamese', code: 'as'},
-  {name: 'Odia', code: 'or'},
-  {name: 'Punjabi', code: 'pa'},
-  {name: 'Gujarati', code: 'gu'},
-  {name: 'Tamil', code: 'ta'},
-  {name: 'Telugu', code: 'te'},
-  {name: 'Kannada', code: 'kn'},
-  {name: 'Malayalam', code: 'ml'},
-  {name: 'Thai', code: 'th'},
-  {name: 'Vietnamese', code: 'vi'},
-  {name: 'Indonesian', code: 'id'},
-  {name: 'Malay', code: 'ms'},
-  {name: 'Filipino/Tagalog', code: 'tl'},
+  { name: 'English', code: 'en' },
+  { name: 'Spanish', code: 'es' },
+  { name: 'French', code: 'fr' },
+  { name: 'German', code: 'de' },
+  { name: 'Italian', code: 'it' },
+  { name: 'Portuguese', code: 'pt' },
+  { name: 'Russian', code: 'ru' },
+  { name: 'Japanese', code: 'ja' },
+  { name: 'Korean', code: 'ko' },
+  { name: 'Chinese', code: 'zh' },
+  { name: 'Arabic', code: 'ar' },
+  { name: 'Hindi', code: 'hi' },
+  { name: 'Turkish', code: 'tr' },
+  { name: 'Polish', code: 'pl' },
+  { name: 'Dutch', code: 'nl' },
+  { name: 'Swedish', code: 'sv' },
+  { name: 'Danish', code: 'da' },
+  { name: 'Norwegian', code: 'no' },
+  { name: 'Finnish', code: 'fi' },
+  { name: 'Czech', code: 'cs' },
+  { name: 'Slovak', code: 'sk' },
+  { name: 'Hungarian', code: 'hu' },
+  { name: 'Romanian', code: 'ro' },
+  { name: 'Bulgarian', code: 'bg' },
+  { name: 'Croatian', code: 'hr' },
+  { name: 'Slovenian', code: 'sl' },
+  { name: 'Estonian', code: 'et' },
+  { name: 'Latvian', code: 'lv' },
+  { name: 'Lithuanian', code: 'lt' },
+  { name: 'Maltese', code: 'mt' },
+  { name: 'Irish', code: 'ga' },
+  { name: 'Welsh', code: 'cy' },
+  { name: 'Icelandic', code: 'is' },
+  { name: 'Macedonian', code: 'mk' },
+  { name: 'Albanian', code: 'sq' },
+  { name: 'Azerbaijani', code: 'az' },
+  { name: 'Kazakh', code: 'kk' },
+  { name: 'Kyrgyz', code: 'ky' },
+  { name: 'Uzbek', code: 'uz' },
+  { name: 'Tajik', code: 'tg' },
+  { name: 'Amharic', code: 'am' },
+  { name: 'Burmese', code: 'my' },
+  { name: 'Khmer', code: 'km' },
+  { name: 'Lao', code: 'lo' },
+  { name: 'Sinhala', code: 'si' },
+  { name: 'Nepali', code: 'ne' },
+  { name: 'Bengali', code: 'bn' },
+  { name: 'Assamese', code: 'as' },
+  { name: 'Odia', code: 'or' },
+  { name: 'Punjabi', code: 'pa' },
+  { name: 'Gujarati', code: 'gu' },
+  { name: 'Tamil', code: 'ta' },
+  { name: 'Telugu', code: 'te' },
+  { name: 'Kannada', code: 'kn' },
+  { name: 'Malayalam', code: 'ml' },
+  { name: 'Thai', code: 'th' },
+  { name: 'Vietnamese', code: 'vi' },
+  { name: 'Indonesian', code: 'id' },
+  { name: 'Malay', code: 'ms' },
+  { name: 'Filipino/Tagalog', code: 'tl' },
 ];
 
 const validationError = `{
@@ -581,47 +583,47 @@ const sttConfigResponse = `{
 }`;
 
 const sttInputs = [
-  {name: 'file', type: 'file', defaultValue: 'required', description: 'Audio file to transcribe.'},
-  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
-  {name: 'language', type: 'string', defaultValue: '-', description: 'Language code (e.g., "en", "hi") for forced detection.'},
-  {name: 'chunk_length_s', type: 'number', defaultValue: '-', description: 'Length of each chunk in seconds (1–30).'},
-  {name: 'stride_s', type: 'number', defaultValue: '-', description: 'Stride between chunks in seconds (1–29).'},
-  {name: 'overlap_words', type: 'integer', defaultValue: '-', description: 'Number of overlapping words for context handling (0–20).'},
+  { name: 'file', type: 'file', defaultValue: 'required', description: 'Audio file to transcribe.' },
+  { name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.' },
+  { name: 'language', type: 'string', defaultValue: '-', description: 'Language code (e.g., "en", "hi") for forced detection.' },
+  { name: 'chunk_length_s', type: 'number', defaultValue: '-', description: 'Length of each chunk in seconds (1–30).' },
+  { name: 'stride_s', type: 'number', defaultValue: '-', description: 'Stride between chunks in seconds (1–29).' },
+  { name: 'overlap_words', type: 'integer', defaultValue: '-', description: 'Number of overlapping words for context handling (0–20).' },
 ];
 
 const streamingOutputs = [
-  {name: '200 OK', type: 'text/event-stream', defaultValue: '-', description: 'Returns transcription results in JSON (streamed via SSE).'},
-  {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
+  { name: '200 OK', type: 'text/event-stream', defaultValue: '-', description: 'Returns transcription results in JSON (streamed via SSE).' },
+  { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
 ];
 
 const fileOutputs = [
-  {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns the complete transcript and metrics as JSON.'},
-  {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
+  { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns the complete transcript and metrics as JSON.' },
+  { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
 ];
 
 const asyncFileInputs = [
-  {name: 'file', type: 'file', defaultValue: 'required', description: 'Audio file up to 10 minutes (600 seconds).'},
-  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
-  {name: 'model', type: 'string', defaultValue: '"default"', description: 'Use "default", "indus-stt-v1", "hi-en", or "indus-stt-hi-en".'},
-  {name: 'language', type: 'string', defaultValue: '-', description: 'Language hint (ISO code or name).'},
-  {name: 'noise_cancellation', type: 'boolean', defaultValue: 'false', description: 'Enable server-side denoising before inference.'},
+  { name: 'file', type: 'file', defaultValue: 'required', description: 'Audio file up to 10 minutes (600 seconds).' },
+  { name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.' },
+  { name: 'model', type: 'string', defaultValue: '"default"', description: 'Use "default", "indus-stt-v1", "hi-en", or "indus-stt-hi-en".' },
+  { name: 'language', type: 'string', defaultValue: '-', description: 'Language hint (ISO code or name).' },
+  { name: 'noise_cancellation', type: 'boolean', defaultValue: 'false', description: 'Enable server-side denoising before inference.' },
 ];
 
 const asyncFileOutputs = [
-  {name: '202 Accepted', type: 'application/json', defaultValue: '-', description: 'Returns request_id, duration, estimated_time, and status_url for polling.'},
-  {name: '400 Bad Request', type: 'application/json', defaultValue: '-', description: 'Audio rejected (e.g., longer than 10 minutes or invalid format).'},
-  {name: '401 / 402', type: 'application/json', defaultValue: '-', description: 'Authentication failure or insufficient credits.'},
+  { name: '202 Accepted', type: 'application/json', defaultValue: '-', description: 'Returns request_id, duration, estimated_time, and status_url for polling.' },
+  { name: '400 Bad Request', type: 'application/json', defaultValue: '-', description: 'Audio rejected (e.g., longer than 10 minutes or invalid format).' },
+  { name: '401 / 402', type: 'application/json', defaultValue: '-', description: 'Authentication failure or insufficient credits.' },
 ];
 
 const asyncStatusInputs = [
-  {name: 'request_id', type: 'path', defaultValue: 'required', description: 'Identifier returned from /v1/audio/transcribe_file.'},
-  {name: 'api_key', type: 'string (query)', defaultValue: 'required', description: 'Same key used when creating the job.'},
+  { name: 'request_id', type: 'path', defaultValue: 'required', description: 'Identifier returned from /v1/audio/transcribe_file.' },
+  { name: 'api_key', type: 'string (query)', defaultValue: 'required', description: 'Same key used when creating the job.' },
 ];
 
 const asyncStatusOutputs = [
-  {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Current status plus transcript, segments, and metrics when completed.'},
-  {name: '404 Not Found', type: 'application/json', defaultValue: '-', description: 'Unknown or expired request_id.'},
-  {name: '500 Internal Server Error', type: 'application/json', defaultValue: '-', description: 'Job failed; see error field for details.'},
+  { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Current status plus transcript, segments, and metrics when completed.' },
+  { name: '404 Not Found', type: 'application/json', defaultValue: '-', description: 'Unknown or expired request_id.' },
+  { name: '500 Internal Server Error', type: 'application/json', defaultValue: '-', description: 'Job failed; see error field for details.' },
 ];
 
 const configOutputs = [
@@ -641,24 +643,24 @@ const configOutputs = [
 
 // WebSocket-specific definitions
 const wsInputs = [
-  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key passed in URL query string.'},
-  {name: 'model', type: 'string', defaultValue: 'indus-stt-hi-en', description: 'Model to use (e.g., "indus-stt-hi-en").'},
-  {name: 'language', type: 'string', defaultValue: '-', description: 'Language name or ISO code (e.g., "english", "hindi", "en", "hi").'},
-  {name: 'streaming', type: 'string', defaultValue: '"true"', description: 'Use "true" for streaming mode (interim results), "false" for non-streaming.'},
-  {name: 'noise_cancellation', type: 'string', defaultValue: '"false"', description: 'Use "true" to enable noise cancellation for cleaner audio in noisy environments. Filters low-frequency rumble, high-frequency hiss, and ambient background noise to reduce hallucinations and improve accuracy.'},
+  { name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key passed in URL query string.' },
+  { name: 'model', type: 'string', defaultValue: 'indus-stt-hi-en', description: 'Model to use (e.g., "indus-stt-hi-en").' },
+  { name: 'language', type: 'string', defaultValue: '-', description: 'Language name or ISO code (e.g., "english", "hindi", "en", "hi").' },
+  { name: 'streaming', type: 'string', defaultValue: '"true"', description: 'Use "true" for streaming mode (interim results), "false" for non-streaming.' },
+  { name: 'noise_cancellation', type: 'string', defaultValue: '"false"', description: 'Use "true" to enable noise cancellation for cleaner audio in noisy environments. Filters low-frequency rumble, high-frequency hiss, and ambient background noise to reduce hallucinations and improve accuracy.' },
 ];
 
 const wsMessageTypes = [
-  {name: 'URL Query Params', type: 'URL', defaultValue: 'connection', description: 'Pass api_key, model, language, streaming as URL query parameters when connecting.'},
-  {name: 'Audio Chunks', type: 'binary', defaultValue: 'continuous', description: 'Raw audio data sent as binary WebSocket frames (recommended: 4096 bytes per chunk).'},
-  {name: 'End Signal', type: 'binary', defaultValue: 'last', description: 'Send b"__END__" to signal audio stream completion.'},
+  { name: 'URL Query Params', type: 'URL', defaultValue: 'connection', description: 'Pass api_key, model, language, streaming as URL query parameters when connecting.' },
+  { name: 'Audio Chunks', type: 'binary', defaultValue: 'continuous', description: 'Raw audio data sent as binary WebSocket frames (recommended: 4096 bytes per chunk).' },
+  { name: 'End Signal', type: 'binary', defaultValue: 'last', description: 'Send b"__END__" to signal audio stream completion.' },
 ];
 
 const wsOutputs = [
-  {name: 'chunk_interim', type: 'JSON', defaultValue: '-', description: 'Interim transcription result during processing (when streaming="true").'},
-  {name: 'chunk_final', type: 'JSON', defaultValue: '-', description: 'Final transcription for a processed audio chunk.'},
-  {name: 'final', type: 'JSON', defaultValue: '-', description: 'Complete transcription with full text after all chunks processed.'},
-  {name: 'error', type: 'JSON', defaultValue: '-', description: 'Error message if processing fails.'},
+  { name: 'chunk_interim', type: 'JSON', defaultValue: '-', description: 'Interim transcription result during processing (when streaming="true").' },
+  { name: 'chunk_final', type: 'JSON', defaultValue: '-', description: 'Final transcription for a processed audio chunk.' },
+  { name: 'final', type: 'JSON', defaultValue: '-', description: 'Complete transcription with full text after all chunks processed.' },
+  { name: 'error', type: 'JSON', defaultValue: '-', description: 'Error message if processing fails.' },
 ];
 
 const wsResponseExamples = [
@@ -734,7 +736,7 @@ data: {"type": "final", "text": "यह एक टेस्ट है, भाष
     language: 'json',
     code: sttConfigResponse,
   },
-  {label: '422 Validation Error', language: 'json', code: validationError},
+  { label: '422 Validation Error', language: 'json', code: validationError },
   {
     label: '202 Accepted (Batch Upload)',
     language: 'json',
@@ -767,298 +769,298 @@ data: {"type": "final", "text": "यह एक टेस्ट है, भाष
 ];
 
 const endpoints = [
-    {
-      id: 'stt-post-v1-audio-transcribe',
-      method: 'POST',
-      path: '/v1/audio/transcribe',
-      title: 'Transcribe Audio (Streaming)',
-      description: 'This endpoint is used to transcribe audio files into text with streaming results via Server-Sent Events (SSE).',
-      notes: [
-        'Accepts an audio file and returns real-time transcription results.',
-        'Outputs partial, chunk-level, and final transcripts as the audio is processed.',
-        'Suitable for low-latency transcription where results are streamed back continuously.',
-      ],
-      inputs: sttInputs,
-      outputs: streamingOutputs,
-      examples: [responseExamples[0], responseExamples[2]],
-    },
-    {
-      id: 'stt-post-v1-audio-transcribe-file',
-      method: 'POST',
-      path: '/v1/audio/transcribe/file',
-      title: 'Transcribe Audio File (JSON)',
-      description: 'This endpoint is used to transcribe an audio file and return the complete transcript as JSON (non-streaming).',
-      notes: [
-        'Accepts an audio file and returns the full transcription result after processing.',
-        'Provides metrics in the JSON response (non-streaming, unlike the /v1/audio/transcribe endpoint).',
-      ],
-      inputs: sttInputs,
-      outputs: fileOutputs,
-      examples: [responseExamples[1], responseExamples[2]],
-    },
-    {
-      id: 'stt-post-v1-audio-transcribe-file-async',
-      method: 'POST',
-      path: '/v1/audio/transcribe_file',
-      title: 'Transcribe Audio File (Batch Async)',
-      description: 'Launches background transcription for files up to 10 minutes and immediately returns a request_id to poll later.',
-      notes: [
-        'Designed for long recordings up to 10 minutes (600 seconds).',
-        'Returns immediately so your UI can poll the status endpoint or notify the user.',
-        'Available via REST on the web — SDK helpers are not yet available.',
-        'Supports optional noise cancellation before inference begins.',
-      ],
-      inputs: asyncFileInputs,
-      outputs: asyncFileOutputs,
-      examples: [responseExamples[4]],
-    },
-    {
-      id: 'stt-get-v1-audio-transcribe-status',
-      method: 'GET',
-      path: '/v1/audio/transcribe_status/{request_id}',
-      title: 'Get Batch Transcription Status',
-      description: 'Polls the progress of a batch job created by /v1/audio/transcribe_file and returns the final transcript when completed.',
-      notes: [
-        'Call every poll_interval seconds until the job reports completed or failed.',
-        'Completed responses include full text, segments, word-level timestamps (if available), and processing metrics.',
-        'Failed jobs return an error string so that you can surface actionable feedback to users.',
-      ],
-      inputs: asyncStatusInputs,
-      outputs: asyncStatusOutputs,
-      examples: [responseExamples[5]],
-    },
-    {
-      id: 'stt-get-v1-audio-transcribe-config',
-      method: 'GET',
-      path: '/v1/audio/transcribe/config',
-      title: 'Retrieve Transcription Configuration',
-      description: 'Fetch default parameters, limits, and supported formats before sending audio for transcription.',
-      notes: [
-        'Provides current defaults for chunk sizing, stride, and overlap handling.',
-        'Lists accepted media formats and the maximum upload size in megabytes.',
-        'Use these values to validate client-side settings and avoid failed uploads.',
-      ],
-      inputs: [],
-      outputs: configOutputs,
-      examples: [responseExamples[3], responseExamples[2]],
-    },
-    {
-      id: 'stt-ws-v1-audio-transcribe',
-      method: 'WS',
-      path: '/v1/audio/transcribe_ws',
-      title: 'WebSocket Streaming Transcription',
-      description: 'Real-time speech-to-text transcription using WebSocket for bidirectional streaming. Perfect for live audio, voice assistants, and low-latency applications.',
-      notes: [
-        '🔌 **Persistent Connection**: Maintains a WebSocket connection for continuous audio streaming.',
-        '⚡ **Real-time Results**: Receive transcription segments as audio is processed—no waiting for the complete file.',
-        '🎯 **Low Latency**: Optimized for live microphone input and real-time voice applications.',
-        '📊 **Segment Callbacks**: Get word-level and segment-level results via callbacks as they become available.',
-        '🔄 **Bidirectional**: Send audio chunks and receive transcriptions simultaneously.',
-        '🔇 **Noise Cancellation**: Optional audio enhancement that filters background noise for improved accuracy in noisy environments.',
-      ],
-      models: [
-        {name: 'indus-stt-v1', description: 'Default model that supports all languages.'},
-        {name: 'indus-stt-hi-en', description: 'Specialized model for Hindi and English with real-time streaming input/output and very low processing time.'},
-      ],
-      inputs: wsInputs,
-      outputs: wsOutputs,
-      messageTypes: wsMessageTypes,
-      examples: wsResponseExamples,
-      isWebSocket: true,
-    },
+  {
+    id: 'stt-post-v1-audio-transcribe',
+    method: 'POST',
+    path: '/v1/audio/transcribe',
+    title: 'Transcribe Audio (Streaming)',
+    description: 'This endpoint is used to transcribe audio files into text with streaming results via Server-Sent Events (SSE).',
+    notes: [
+      'Accepts an audio file and returns real-time transcription results.',
+      'Outputs partial, chunk-level, and final transcripts as the audio is processed.',
+      'Suitable for low-latency transcription where results are streamed back continuously.',
+    ],
+    inputs: sttInputs,
+    outputs: streamingOutputs,
+    examples: [responseExamples[0], responseExamples[2]],
+  },
+  {
+    id: 'stt-ws-v1-audio-transcribe',
+    method: 'WS',
+    path: '/v1/audio/transcribe_ws',
+    title: 'WebSocket Streaming Transcription',
+    description: 'Real-time speech-to-text transcription using WebSocket for bidirectional streaming. Perfect for live audio, voice assistants, and low-latency applications.',
+    notes: [
+      '🔌 **Persistent Connection**: Maintains a WebSocket connection for continuous audio streaming.',
+      '⚡ **Real-time Results**: Receive transcription segments as audio is processed—no waiting for the complete file.',
+      '🎯 **Low Latency**: Optimized for live microphone input and real-time voice applications.',
+      '📊 **Segment Callbacks**: Get word-level and segment-level results via callbacks as they become available.',
+      '🔄 **Bidirectional**: Send audio chunks and receive transcriptions simultaneously.',
+      '🔇 **Noise Cancellation**: Optional audio enhancement that filters background noise for improved accuracy in noisy environments.',
+    ],
+    models: [
+      { name: 'indus-stt-v1', description: 'Default model that supports all languages.' },
+      { name: 'indus-stt-hi-en', description: 'Specialized model for Hindi and English with real-time streaming input/output and very low processing time.' },
+    ],
+    inputs: wsInputs,
+    outputs: wsOutputs,
+    messageTypes: wsMessageTypes,
+    examples: wsResponseExamples,
+    isWebSocket: true,
+  },
+  // {
+  //   id: 'stt-post-v1-audio-transcribe-file',
+  //   method: 'POST',
+  //   path: '/v1/audio/transcribe/file',
+  //   title: 'Transcribe Audio File (JSON)',
+  //   description: 'This endpoint is used to transcribe an audio file and return the complete transcript as JSON (non-streaming).',
+  //   notes: [
+  //     'Accepts an audio file and returns the full transcription result after processing.',
+  //     'Provides metrics in the JSON response (non-streaming, unlike the /v1/audio/transcribe endpoint).',
+  //   ],
+  //   inputs: sttInputs,
+  //   outputs: fileOutputs,
+  //   examples: [responseExamples[1], responseExamples[2]],
+  // },
+  {
+    id: 'stt-post-v1-audio-transcribe-file-async',
+    method: 'POST',
+    path: '/v1/audio/transcribe_file',
+    title: 'Transcribe Audio File (Batch Async)',
+    description: 'Launches background transcription for files up to 10 minutes and immediately returns a request_id to poll later.',
+    notes: [
+      'Designed for long recordings up to 10 minutes (600 seconds).',
+      'Returns immediately so your UI can poll the status endpoint or notify the user.',
+      'Available via REST on the web — SDK helpers are not yet available.',
+      'Supports optional noise cancellation before inference begins.',
+    ],
+    inputs: asyncFileInputs,
+    outputs: asyncFileOutputs,
+    examples: [responseExamples[4]],
+  },
+  {
+    id: 'stt-get-v1-audio-transcribe-status',
+    method: 'GET',
+    path: '/v1/audio/transcribe_status/{request_id}',
+    title: 'Get Batch Transcription Status',
+    description: 'Polls the progress of a batch job created by /v1/audio/transcribe_file and returns the final transcript when completed.',
+    notes: [
+      'Call every poll_interval seconds until the job reports completed or failed.',
+      'Completed responses include full text, segments, word-level timestamps (if available), and processing metrics.',
+      'Failed jobs return an error string so that you can surface actionable feedback to users.',
+    ],
+    inputs: asyncStatusInputs,
+    outputs: asyncStatusOutputs,
+    examples: [responseExamples[5]],
+  },
+  {
+    id: 'stt-get-v1-audio-transcribe-config',
+    method: 'GET',
+    path: '/v1/audio/transcribe/config',
+    title: 'Retrieve Transcription Configuration',
+    description: 'Fetch default parameters, limits, and supported formats before sending audio for transcription.',
+    notes: [
+      'Provides current defaults for chunk sizing, stride, and overlap handling.',
+      'Lists accepted media formats and the maximum upload size in megabytes.',
+      'Use these values to validate client-side settings and avoid failed uploads.',
+    ],
+    inputs: [],
+    outputs: configOutputs,
+    examples: [responseExamples[3], responseExamples[2]],
+  },
 ];
 
-function TableCard({title, rows, headerLabels}) {
-    if (!rows || rows.length === 0) {
-      return null;
-    }
-  
-    return (
-      <div className={styles.tableCard}>
-        <h4>{title}</h4>
-        <div className={styles.tableScroll}>
-          <table>
-            <thead>
-              <tr>
-                {headerLabels.map(label => (
-                  <th key={label}>{label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(row => {
-                const normalizedDefault =
-                  typeof row.defaultValue === 'string' ? row.defaultValue.toLowerCase() : row.defaultValue;
-                const isRequired = normalizedDefault === 'required';
-                return (
-                  <tr key={row.name}>
-                    <td data-label={headerLabels[0]}>
-                      <code>{row.name}</code>
-                      {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
-                    </td>
-                    <td data-label={headerLabels[1]}>{row.type}</td>
-                    <td data-label={headerLabels[2]} data-required={isRequired ? 'true' : 'false'}>
-                      {isRequired ? 'required' : row.defaultValue}
-                    </td>
-                    <td data-label={headerLabels[3]}>{row.description}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+function TableCard({ title, rows, headerLabels }) {
+  if (!rows || rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={styles.tableCard}>
+      <h4>{title}</h4>
+      <div className={styles.tableScroll}>
+        <table>
+          <thead>
+            <tr>
+              {headerLabels.map(label => (
+                <th key={label}>{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(row => {
+              const normalizedDefault =
+                typeof row.defaultValue === 'string' ? row.defaultValue.toLowerCase() : row.defaultValue;
+              const isRequired = normalizedDefault === 'required';
+              return (
+                <tr key={row.name}>
+                  <td data-label={headerLabels[0]}>
+                    <code>{row.name}</code>
+                    {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
+                  </td>
+                  <td data-label={headerLabels[1]}>{row.type}</td>
+                  <td data-label={headerLabels[2]} data-required={isRequired ? 'true' : 'false'}>
+                    {isRequired ? 'required' : row.defaultValue}
+                  </td>
+                  <td data-label={headerLabels[3]}>{row.description}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-    );
+    </div>
+  );
 }
 
-function OutputCard({rows}) {
-    const headerLabels = ['Status', 'Type', 'Description'];
-    return (
-        <div className={styles.tableCard}>
-        <h4>Outputs</h4>
-        <div className={styles.tableScroll}>
-            <table>
-            <thead>
-                <tr>
-                {headerLabels.map(label => (
-                    <th key={label}>{label}</th>
-                ))}
-                </tr>
-            </thead>
-            <tbody>
-                {rows.map(row => (
-                <tr key={row.name}>
-                    <td data-label={headerLabels[0]}><code>{row.name}</code></td>
-                    <td data-label={headerLabels[1]}>{row.type}</td>
-                    <td data-label={headerLabels[2]}>{row.description}</td>
-                </tr>
-                ))}
-            </tbody>
-            </table>
-        </div>
-        </div>
-    );
+function OutputCard({ rows }) {
+  const headerLabels = ['Status', 'Type', 'Description'];
+  return (
+    <div className={styles.tableCard}>
+      <h4>Outputs</h4>
+      <div className={styles.tableScroll}>
+        <table>
+          <thead>
+            <tr>
+              {headerLabels.map(label => (
+                <th key={label}>{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(row => (
+              <tr key={row.name}>
+                <td data-label={headerLabels[0]}><code>{row.name}</code></td>
+                <td data-label={headerLabels[1]}>{row.type}</td>
+                <td data-label={headerLabels[2]}>{row.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
-function MessageTypeCard({rows}) {
-    const headerLabels = ['Message', 'Type', 'Order', 'Description'];
-    return (
-        <div className={styles.tableCard}>
-        <h4>WebSocket Message Flow</h4>
-        <div className={styles.tableScroll}>
-            <table>
-            <thead>
-                <tr>
-                {headerLabels.map(label => (
-                    <th key={label}>{label}</th>
-                ))}
-                </tr>
-            </thead>
-            <tbody>
-                {rows.map(row => (
-                <tr key={row.name}>
-                    <td data-label={headerLabels[0]}><code>{row.name}</code></td>
-                    <td data-label={headerLabels[1]}>{row.type}</td>
-                    <td data-label={headerLabels[2]}>{row.defaultValue}</td>
-                    <td data-label={headerLabels[3]}>{row.description}</td>
-                </tr>
-                ))}
-            </tbody>
-            </table>
-        </div>
-        </div>
-    );
+function MessageTypeCard({ rows }) {
+  const headerLabels = ['Message', 'Type', 'Order', 'Description'];
+  return (
+    <div className={styles.tableCard}>
+      <h4>WebSocket Message Flow</h4>
+      <div className={styles.tableScroll}>
+        <table>
+          <thead>
+            <tr>
+              {headerLabels.map(label => (
+                <th key={label}>{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(row => (
+              <tr key={row.name}>
+                <td data-label={headerLabels[0]}><code>{row.name}</code></td>
+                <td data-label={headerLabels[1]}>{row.type}</td>
+                <td data-label={headerLabels[2]}>{row.defaultValue}</td>
+                <td data-label={headerLabels[3]}>{row.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
-  
-function EndpointSection({endpoint}) {
+
+function EndpointSection({ endpoint }) {
   const [copied, setCopied] = useState(false);
   const isWebSocket = endpoint.isWebSocket || endpoint.method === 'WS';
-  const copyValue = isWebSocket 
+  const copyValue = isWebSocket
     ? `${STT_WS_URL}${endpoint.path}`
     : `${STT_BASE_URL}${endpoint.path}`;
-  
-    const handleCopy = async () => {
-      try {
-        await navigator.clipboard.writeText(copyValue);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (error) {
-        setCopied(false);
-      }
-    };
-  
-    return (
-      <section id={endpoint.id} className={styles.endpointSection}>
-        <div className={styles.endpointHeader}>
-          <MethodBadge method={endpoint.method} />
-          <code className={styles.endpointPath}>{endpoint.path}</code>
-          <button type="button" className={styles.copyButton} onClick={handleCopy}>
-            {copied ? 'Copied!' : 'Copy API'}
-          </button>
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(copyValue);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      setCopied(false);
+    }
+  };
+
+  return (
+    <section id={endpoint.id} className={styles.endpointSection}>
+      <div className={styles.endpointHeader}>
+        <MethodBadge method={endpoint.method} />
+        <code className={styles.endpointPath}>{endpoint.path}</code>
+        <button type="button" className={styles.copyButton} onClick={handleCopy}>
+          {copied ? 'Copied!' : 'Copy API'}
+        </button>
+      </div>
+      <h3 className={styles.anchorTitle}>{endpoint.title}</h3>
+      <p>{endpoint.description}</p>
+      {endpoint.notes.length > 0 && (
+        <div className={styles.callout}>
+          <strong>{isWebSocket ? 'Key Features' : 'Functionality'}</strong>
+          <ul>
+            {endpoint.notes.map(note => (
+              <li key={note} dangerouslySetInnerHTML={{ __html: note.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+            ))}
+          </ul>
         </div>
-        <h3 className={styles.anchorTitle}>{endpoint.title}</h3>
-        <p>{endpoint.description}</p>
-        {endpoint.notes.length > 0 && (
-          <div className={styles.callout}>
-            <strong>{isWebSocket ? 'Key Features' : 'Functionality'}</strong>
-            <ul>
-              {endpoint.notes.map(note => (
-                <li key={note} dangerouslySetInnerHTML={{ __html: note.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
-              ))}
-            </ul>
-          </div>
-        )}
-        
-        {/* WebSocket-specific connection info */}
-        {isWebSocket && (
-          <div className={styles.callout} style={{ background: 'rgba(156, 39, 176, 0.06)', borderColor: 'rgba(156, 39, 176, 0.2)' }}>
-            <strong>🔌 WebSocket Connection</strong>
-            <p style={{ margin: '0.5rem 0 0' }}>
-              Connect to: <code>{STT_WS_URL}{endpoint.path}</code>
-            </p>
-            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', opacity: 0.85 }}>
-              Unlike REST endpoints, WebSocket maintains a persistent bidirectional connection for real-time streaming.
-            </p>
-          </div>
-        )}
-        
-        {/* Available Models */}
-        {endpoint.models && endpoint.models.length > 0 && (
-          <div className={styles.callout} style={{ background: 'rgba(46, 125, 50, 0.06)', borderColor: 'rgba(46, 125, 50, 0.2)' }}>
-            <strong>🤖 Available Models</strong>
-            <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.5rem' }}>
-              {endpoint.models.map(model => (
-                <li key={model.name} style={{ marginBottom: '0.4rem' }}>
-                  <code style={{ fontWeight: 600 }}>{model.name}</code>: {model.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        
-        {/* WebSocket message flow */}
-        {isWebSocket && endpoint.messageTypes && (
-          <MessageTypeCard rows={endpoint.messageTypes} />
-        )}
-        
-        <div className={styles.ioGrid}>
-            <TableCard 
-              title={isWebSocket ? "Configuration Parameters" : "Form Fields"} 
-              rows={endpoint.inputs} 
-              headerLabels={['Name', 'Type', 'Default', 'Description']} 
-            />
-            <OutputCard rows={endpoint.outputs} />
+      )}
+
+      {/* WebSocket-specific connection info */}
+      {isWebSocket && (
+        <div className={styles.callout} style={{ background: 'rgba(156, 39, 176, 0.06)', borderColor: 'rgba(156, 39, 176, 0.2)' }}>
+          <strong>🔌 WebSocket Connection</strong>
+          <p style={{ margin: '0.5rem 0 0' }}>
+            Connect to: <code>{STT_WS_URL}{endpoint.path}</code>
+          </p>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', opacity: 0.85 }}>
+            Unlike REST endpoints, WebSocket maintains a persistent bidirectional connection for real-time streaming.
+          </p>
         </div>
-        <div className={styles.responseExamples}>
-      {endpoint.examples.map(example => (
-        <div key={example.label} className={styles.responseExampleCard}>
-          <h4>{example.label}</h4>
-          <CopyableCode language={example.language}>{example.code}</CopyableCode>
+      )}
+
+      {/* Available Models */}
+      {endpoint.models && endpoint.models.length > 0 && (
+        <div className={styles.callout} style={{ background: 'rgba(46, 125, 50, 0.06)', borderColor: 'rgba(46, 125, 50, 0.2)' }}>
+          <strong>🤖 Available Models</strong>
+          <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.5rem' }}>
+            {endpoint.models.map(model => (
+              <li key={model.name} style={{ marginBottom: '0.4rem' }}>
+                <code style={{ fontWeight: 600 }}>{model.name}</code>: {model.description}
+              </li>
+            ))}
+          </ul>
         </div>
-      ))}
-    </div>
-  </section>
-);
+      )}
+
+      {/* WebSocket message flow */}
+      {isWebSocket && endpoint.messageTypes && (
+        <MessageTypeCard rows={endpoint.messageTypes} />
+      )}
+
+      <div className={styles.ioGrid}>
+        <TableCard
+          title={isWebSocket ? "Configuration Parameters" : "Form Fields"}
+          rows={endpoint.inputs}
+          headerLabels={['Name', 'Type', 'Default', 'Description']}
+        />
+        <OutputCard rows={endpoint.outputs} />
+      </div>
+      <div className={styles.responseExamples}>
+        {endpoint.examples.map(example => (
+          <div key={example.label} className={styles.responseExampleCard}>
+            <h4>{example.label}</h4>
+            <CopyableCode language={example.language}>{example.code}</CopyableCode>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function SttPage() {
@@ -1072,8 +1074,8 @@ export default function SttPage() {
       <section id="stt-introduction" className={styles.pageIntro}>
         <h1>Speech-to-Text Service</h1>
         <p>
-          Convert spoken audio into accurate transcripts using flexible endpoints.  
-          Use <code>/v1/audio/transcribe</code> for streaming SSE results, <code>/v1/audio/transcribe/file</code> for complete JSON output, <code>/v1/audio/transcribe_file</code> + <code>GET /v1/audio/transcribe_status/{'{'}request_id{'}'}</code> for web-only batch jobs up to 10 minutes, <code>/v1/audio/transcribe_ws</code> for real-time WebSocket streaming, and <code>GET /v1/audio/transcribe/config</code> to inspect supported formats and defaults before uploading.
+          Convert spoken audio into accurate transcripts using flexible endpoints.
+          Use <code>/v1/audio/transcribe</code> for streaming SSE results, <code>/v1/audio/transcribe_ws</code> for real-time WebSocket streaming, <code>/v1/audio/transcribe_file</code> + <code>GET /v1/audio/transcribe_status/{'{'}request_id{'}'}</code> for web-only batch jobs up to 10 minutes, and <code>GET /v1/audio/transcribe/config</code> to inspect supported formats and defaults before uploading.
         </p>
         <div className={styles.apiKeyNotice} style={{
           background: 'rgba(84, 104, 255, 0.08)',
@@ -1083,11 +1085,11 @@ export default function SttPage() {
           marginTop: '1rem',
           marginBottom: '1rem',
         }}>
-          <p style={{margin: 0}}>
+          <p style={{ margin: 0 }}>
             <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
-            <a 
-              href="https://playground.induslabs.io/register" 
-              target="_blank" 
+            <a
+              href="https://playground.induslabs.io/register"
+              target="_blank"
               rel="noopener noreferrer"
               style={{
                 color: '#5468ff',
@@ -1112,11 +1114,11 @@ export default function SttPage() {
           </ul>
         </details>
       </section>
-      
-      <div style={{marginTop: '0.75rem'}}>
+
+      <div style={{ marginTop: '0.75rem' }}>
         <div className={styles.apiKeyImage}>
-          <img src="/img/api-key-location.png" alt="Where to get your API key" style={{maxWidth: '420px', width: '100%', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)'}} />
-          <p style={{fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0}}>
+          <img src="/img/api-key-location.png" alt="Where to get your API key" style={{ maxWidth: '420px', width: '100%', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)' }} />
+          <p style={{ fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0 }}>
             Screenshot: where to find your API key. Create one at{' '}
             <a href="https://playground.induslabs.io/register" target="_blank" rel="noopener noreferrer">playground.induslabs.io/register</a>
           </p>
@@ -1124,7 +1126,7 @@ export default function SttPage() {
       </div>
 
       {endpoints.map(endpoint => (
-          <EndpointSection key={endpoint.id} endpoint={endpoint} />
+        <EndpointSection key={endpoint.id} endpoint={endpoint} />
       ))}
     </DocsLayout>
   );
