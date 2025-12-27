@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
+import React, { useState } from 'react';
+import DocsLayout, { MethodBadge } from '@site/src/components/DocsLayout/DocsLayout';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
-import {getSidebarSections} from '@site/src/sidebarConfig';
+import { getSidebarSections } from '@site/src/sidebarConfig';
 
 import styles from './api.module.css';
 
@@ -437,17 +437,17 @@ const previewResponse = `{
 }`;
 
 const sharedInputs = [
-  {name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.'},
-  {name: 'voice', type: 'string', defaultValue: 'Indus-hi-maya', description: 'The voice model to be used (e.g., "Indus-hi-maya").'},
-  {name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3", "pcm").'},
-  {name: 'model', type: 'string', defaultValue: 'indus-tts-v1', description: 'The TTS model to use (e.g., "indus-tts-v1").'},
-  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
-  {name: 'normalize', type: 'boolean', defaultValue: 'true', description: 'Whether to normalize text before synthesis (default: true).'},
-  {name: 'stream', type: 'boolean', defaultValue: 'true', description: 'Whether to stream the output (default: true).'},
-  {name: 'speed', type: 'number', defaultValue: '1', description: 'Speed of speech synthesis (default: 1).'},
-  {name: 'pitch_shift', type: 'number', defaultValue: '0', description: 'Pitch shift adjustment (default: 0).'},
-  {name: 'loudness_db', type: 'number', defaultValue: '0', description: 'Loudness adjustment in decibels (default: 0).'},
-  {name: 'sample_rate', type: 'number', defaultValue: '24000', description: 'Audio sample rate in Hz. Accepted values: 24000 (recommended), 16000, 8000.'},
+  { name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.' },
+  { name: 'voice', type: 'string', defaultValue: 'Indus-hi-maya', description: 'The voice model to be used (e.g., "Indus-hi-maya").' },
+  { name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3", "pcm").' },
+  { name: 'model', type: 'string', defaultValue: 'indus-tts-v1', description: 'The TTS model to use (e.g., "indus-tts-v1").' },
+  { name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.' },
+  { name: 'normalize', type: 'boolean', defaultValue: 'true', description: 'Whether to normalize text before synthesis (default: true).' },
+  { name: 'stream', type: 'boolean', defaultValue: 'true', description: 'Whether to stream the output (default: true).' },
+  { name: 'speed', type: 'number', defaultValue: '1', description: 'Speed of speech synthesis (default: 1).' },
+  { name: 'pitch_shift', type: 'number', defaultValue: '0', description: 'Pitch shift adjustment (default: 0).' },
+  { name: 'loudness_db', type: 'number', defaultValue: '0', description: 'Loudness adjustment in decibels (default: 0).' },
+  { name: 'sample_rate', type: 'number', defaultValue: '24000', description: 'Audio sample rate in Hz. Accepted values: 24000 (recommended), 16000, 8000.' },
 ];
 
 const voiceListExample = `{
@@ -544,8 +544,8 @@ const endpoints = [
     ],
     inputs: sharedInputs,
     outputs: [
-      {name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns synthesized speech audio as binary data.'},
-      {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
+      { name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns synthesized speech audio as binary data.' },
+      { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
     ],
     examples: [
       {
@@ -553,7 +553,7 @@ const endpoints = [
         language: 'text',
         code: `Binary audio data (WAV format)`,
       },
-      {label: '422 Validation Error', language: 'json', code: validationError},
+      { label: '422 Validation Error', language: 'json', code: validationError },
     ],
     outputFormat: 'wav',
   },
@@ -571,8 +571,8 @@ const endpoints = [
     ],
     inputs: sharedInputs,
     outputs: [
-      {name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns the synthesized speech audio as a downloadable file.'},
-      {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
+      { name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns the synthesized speech audio as a downloadable file.' },
+      { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
     ],
     examples: [
       {
@@ -580,7 +580,7 @@ const endpoints = [
         language: 'text',
         code: `Binary audio data (WAV format)`,
       },
-      {label: '422 Validation Error', language: 'json', code: validationError},
+      { label: '422 Validation Error', language: 'json', code: validationError },
     ],
     outputFormat: 'wav',
   },
@@ -598,12 +598,12 @@ const endpoints = [
     ],
     inputs: sharedInputs,
     outputs: [
-      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns detailed analysis including character count, word count, estimated duration, credit cost, and configuration details.'},
-      {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
+      { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns detailed analysis including character count, word count, estimated duration, credit cost, and configuration details.' },
+      { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
     ],
     examples: [
-      {label: '200 OK', language: 'json', code: previewResponse},
-      {label: '422 Validation Error', language: 'json', code: validationError},
+      { label: '200 OK', language: 'json', code: previewResponse },
+      { label: '422 Validation Error', language: 'json', code: validationError },
     ],
     outputFormat: 'json',
   },
@@ -622,19 +622,19 @@ const endpoints = [
     ],
     inputs: null,
     outputs: [
-      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns voice catalog organized by language with name, voice_id, and gender for each voice.'},
-      {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
+      { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns voice catalog organized by language with name, voice_id, and gender for each voice.' },
+      { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
     ],
     examples: [
-      {label: '200 OK', language: 'json', code: voiceListExample},
-      {label: '422 Validation Error', language: 'json', code: validationError},
+      { label: '200 OK', language: 'json', code: voiceListExample },
+      { label: '422 Validation Error', language: 'json', code: validationError },
     ],
     outputFormat: 'json',
     isVoiceEndpoint: true,
   },
 ];
 
-function TableCard({title, rows, headerLabels}) {
+function TableCard({ title, rows, headerLabels }) {
   if (!rows || rows.length === 0) {
     return null;
   }
@@ -679,7 +679,7 @@ function TableCard({title, rows, headerLabels}) {
 
 const outputHeaderLabels = ['Status', 'Type', 'Default', 'Description'];
 
-function OutputCard({rows, headerLabels = outputHeaderLabels}) {
+function OutputCard({ rows, headerLabels = outputHeaderLabels }) {
   return (
     <div className={styles.tableCard}>
       <h4>Outputs</h4>
@@ -708,7 +708,7 @@ function OutputCard({rows, headerLabels = outputHeaderLabels}) {
   );
 }
 
-function EndpointSection({endpoint}) {
+function EndpointSection({ endpoint }) {
   const [copied, setCopied] = useState(false);
   const copyValue = `${TTS_BASE_URL}${endpoint.path}`;
 
@@ -786,11 +786,11 @@ export default function TtsPage() {
           padding: '1.2rem 1.5rem',
           marginTop: '1rem',
         }}>
-          <p style={{margin: 0}}>
+          <p style={{ margin: 0 }}>
             <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
-            <a 
-              href="https://playground.induslabs.io/register" 
-              target="_blank" 
+            <a
+              href="https://playground.induslabs.io/register"
+              target="_blank"
               rel="noopener noreferrer"
               style={{
                 color: '#5468ff',
@@ -804,11 +804,11 @@ export default function TtsPage() {
           </p>
         </div>
       </section>
-      
-      <div style={{marginTop: '0.75rem'}}>
+
+      <div style={{ marginTop: '0.75rem' }}>
         <div className={styles.apiKeyImage}>
-          <img src="/img/api-key-location.png" alt="Where to get your API key" style={{maxWidth: '420px', width: '100%', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)'}} />
-          <p style={{fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0}}>
+          <img src="/img/api-key-location.png" alt="Where to get your API key" style={{ maxWidth: '420px', width: '100%', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)' }} />
+          <p style={{ fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0 }}>
             Screenshot: where to find your API key. Create one at{' '}
             <a href="https://playground.induslabs.io/register" target="_blank" rel="noopener noreferrer">playground.induslabs.io/register</a>
           </p>
@@ -817,7 +817,7 @@ export default function TtsPage() {
       <section id="tts-shared-payload" className={styles.sectionHeading}>
         <h2>Shared Request Payload</h2>
         <p>
-          All text-to-speech endpoints use the same JSON schema sent via POST request. Simply adjust parameters 
+          All text-to-speech endpoints use the same JSON schema sent via POST request. Simply adjust parameters
           like output_format or stream depending on your use case.
         </p>
       </section>
@@ -837,27 +837,27 @@ export default function TtsPage() {
               </tr>
             </thead>
             <tbody>
-            {sharedInputs.map(field => {
-              const normalizedDefault =
-                typeof field.defaultValue === 'string' ? field.defaultValue.toLowerCase() : field.defaultValue;
-              const isRequired = normalizedDefault === 'required';
-              return (
-                <tr key={field.name}>
-                  <td data-label="Name">
-                    <code>{field.name}</code>
-                    {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
-                  </td>
-                  <td data-label="Type">{field.type}</td>
-                  <td
-                    data-label="Default"
-                    data-required={isRequired ? 'true' : 'false'}
-                  >
-                    {isRequired ? 'required' : field.defaultValue}
-                  </td>
-                  <td data-label="Description">{field.description}</td>
-                </tr>
-              );
-            })}
+              {sharedInputs.map(field => {
+                const normalizedDefault =
+                  typeof field.defaultValue === 'string' ? field.defaultValue.toLowerCase() : field.defaultValue;
+                const isRequired = normalizedDefault === 'required';
+                return (
+                  <tr key={field.name}>
+                    <td data-label="Name">
+                      <code>{field.name}</code>
+                      {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
+                    </td>
+                    <td data-label="Type">{field.type}</td>
+                    <td
+                      data-label="Default"
+                      data-required={isRequired ? 'true' : 'false'}
+                    >
+                      {isRequired ? 'required' : field.defaultValue}
+                    </td>
+                    <td data-label="Description">{field.description}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

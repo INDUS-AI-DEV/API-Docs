@@ -1,132 +1,353 @@
 /**
- * Global overrides for the Audio Platform docs.
- * Keep this file focused on shared primitives and layout polish.
+ * Minimal, developer-friendly documentation styling
+ * Dark theme by default - inspired by OpenAI/PayPal docs
  */
 
+/* Light theme variables */
 :root {
-  --ifm-color-primary: #5468ff;
-  --ifm-color-primary-dark: #4c5ee6;
-  --ifm-color-primary-darker: #4455cc;
-  --ifm-color-primary-darkest: #3846a6;
-  --ifm-color-primary-light: #6c7bff;
-  --ifm-color-primary-lighter: #7a86ff;
-  --ifm-color-primary-lightest: #9aa3ff;
-  --ifm-code-font-size: 95%;
-  --ifm-button-border-radius: 999px;
-  --docusaurus-highlighted-code-line-bg: rgba(84, 104, 255, 0.1);
-  --docs-header-height: 84px;
-  --docs-header-offset: 112px;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+  --color-border: #e5e5e5;
+  --color-border-light: #f0f0f0;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #fafafa;
+  --color-bg-code: #f7f7f8;
+  --color-bg-code-block: #f7f7f8;
+
+  /* Accent colors */
+  --color-accent: #0066cc;
+  --color-accent-hover: #0052a3;
+  --color-success: #16a34a;
+  --color-warning: #ca8a04;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+
+  /* Docusaurus overrides */
+  --ifm-color-primary: #0066cc;
+  --ifm-color-primary-dark: #0052a3;
+  --ifm-color-primary-darker: #004080;
+  --ifm-color-primary-darkest: #003366;
+  --ifm-color-primary-light: #3385d6;
+  --ifm-color-primary-lighter: #66a3e0;
+  --ifm-color-primary-lightest: #99c2eb;
+  --ifm-code-font-size: 0.875rem;
+  --ifm-button-border-radius: 6px;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 102, 204, 0.08);
+
+  /* Layout - compact */
+  --docs-header-height: 48px;
+  --docs-header-offset: 56px;
+  --sidebar-width: 220px;
+  --content-max-width: 760px;
+  --integration-width: 400px;
 }
 
-@media (max-width: 960px) {
-  :root {
-    --docs-header-height: 80px;
-    --docs-header-offset: 104px;
-  }
+/* Dark theme variables */
+[data-theme='dark'] {
+  --color-text-primary: #e5e5e5;
+  --color-text-secondary: #a3a3a3;
+  --color-text-muted: #737373;
+  --color-border: #333333;
+  --color-border-light: #262626;
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #141414;
+  --color-bg-code: #1a1a1a;
+  --color-bg-code-block: #1e1e1e;
+
+  --color-accent: #3b82f6;
+  --color-accent-hover: #60a5fa;
+
+  --ifm-color-primary: #3b82f6;
+  --ifm-background-color: #0a0a0a;
+  --ifm-background-surface-color: #141414;
+  --docusaurus-highlighted-code-line-bg: rgba(59, 130, 246, 0.15);
 }
 
-@media (max-width: 720px) {
-  :root {
-    --docs-header-height: 76px;
-    --docs-header-offset: 96px;
-  }
+* {
+  box-sizing: border-box;
+}
+
+/* Unified font family for all elements except code */
+*:not(code):not(pre):not(pre *) {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 body {
-  color: #1f2448;
-  background: #f6f7ff;
-  font-feature-settings: 'kern';
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 main {
   background: transparent;
 }
 
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 1.375rem;
+}
+
+h2 {
+  font-size: 1.125rem;
+}
+
+h3 {
+  font-size: 1rem;
+}
+
+h4 {
+  font-size: 0.9375rem;
+}
+
+p {
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem;
+}
+
+/* Links */
 a {
-  color: #2730a6;
-  transition: color 0.2s ease;
+  color: var(--color-accent);
+  text-decoration: none;
 }
 
 a:hover {
-  color: #101640;
+  color: var(--color-accent-hover);
+  text-decoration: underline;
 }
 
+/* Tables */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1.5rem 0;
-  background: #ffffff;
-  border: 1px solid rgba(16, 22, 64, 0.08);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 18px 32px rgba(10, 14, 64, 0.06);
-}
-
-table thead {
-  background: rgba(84, 104, 255, 0.08);
+  margin: 0.75rem 0;
+  font-size: 0.8125rem;
 }
 
 table th,
 table td {
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid rgba(16, 22, 64, 0.08);
+  border-bottom: 1px solid var(--color-border);
   vertical-align: top;
 }
 
 table th {
   font-weight: 600;
-  color: #101640;
-  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
 }
 
 table td {
-  color: #2a3060;
-  font-size: 0.95rem;
+  color: var(--color-text-secondary);
 }
 
-table tbody tr:nth-child(even) {
-  background: rgba(84, 104, 255, 0.04);
+table tbody tr:hover {
+  background: var(--color-bg-secondary);
 }
 
-table tbody tr:last-child td {
-  border-bottom: none;
+/* Code - inline */
+code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.8125rem;
+  background: var(--color-bg-code);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  color: var(--color-text-primary);
 }
 
-table code {
-  font-size: 0.85rem;
-  background: rgba(84, 104, 255, 0.1);
-  padding: 0.15rem 0.35rem;
+/* Code blocks - Light mode: light gray background with dark text */
+:root pre {
+  background: #f7f7f8 !important;
+  border: 1px solid #e5e5e5;
   border-radius: 6px;
+  padding: 0.75rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+:root pre code {
+  background: transparent !important;
+  padding: 0;
+  color: #1a1a1a !important;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+/* Light mode syntax highlighting - dark colors on light background */
+:root pre *,
+:root pre code *,
+:root .prism-code *,
+:root [class*="codeBlock"] * {
+  color: #1a1a1a;
+}
+
+:root .token.keyword {
+  color: #d73a49 !important;
+}
+
+:root .token.operator {
+  color: #1a1a1a !important;
+}
+
+:root .token.string,
+:root .token.attr-value {
+  color: #22863a !important;
+}
+
+:root .token.function {
+  color: #6f42c1 !important;
+}
+
+:root .token.class-name {
+  color: #6f42c1 !important;
+}
+
+:root .token.comment {
+  color: #6a737d !important;
+}
+
+:root .token.number,
+:root .token.boolean {
+  color: #005cc5 !important;
+}
+
+:root .token.property {
+  color: #005cc5 !important;
+}
+
+:root .token.punctuation {
+  color: #1a1a1a !important;
+}
+
+:root .token.builtin {
+  color: #e36209 !important;
+}
+
+:root .token.parameter,
+:root .token.variable,
+:root .token.attr-name {
+  color: #24292e !important;
+}
+
+/* Code blocks - Dark mode: dark background with bright, readable text */
+[data-theme='dark'] pre {
+  background: #1e1e1e !important;
+  border: 1px solid #333;
+}
+
+[data-theme='dark'] pre code {
+  color: #f8f8f2 !important;
+}
+
+/* Force all code text to be bright in dark mode */
+[data-theme='dark'] pre *,
+[data-theme='dark'] pre code *,
+[data-theme='dark'] .prism-code *,
+[data-theme='dark'] [class*="codeBlock"] * {
+  color: #f8f8f2;
+}
+
+/* Dark mode syntax highlighting - bright, visible colors */
+[data-theme='dark'] .token.keyword {
+  color: #ff79c6 !important;
+}
+
+[data-theme='dark'] .token.operator {
+  color: #f8f8f2 !important;
+}
+
+[data-theme='dark'] .token.string,
+[data-theme='dark'] .token.attr-value {
+  color: #50fa7b !important;
+}
+
+[data-theme='dark'] .token.function,
+[data-theme='dark'] .token.class-name {
+  color: #f1fa8c !important;
+}
+
+[data-theme='dark'] .token.comment {
+  color: #6272a4 !important;
+}
+
+[data-theme='dark'] .token.number,
+[data-theme='dark'] .token.boolean {
+  color: #bd93f9 !important;
+}
+
+[data-theme='dark'] .token.property {
+  color: #8be9fd !important;
+}
+
+[data-theme='dark'] .token.punctuation {
+  color: #f8f8f2 !important;
+}
+
+[data-theme='dark'] .token.builtin {
+  color: #ffb86c !important;
+}
+
+[data-theme='dark'] .token.parameter,
+[data-theme='dark'] .token.variable,
+[data-theme='dark'] .token.attr-name {
+  color: #8be9fd !important;
+}
+
+/* API Key Image / Screenshot styling */
+.apiKeyImage {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.apiKeyImage img {
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.apiKeyImage p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-top: 0.375rem;
+  margin-bottom: 0;
+}
+
+/* Hide default navbar */
+.navbar {
+  display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  :root {
+    --docs-header-height: 52px;
+    --docs-header-offset: 64px;
+  }
 }
 
 @media (max-width: 720px) {
-  table {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    table-layout: fixed;
+  :root {
+    --docs-header-height: 48px;
+    --docs-header-offset: 56px;
   }
 
-  table th,
-  table td {
-    white-space: normal;
-    word-break: break-word;
-    padding: 0.65rem 0.75rem;
+  body {
+    font-size: 14px;
   }
-}
-
-code {
-  font-size: 0.9rem;
-}
-
-pre code {
-  font-size: 0.85rem;
-}
-
-.navbar {
-  display: none !important;
 }

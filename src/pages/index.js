@@ -16,23 +16,6 @@ export default function HomePage() {
         <p className={styles.heroDescription}>
           Discover how to launch expressive voice experiences, reliable transcription, and intelligent conversational AI with a consistent REST interface. Choose one of the services below to get started.
         </p>
-        <div className={styles.heroActions}>
-          <Link to="/tts" className={styles.heroButton}>
-            Explore TTS Service
-          </Link>
-          <Link to="/stt" className={styles.heroButton}>
-            Explore STT Service
-          </Link>
-          <Link to="/llm" className={styles.heroButton}>
-            Explore LLM Service
-          </Link>
-          <Link to="/voice-agents" className={styles.heroButton}>
-            Explore Voice Agents
-          </Link>
-          <Link to="/sdk" className={styles.heroButton}>
-            Python SDK
-          </Link>
-        </div>
       </section>
 
       <section className={styles.servicesGrid}>

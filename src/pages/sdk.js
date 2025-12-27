@@ -2,113 +2,7 @@ import React, { useState } from 'react';
 import DocsLayout from '@site/src/components/DocsLayout/DocsLayout';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
 import { getSidebarSections } from '@site/src/sidebarConfig';
-
-const styles = {
-  pageIntro: {
-    scrollMarginTop: '120px',
-    background: '#ffffff',
-    border: '1px solid rgba(16, 22, 64, 0.08)',
-    borderRadius: '22px',
-    padding: 'clamp(2rem, 5vw, 3rem)',
-    boxShadow: '0 28px 52px rgba(10, 14, 64, 0.08)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.25rem',
-  },
-  sectionCard: {
-    scrollMarginTop: '120px',
-    background: '#ffffff',
-    border: '1px solid rgba(16, 22, 64, 0.08)',
-    borderRadius: '24px',
-    padding: 'clamp(2rem, 5vw, 3rem)',
-    boxShadow: '0 30px 66px rgba(10, 14, 64, 0.08)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.75rem',
-    marginBottom: '2rem',
-  },
-  sectionTitle: {
-    margin: '0 0 1rem 0',
-    fontSize: '1.75rem',
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    margin: '0 0 1.5rem 0',
-    color: '#454a6e',
-    lineHeight: '1.6',
-  },
-  featureGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '1.25rem',
-    marginTop: '1.5rem',
-  },
-  featureCard: {
-    background: 'rgba(84, 104, 255, 0.06)',
-    border: '1px solid rgba(84, 104, 255, 0.12)',
-    borderRadius: '16px',
-    padding: '1.5rem',
-  },
-  featureTitle: {
-    fontSize: '1.1rem',
-    fontWeight: '600',
-    marginBottom: '0.5rem',
-    color: '#2730a6',
-  },
-  featureDescription: {
-    fontSize: '0.9rem',
-    color: '#4b4f73',
-    lineHeight: '1.5',
-  },
-  callout: {
-    borderRadius: '16px',
-    background: 'rgba(84, 104, 255, 0.12)',
-    borderLeft: '4px solid #5468ff',
-    padding: '1rem 1.3rem',
-    color: '#2f3460',
-    marginTop: '1rem',
-  },
-  codeExample: {
-    marginTop: '1.5rem',
-  },
-  methodSection: {
-    marginTop: '2rem',
-    padding: '1.5rem',
-    background: 'rgba(84, 104, 255, 0.04)',
-    borderRadius: '12px',
-    border: '1px solid rgba(84, 104, 255, 0.08)',
-  },
-  methodTitle: {
-    fontSize: '1.3rem',
-    fontWeight: '600',
-    marginBottom: '0.75rem',
-    color: '#232849',
-  },
-  paramTable: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    marginTop: '1rem',
-    fontSize: '0.9rem',
-  },
-  tableHeader: {
-    background: 'rgba(84, 104, 255, 0.08)',
-    fontWeight: '600',
-    padding: '0.6rem',
-    textAlign: 'left',
-    borderBottom: '2px solid rgba(16, 22, 64, 0.12)',
-  },
-  tableCell: {
-    padding: '0.6rem',
-    borderBottom: '1px solid rgba(16, 22, 64, 0.08)',
-  },
-  inlineCode: {
-    background: 'rgba(84, 104, 255, 0.12)',
-    padding: '0.2rem 0.4rem',
-    borderRadius: '4px',
-    fontFamily: 'monospace',
-    fontSize: '0.9em',
-  },
-};
+import styles from './sdk.module.css';
 
 const quickIntegrationLanguages = [
   {
@@ -183,46 +77,41 @@ export default function SdkPage() {
         languages: quickIntegrationLanguages,
       }}
     >
-      <section id="sdk-introduction" style={styles.pageIntro}>
+      <section id="sdk-introduction" className={styles.pageIntro}>
         <h1>IndusLabs Python SDK</h1>
         <p>
           Official Python SDK for IndusLabs Voice API - providing seamless Text-to-Speech (TTS)
           and Speech-to-Text (STT) capabilities with both synchronous and asynchronous support.
         </p>
-        <p style={{ margin: 0 }}>
+        <div className={styles.callout}>
           <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
           <a
             href="https://playground.induslabs.io/register"
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              color: '#5468ff',
-              fontWeight: 600,
-              textDecoration: 'none',
-              borderBottom: '1px solid rgba(84, 104, 255, 0.3)',
-            }}
+            className={styles.apiKeyLink}
           >
             https://playground.induslabs.io/register
           </a>
-        </p>
+        </div>
       </section>
 
-      <section id="sdk-installation" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Installation</h2>
-        <p style={styles.sectionDescription}>
+      <section id="sdk-installation" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Installation</h2>
+        <p className={styles.sectionDescription}>
           Install the SDK using pip. Requires Python 3.7 or higher.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="bash">pip install induslabs</CopyableCode>
         </div>
       </section>
 
-      <section id="sdk-quick-start" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Quick Start</h2>
-        <p style={styles.sectionDescription}>
+      <section id="sdk-quick-start" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Quick Start</h2>
+        <p className={styles.sectionDescription}>
           Initialize the client with your API key and start making requests immediately.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 
 # Initialize with API key
@@ -252,54 +141,54 @@ if result.metrics:
         </div>
       </section>
 
-      <section id="sdk-features" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Features</h2>
-        <div style={styles.featureGrid}>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>🔄 Sync & Async APIs</div>
-            <div style={styles.featureDescription}>
+      <section id="sdk-features" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Features</h2>
+        <div className={styles.featureGrid}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Sync & Async APIs</div>
+            <div className={styles.featureDescription}>
               Use synchronous methods for simple scripts or async for better performance
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>⚡ Streaming Support</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Streaming Support</div>
+            <div className={styles.featureDescription}>
               Start playing audio as soon as first bytes arrive
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>🎵 Multiple Formats</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Multiple Formats</div>
+            <div className={styles.featureDescription}>
               Support for WAV, MP3, and PCM audio formats
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>🚀 Concurrent Requests</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Concurrent Requests</div>
+            <div className={styles.featureDescription}>
               Built-in support for parallel request processing
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>📝 Type Hints</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Type Hints</div>
+            <div className={styles.featureDescription}>
               Full type annotations for better IDE support
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>🛡️ Error Handling</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Error Handling</div>
+            <div className={styles.featureDescription}>
               Comprehensive error messages and exceptions
             </div>
           </div>
         </div>
       </section>
 
-      <section id="tts-basic" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Text-to-Speech: Basic Usage</h2>
-        <p style={styles.sectionDescription}>
+      <section id="tts-basic" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Text-to-Speech: Basic Usage</h2>
+        <p className={styles.sectionDescription}>
           Convert text to speech with simple method calls. The SDK handles all API communication and response parsing.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 
 client = Client(api_key="your_api_key")
@@ -321,12 +210,12 @@ print(f"Request ID: {response.request_id}")`}</CopyableCode>
         </div>
       </section>
 
-      <section id="tts-streaming" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Streaming Audio</h2>
-        <p style={styles.sectionDescription}>
+      <section id="tts-streaming" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Streaming Audio</h2>
+        <p className={styles.sectionDescription}>
           Enable streaming to receive audio chunks as they're generated, reducing latency for real-time applications.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`
 """
 Streaming Text-to-Speech Example
@@ -487,12 +376,12 @@ if __name__ == "__main__":
         </div>
       </section>
 
-      <section id="tts-file-objects" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Working with File Objects</h2>
-        <p style={styles.sectionDescription}>
+      <section id="tts-file-objects" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Working with File Objects</h2>
+        <p className={styles.sectionDescription}>
           Process audio in memory without saving to disk. Useful for temporary processing or immediate playback.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`import wave
 from induslabs import Client
 
@@ -517,12 +406,12 @@ with wave.open(audio_file, 'rb') as wf:
         </div>
       </section>
 
-      <section id="tts-formats" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Audio Formats</h2>
-        <p style={styles.sectionDescription}>
+      <section id="tts-formats" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Audio Formats</h2>
+        <p className={styles.sectionDescription}>
           Choose between WAV, MP3, or PCM formats based on your needs.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 
 client = Client(api_key="your_api_key")
@@ -548,7 +437,7 @@ pcm_response = client.tts.speak(
     output_format="pcm"
 )`}</CopyableCode>
         </div>
-        <div style={styles.callout}>
+        <div className={styles.callout}>
           <strong>Format Details</strong>
           <ul>
             <li><strong>WAV:</strong> 24kHz sample rate, 16-bit, mono - Best for quality</li>
@@ -558,12 +447,12 @@ pcm_response = client.tts.speak(
         </div>
       </section>
 
-      <section id="stt-basic" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Speech-to-Text: Basic Usage</h2>
-        <p style={styles.sectionDescription}>
+      <section id="stt-basic" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Speech-to-Text: Basic Usage</h2>
+        <p className={styles.sectionDescription}>
           Transcribe audio files using the unified <code>transcribe</code> method. By default, this uses the <code>indus-stt-v1</code> model in non-streaming mode.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 
 client = Client(api_key="your_api_key")
@@ -589,19 +478,19 @@ if result.metrics:
         </div>
       </section>
 
-      <section id="stt-streaming" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Real-time Streaming</h2>
-        <p style={styles.sectionDescription}>
+      <section id="stt-streaming" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Real-time Streaming</h2>
+        <p className={styles.sectionDescription}>
           To enable streaming, you must set <code>streaming=True</code> and use the <code>indus-stt-hi-en</code> model. You can then provide an <code>on_segment</code> callback to receive partial results.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client, STTSegment
 
 client = Client()
 
 # 1. Define a callback to handle segments
 def on_segment(segment: STTSegment):
-    print(f"📝 Segment: '{segment.text}'")
+    print(f"Segment: '{segment.text}'")
 
 # 2. Transcribe with streaming enabled
 print("Transcribing with real-time streaming...")
@@ -615,9 +504,9 @@ result = client.stt.transcribe(
 )
 
 # 3. Access final results
-print(f"\n✅ Complete transcription: {result.text}")`}</CopyableCode>
+print(f"\nComplete transcription: {result.text}")`}</CopyableCode>
         </div>
-        <div style={styles.callout}>
+        <div className={styles.callout}>
           <strong>Important Notes:</strong>
           <ul>
             <li>The <code>indus-stt-v1</code> model does not support streaming. Attempting to use <code>streaming=True</code> with <code>model="indus-stt-v1"</code> will raise a ValueError.</li>
@@ -626,12 +515,12 @@ print(f"\n✅ Complete transcription: {result.text}")`}</CopyableCode>
         </div>
       </section>
 
-      <section id="stt-file-objects" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>STT with File Objects</h2>
-        <p style={styles.sectionDescription}>
+      <section id="stt-file-objects" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>STT with File Objects</h2>
+        <p className={styles.sectionDescription}>
           Transcribe audio directly from open file handles or in-memory buffers.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from io import BytesIO
 from induslabs import Client
 
@@ -661,13 +550,13 @@ print(f"BytesIO transcription: {result.text}")`}</CopyableCode>
         </div>
       </section>
 
-      <section id="stt-noise-cancellation" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Noise Cancellation</h2>
-        <p style={styles.sectionDescription}>
+      <section id="stt-noise-cancellation" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Noise Cancellation</h2>
+        <p className={styles.sectionDescription}>
           Enable server-side noise suppression to improve transcription quality for audio with background noise.
           This feature is available for non-streaming transcriptions with both <code>indus-stt-v1</code> and <code>indus-stt-hi-en</code> models.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 
 client = Client(api_key="your_api_key")
@@ -694,8 +583,8 @@ result = client.stt.transcribe(
 print(f"Transcription: {result.text}")`}</CopyableCode>
         </div>
 
-        <div style={styles.callout}>
-          <strong>⚠️ Important Compatibility Notes:</strong>
+        <div className={styles.callout}>
+          <strong>Important Compatibility Notes:</strong>
           <ul>
             <li><strong>Non-Streaming Only:</strong> Noise cancellation is currently only supported in non-streaming mode (<code>streaming=False</code>).</li>
             <li><strong>Warning Behavior:</strong> If you set both <code>streaming=True</code> and <code>noise_cancellation=True</code>, the SDK will issue a UserWarning and noise cancellation will not be applied.</li>
@@ -704,7 +593,7 @@ print(f"Transcription: {result.text}")`}</CopyableCode>
         </div>
 
         <h3 style={{ marginTop: '2rem', fontSize: '1.2rem', fontWeight: '600' }}>Example with Warning</h3>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`import warnings
 from induslabs import Client
 
@@ -724,19 +613,19 @@ with warnings.catch_warnings(record=True) as caught:
     
     if caught:
         for warn in caught:
-            print(f"⚠️ Warning: {warn.message}")
+            print(f"Warning: {warn.message}")
             # Output: "Noise cancellation is only supported in non-streaming mode right now."
 
 print(f"Result: {result.text}")`}</CopyableCode>
         </div>
       </section>
 
-      <section id="async-api" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Async API</h2>
-        <p style={styles.sectionDescription}>
+      <section id="async-api" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Async API</h2>
+        <p className={styles.sectionDescription}>
           Use <code>transcribe_async</code> for non-blocking operations. You can run basic transcriptions or streaming sessions asynchronously.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`import asyncio
 from induslabs import Client, STTSegment
 
@@ -774,12 +663,12 @@ asyncio.run(main())`}</CopyableCode>
         </div>
       </section>
 
-      <section id="concurrent-requests" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Concurrent Requests</h2>
-        <p style={styles.sectionDescription}>
+      <section id="concurrent-requests" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Concurrent Requests</h2>
+        <p className={styles.sectionDescription}>
           Process multiple requests in parallel for better throughput. You can mix different models and modes (streaming/non-streaming) in concurrent tasks.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`import asyncio
 from induslabs import Client
 
@@ -817,14 +706,14 @@ asyncio.run(main())`}</CopyableCode>
         </div>
       </section>
 
-      <section id="response-objects" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Response Objects</h2>
-        <p style={styles.sectionDescription}>
+      <section id="response-objects" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Response Objects</h2>
+        <p className={styles.sectionDescription}>
           Understanding the data structures returned by the SDK.
         </p>
 
         <h3>TTSResponse</h3>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 client = Client()
 
@@ -843,7 +732,7 @@ raw_data = response.get_audio_data() # Get raw bytes`}</CopyableCode>
         </div>
 
         <h3>STTResponse</h3>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import Client
 client = Client()
 
@@ -870,7 +759,7 @@ data_dict = result.to_dict()                  # Get as dictionary`}</CopyableCod
         </div>
 
         <h3>STTSegment</h3>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`from induslabs import STTSegment
 
 def on_segment(segment: STTSegment):
@@ -881,12 +770,12 @@ def on_segment(segment: STTSegment):
         </div>
       </section>
 
-      <section id="environment-variables" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Environment Variables</h2>
-        <p style={styles.sectionDescription}>
+      <section id="environment-variables" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Environment Variables</h2>
+        <p className={styles.sectionDescription}>
           Configure the SDK using environment variables for better security.
         </p>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="bash">{`# Set API key
 export INDUSLABS_API_KEY="your_api_key_here"
 
@@ -896,7 +785,7 @@ python -c "from induslabs import Client; client = Client()"
 # Or in your .env file
 INDUSLABS_API_KEY=your_api_key_here`}</CopyableCode>
         </div>
-        <div style={styles.codeExample}>
+        <div className={styles.codeExample}>
           <CopyableCode language="python">{`import os
 from induslabs import Client
 
@@ -911,57 +800,57 @@ client = Client()  # Automatically uses INDUSLABS_API_KEY`}</CopyableCode>
         </div>
       </section>
 
-      <section id="best-practices" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Best Practices</h2>
-        <div style={styles.featureGrid}>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>🔐 Security</div>
-            <div style={styles.featureDescription}>
+      <section id="best-practices" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Best Practices</h2>
+        <div className={styles.featureGrid}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Security</div>
+            <div className={styles.featureDescription}>
               Never hardcode API keys. Use environment variables or secure key management systems.
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>⚡ Performance</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Performance</div>
+            <div className={styles.featureDescription}>
               Use async API and concurrent requests for high-throughput applications.
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>💾 Memory</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Memory</div>
+            <div className={styles.featureDescription}>
               Use streaming for large audio files to reduce memory consumption.
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>🔄 Retry Logic</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Retry Logic</div>
+            <div className={styles.featureDescription}>
               Implement exponential backoff for transient network errors.
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>📊 Monitoring</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Monitoring</div>
+            <div className={styles.featureDescription}>
               Log request_id for debugging and track credits_used for cost management.
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>🧹 Cleanup</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Cleanup</div>
+            <div className={styles.featureDescription}>
               Always close async sessions using context managers or explicit close() calls.
             </div>
           </div>
         </div>
       </section>
 
-      <section id="troubleshooting" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Troubleshooting</h2>
+      <section id="troubleshooting" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Troubleshooting</h2>
 
-        <div style={styles.methodSection}>
-          <h3 style={styles.methodTitle}>Common Issues</h3>
+        <div className={styles.methodSection}>
+          <h3 className={styles.methodTitle}>Common Issues</h3>
 
-          <div style={{ marginTop: '1rem' }}>
-            <h4 style={{ color: '#2730a6', marginBottom: '0.5rem' }}>Authentication Errors</h4>
-            <div style={styles.codeExample}>
+          <div className={styles.troubleItem}>
+            <h4 className={styles.troubleTitle}>Authentication Errors</h4>
+            <div className={styles.codeExample}>
               <CopyableCode language="python">{`# Error: API key must be provided
 # Solution: Set API key via parameter or environment variable
 from induslabs import Client
@@ -974,9 +863,9 @@ client = Client(api_key="your_api_key")`}</CopyableCode>
             </div>
           </div>
 
-          <div style={{ marginTop: '1.5rem' }}>
-            <h4 style={{ color: '#2730a6', marginBottom: '0.5rem' }}>Import Errors</h4>
-            <div style={styles.codeExample}>
+          <div className={styles.troubleItem}>
+            <h4 className={styles.troubleTitle}>Import Errors</h4>
+            <div className={styles.codeExample}>
               <CopyableCode language="bash">{`# Error: No module named 'induslabs'
 # Solution: Install the package
 pip install induslabs
@@ -986,9 +875,9 @@ pip install --upgrade induslabs`}</CopyableCode>
             </div>
           </div>
 
-          <div style={{ marginTop: '1.5rem' }}>
-            <h4 style={{ color: '#2730a6', marginBottom: '0.5rem' }}>Async Session Warnings</h4>
-            <div style={styles.codeExample}>
+          <div className={styles.troubleItem}>
+            <h4 className={styles.troubleTitle}>Async Session Warnings</h4>
+            <div className={styles.codeExample}>
               <CopyableCode language="python">{`# Warning: Unclosed client session
 from induslabs import Client
 
@@ -1007,9 +896,9 @@ finally:
             </div>
           </div>
 
-          <div style={{ marginTop: '1.5rem' }}>
-            <h4 style={{ color: '#2730a6', marginBottom: '0.5rem' }}>File Format Errors</h4>
-            <div style={styles.codeExample}>
+          <div className={styles.troubleItem}>
+            <h4 className={styles.troubleTitle}>File Format Errors</h4>
+            <div className={styles.codeExample}>
               <CopyableCode language="python">{`# Error: ValueError: output_format must be 'wav', 'mp3', or 'pcm'
 from induslabs import Client
 client = Client()
@@ -1025,9 +914,9 @@ response = client.tts.speak(
         </div>
       </section>
 
-      <section id="changelog" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Version History</h2>
-        <div style={styles.callout}>
+      <section id="changelog" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Version History</h2>
+        <div className={styles.callout}>
           <strong>v0.0.2 (Current)</strong>
           <ul>
             <li>Added comprehensive error handling</li>
@@ -1038,30 +927,30 @@ response = client.tts.speak(
         </div>
       </section>
 
-      <section id="support" style={styles.sectionCard}>
-        <h2 style={styles.sectionTitle}>Support & Resources</h2>
-        <div style={styles.featureGrid}>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>📚 API Reference</div>
-            <div style={styles.featureDescription}>
+      <section id="support" className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>Support & Resources</h2>
+        <div className={styles.featureGrid}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>API Reference</div>
+            <div className={styles.featureDescription}>
               View detailed REST API documentation for TTS and STT endpoints
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>💬 Community</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Community</div>
+            <div className={styles.featureDescription}>
               Join our community for discussions, examples, and support
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>🐛 Issues</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Issues</div>
+            <div className={styles.featureDescription}>
               Report bugs or request features on our issue tracker
             </div>
           </div>
-          <div style={styles.featureCard}>
-            <div style={styles.featureTitle}>📧 Contact</div>
-            <div style={styles.featureDescription}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureTitle}>Contact</div>
+            <div className={styles.featureDescription}>
               Reach out to our support team for enterprise inquiries
             </div>
           </div>

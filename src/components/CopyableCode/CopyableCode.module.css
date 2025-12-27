@@ -4,21 +4,34 @@
 
 .copyBtn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   z-index: 3;
-  border: none;
-  background: rgba(84, 104, 255, 0.12);
-  color: #2730a6;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 6px;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.05);
+  color: #737373;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 6px;
+  border-radius: 3px;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
 
 .copyBtn:hover {
-  background: rgba(84, 104, 255, 0.18);
+  background: rgba(0, 0, 0, 0.1);
+  color: #525252;
+}
+
+/* Dark mode copy button */
+[data-theme='dark'] .copyBtn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #a0a0a0;
+}
+
+[data-theme='dark'] .copyBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #d4d4d4;
 }
 
 /* Hide the default Docusaurus copy button within this wrapper */
