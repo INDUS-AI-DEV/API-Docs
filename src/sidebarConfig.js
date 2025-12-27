@@ -55,7 +55,6 @@ const sections = [
       { label: 'React + TypeScript Integration', page: 'voice-agents', id: 'voice-agents-react-typescript' },
     ],
   },
-
   {
     title: 'SDK Documentation',
     items: [
@@ -85,7 +84,6 @@ function pageToPath(page) {
 
 function buildLink(item, activePage) {
   const method = item.method ? item.method.toUpperCase() : undefined;
-
   if (item.page === activePage && item.id) {
     return {
       label: item.label,
@@ -93,7 +91,6 @@ function buildLink(item, activePage) {
       method,
     };
   }
-
   const basePath = pageToPath(item.page);
   const hash = item.id ? `#${item.id}` : '';
   return {
@@ -109,4 +106,3 @@ export function getSidebarSections(activePage) {
     links: section.items.map(item => buildLink(item, activePage)),
   }));
 }
-

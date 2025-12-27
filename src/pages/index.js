@@ -2,7 +2,6 @@ import React from 'react';
 import Link from '@docusaurus/Link';
 import DocsLayout from '@site/src/components/DocsLayout/DocsLayout';
 import {getSidebarSections} from '@site/src/sidebarConfig';
-
 import styles from './index.module.css';
 
 export default function HomePage() {
@@ -15,8 +14,7 @@ export default function HomePage() {
       <section id="home-introduction" className={styles.pageIntro}>
         <h1 className={styles.heroTitle}>API Documentation</h1>
         <p className={styles.heroDescription}>
-          Discover how to launch expressive voice experiences and reliable transcription with a consistent REST
-          interface. Choose one of the services below to get started.
+          Discover how to launch expressive voice experiences, reliable transcription, and intelligent conversational AI with a consistent REST interface. Choose one of the services below to get started.
         </p>
       </section>
 
@@ -31,6 +29,7 @@ export default function HomePage() {
             View TTS APIs →
           </Link>
         </div>
+
         <div className={styles.serviceCard}>
           <h2 className={styles.serviceTitle}>Speech-to-Text</h2>
           <p className={styles.serviceDescription}>
@@ -39,6 +38,17 @@ export default function HomePage() {
           </p>
           <Link to="/stt" className={styles.serviceLink}>
             View STT API →
+          </Link>
+        </div>
+
+        <div className={styles.serviceCard}>
+          <h2 className={styles.serviceTitle}>Large Language Models</h2>
+          <p className={styles.serviceDescription}>
+            Generate intelligent chat completions with state-of-the-art language models. Fully compatible with
+            OpenAI SDK for seamless integration. Supports streaming and multi-turn conversations.
+          </p>
+          <Link to="/llm" className={styles.serviceLink}>
+            View LLM API →
           </Link>
         </div>
 
@@ -53,7 +63,6 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* NEW: Add SDK card */}
         <div className={styles.serviceCard}>
           <h2 className={styles.serviceTitle}>Python SDK</h2>
           <p className={styles.serviceDescription}>
