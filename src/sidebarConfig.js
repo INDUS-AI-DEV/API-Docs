@@ -29,6 +29,8 @@ const sections = [
       { label: 'audio/transcribe_ws', page: 'stt', id: 'stt-ws-v1-audio-transcribe', method: 'WS' },
       // {label: 'audio/transcribe/file', page: 'stt', id: 'stt-post-v1-audio-transcribe-file', method: 'POST'},
       { label: 'audio/transcribe_file', page: 'stt', id: 'stt-post-v1-audio-transcribe-file-async', method: 'POST' },
+      { label: 'audio/transcribe/diarize', page: 'stt', id: 'stt-post-v1-audio-transcribe-diarize', method: 'POST' },
+      { label: 'audio/transcribe/diarize/status', page: 'stt', id: 'stt-get-v1-audio-transcribe-diarize-status', method: 'GET' },
       { label: 'audio/transcribe_status/{id}', page: 'stt', id: 'stt-get-v1-audio-transcribe-status', method: 'GET' },
       { label: 'audio/transcribe/config', page: 'stt', id: 'stt-get-v1-audio-transcribe-config', method: 'GET' },
     ],

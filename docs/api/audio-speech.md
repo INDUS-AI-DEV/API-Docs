@@ -28,6 +28,8 @@ _Screenshot: where to find your API key. Create one at [playground.induslabs.io/
 | `POST` | `/v1/audio/transcribe/file` | Submit audio for blocking JSON transcription. |
 | `POST` | `/v1/audio/transcribe_file` | Launch batch processing for files up to 10 minutes (web-only). |
 | `GET` | `/v1/audio/transcribe_status/{request_id}` | Poll background jobs created by `/v1/audio/transcribe_file`. |
+| `POST` | `/v1/audio/transcribe/diarize` | Submit audio for diarization + transcription (async). |
+| `GET` | `/v1/audio/transcribe/diarize/status/{job_id}` | Poll diarization jobs created by `/v1/audio/transcribe/diarize`. |
 
 ## Shared TTS Request Payload
 
@@ -317,6 +319,113 @@ curl -X GET "https://voice.induslabs.io/v1/audio/transcribe_status/13c8b15a-59f9
   ],
   "processing_time": 98.11,
   "model": "indus-stt-v1"
+}
+```
+
+## POST /v1/audio/transcribe/diarize - Speaker Diarization + Transcription
+
+Uploads an audio file, performs speaker diarization plus per-speaker transcription, and returns immediately with a `job_id` to poll. Supports files up to **30 minutes**. Jobs run asynchronously and should be tracked via the status endpoint below.
+
+### Request
+
+- **URL**: `https://voice.induslabs.io/v1/audio/transcribe/diarize`
+- **Headers**: `accept: application/json`, `Content-Type: multipart/form-data`
+- **Form fields**:
+  - `file` (required): Audio file to diarize (max 30 minutes). Any format supported by torchaudio is accepted; audio is converted to mono 16 kHz WAV internally.
+  - `api_key` (required): API credential string.
+  - `config_json` (optional): JSON string matching the `TranscriptionConfig`. Common options include:
+    - `language` (default `"en"`)
+    - `noise_cancellation` (default `false`)
+    - `ws_model` (default `"indus-stt-hi-en"`)
+    - `file_model` (default `"indus-stt-hi-en"`)
+    - `gap_sec` (default `1.0`) and `pad_ms` (default `150.0`) to control padding around segments
+    - `max_merge_sec` (default `30.0`) to cap merged same-speaker spans
+    - `max_concurrency` (default `4`) to limit parallel chunk transcription
+    - `chunk_len`, `chunk_right_context`, `fifo_len`, `spkcache_update_period`, `spkcache_len` for advanced Sortformer tuning
+
+#### Example
+
+```bash
+curl -X POST "https://voice.induslabs.io/v1/audio/transcribe/diarize" \
+  -H "accept: application/json" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@meeting.wav;type=audio/wav" \
+  -F "api_key=YOUR_API_KEY" \
+  -F 'config_json={"language":"en","noise_cancellation":true,"max_concurrency":4}'
+```
+
+### Responses
+
+- `200 OK`: Returns `job_id`, estimated timing, and `status_url` for polling.
+- `400 Bad Request`: Invalid audio (empty/unsupported), malformed `config_json`, or audio longer than 30 minutes.
+- `401/402`: Authentication failure or insufficient credits.
+- `503 Service Unavailable`: Credit service unavailable.
+
+```json
+{
+  "job_id": "7a5f2f0e4c8d4b2ab6d2c5d0fdc4b5e0",
+  "status": "processing",
+  "message": "File uploaded successfully. Processing in background.",
+  "duration": 312.44,
+  "estimated_time": 93.73,
+  "status_url": "/v1/audio/transcribe/diarize/status/7a5f2f0e4c8d4b2ab6d2c5d0fdc4b5e0",
+  "poll_interval": 5
+}
+```
+
+## GET /v1/audio/transcribe/diarize/status/{job_id} - Check Diarization Status
+
+Poll this endpoint using the `job_id` from `/v1/audio/transcribe/diarize`. Continue polling every `poll_interval` seconds until the job reports `completed` or `failed`.
+
+### Request
+
+- **URL**: `https://voice.induslabs.io/v1/audio/transcribe/diarize/status/{job_id}`
+- **Headers**: `accept: application/json`
+- **Query parameters**:
+  - `api_key` (required): Same key used for the upload request.
+
+#### Example
+
+```bash
+curl -X GET "https://voice.induslabs.io/v1/audio/transcribe/diarize/status/7a5f2f0e4c8d4b2ab6d2c5d0fdc4b5e0?api_key=YOUR_API_KEY" \
+  -H "accept: application/json"
+```
+
+### Responses
+
+- `200 OK`: Returns current status. When `status` is `completed`, the payload includes diarized segments with speaker labels.
+- `404 Not Found`: Unknown or expired `job_id`.
+- `401`: Invalid API key.
+- `503 Service Unavailable`: Credit service unavailable.
+
+```json
+{
+  "job_id": "7a5f2f0e4c8d4b2ab6d2c5d0fdc4b5e0",
+  "status": "completed",
+  "results": [
+    {
+      "utterance_index": 1,
+      "start_sec": 0.0,
+      "end_sec": 14.2,
+      "duration_sec": 14.2,
+      "speaker": "speaker_0",
+      "endpoint": "transcribe_file",
+      "text": "Welcome everyone, let's review the agenda.",
+      "status": "completed"
+    },
+    {
+      "utterance_index": 2,
+      "start_sec": 14.2,
+      "end_sec": 29.8,
+      "duration_sec": 15.6,
+      "speaker": "speaker_1",
+      "endpoint": "transcribe_ws",
+      "text": "I will cover the launch metrics next.",
+      "status": "completed"
+    }
+  ],
+  "processing_time": 108.51,
+  "model": "diarization"
 }
 ```
 

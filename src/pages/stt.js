@@ -269,6 +269,112 @@ curl -X GET \\
       ],
     },
     {
+      id: 'stt-post-v1-audio-transcribe-diarize',
+      label: 'POST /v1/audio/transcribe/diarize',
+      defaultLanguage: 'python-rest',
+      languages: [
+        {
+          id: 'python-rest',
+          label: 'Python (REST API)',
+          language: 'python',
+          code: `import json
+import time
+import requests
+
+upload_url = "${STT_BASE_URL}/v1/audio/transcribe/diarize"
+status_base = "${STT_BASE_URL}/v1/audio/transcribe/diarize/status"
+
+config = {"language": "en", "noise_cancellation": True, "max_concurrency": 4}
+
+with open("meeting.wav", "rb") as audio_file:
+    files = {"file": ("meeting.wav", audio_file, "audio/wav")}
+    data = {
+        "api_key": "YOUR_API_KEY",
+        "config_json": json.dumps(config)
+    }
+    response = requests.post(upload_url, files=files, data=data, timeout=90)
+    response.raise_for_status()
+    job = response.json()
+
+status_url = f"{status_base}/{job['job_id']}?api_key=YOUR_API_KEY"
+
+while True:
+    poll = requests.get(status_url, timeout=30)
+    poll.raise_for_status()
+    payload = poll.json()
+    if payload["status"] == "completed":
+        for r in payload.get("results", []):
+            print(f"{r.get('speaker')}: {r.get('text')}")
+        break
+    if payload["status"] == "failed":
+        raise RuntimeError(payload.get("error", "diarization failed"))
+    time.sleep(job.get("poll_interval", 5))`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript',
+          language: 'javascript',
+          code: `import fs from 'fs';
+import FormData from 'form-data';
+import fetch from 'node-fetch';
+
+const uploadUrl = '${STT_BASE_URL}/v1/audio/transcribe/diarize';
+const statusBase = '${STT_BASE_URL}/v1/audio/transcribe/diarize/status';
+
+async function diarize() {
+  const form = new FormData();
+  form.append('file', fs.createReadStream('meeting.wav'));
+  form.append('api_key', 'YOUR_API_KEY');
+  form.append('config_json', JSON.stringify({ language: 'en', noise_cancellation: true }));
+
+  const upload = await fetch(uploadUrl, {
+    method: 'POST',
+    body: form,
+    headers: form.getHeaders(),
+  });
+  if (!upload.ok) throw new Error('Upload failed: ' + upload.status);
+  const job = await upload.json();
+
+  async function poll() {
+    const res = await fetch(statusBase + '/' + job.job_id + '?api_key=YOUR_API_KEY');
+    if (!res.ok) throw new Error('Status failed: ' + res.status);
+    const payload = await res.json();
+    if (payload.status === 'completed') {
+      payload.results?.forEach(r => console.log(r.speaker + ': ' + r.text));
+      return;
+    }
+    if (payload.status === 'failed') {
+      throw new Error(payload.error || 'Diarization failed');
+    }
+    await new Promise(resolve => setTimeout(resolve, (job.poll_interval || 5) * 1000));
+    return poll();
+  }
+
+  await poll();
+}
+
+diarize();`,
+        },
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: `curl -X POST \\
+  "${STT_BASE_URL}/v1/audio/transcribe/diarize" \\
+  -H "accept: application/json" \\
+  -H "Content-Type: multipart/form-data" \\
+  -F "file=@meeting.wav;type=audio/wav" \\
+  -F "api_key=YOUR_API_KEY" \\
+  -F 'config_json={"language":"en","noise_cancellation":true}'
+
+# Poll using the returned job_id
+curl -X GET \\
+  "${STT_BASE_URL}/v1/audio/transcribe/diarize/status/JOB_ID?api_key=YOUR_API_KEY" \\
+  -H "accept: application/json"`,
+        },
+      ],
+    },
+    {
       id: 'stt-get-v1-audio-transcribe-config',
       label: 'GET /v1/audio/transcribe/config',
       defaultLanguage: 'python-rest',
@@ -626,6 +732,31 @@ const asyncStatusOutputs = [
   { name: '500 Internal Server Error', type: 'application/json', defaultValue: '-', description: 'Job failed; see error field for details.' },
 ];
 
+const diarizeInputs = [
+  { name: 'file', type: 'file', defaultValue: 'required', description: 'Audio file to diarize (max 30 minutes).' },
+  { name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.' },
+  { name: 'config_json', type: 'string', defaultValue: '"{}"', description: 'Optional JSON string to tune language, models, padding, and concurrency.' },
+];
+
+const diarizeOutputs = [
+  { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns job_id, estimated_time, and status_url for polling diarization results.' },
+  { name: '400 Bad Request', type: 'application/json', defaultValue: '-', description: 'Invalid audio, malformed config_json, or duration beyond 30 minutes.' },
+  { name: '401 / 402', type: 'application/json', defaultValue: '-', description: 'Authentication failure or insufficient credits.' },
+  { name: '503 Service Unavailable', type: 'application/json', defaultValue: '-', description: 'Credit service unavailable.' },
+];
+
+const diarizeStatusInputs = [
+  { name: 'job_id', type: 'path', defaultValue: 'required', description: 'Identifier returned from /v1/audio/transcribe/diarize.' },
+  { name: 'api_key', type: 'string (query)', defaultValue: 'required', description: 'Same key used when creating the job.' },
+];
+
+const diarizeStatusOutputs = [
+  { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Current diarization status plus speaker-labeled results when completed.' },
+  { name: '404 Not Found', type: 'application/json', defaultValue: '-', description: 'Unknown or expired job_id.' },
+  { name: '401 Unauthorized', type: 'application/json', defaultValue: '-', description: 'Invalid API key.' },
+  { name: '503 Service Unavailable', type: 'application/json', defaultValue: '-', description: 'Credit service unavailable.' },
+];
+
 const configOutputs = [
   {
     name: '200 OK',
@@ -766,6 +897,51 @@ data: {"type": "final", "text": "यह एक टेस्ट है, भाष
   "model": "indus-stt-v1"
 }`,
   },
+  {
+    label: '200 OK (Diarization Upload)',
+    language: 'json',
+    code: `{
+  "job_id": "7a5f2f0e4c8d4b2ab6d2c5d0fdc4b5e0",
+  "status": "processing",
+  "message": "File uploaded successfully. Processing in background.",
+  "duration": 312.44,
+  "estimated_time": 93.73,
+  "status_url": "/v1/audio/transcribe/diarize/status/7a5f2f0e4c8d4b2ab6d2c5d0fdc4b5e0",
+  "poll_interval": 5
+}`,
+  },
+  {
+    label: '200 OK (Diarization Status)',
+    language: 'json',
+    code: `{
+  "job_id": "7a5f2f0e4c8d4b2ab6d2c5d0fdc4b5e0",
+  "status": "completed",
+  "results": [
+    {
+      "utterance_index": 1,
+      "start_sec": 0.0,
+      "end_sec": 14.2,
+      "duration_sec": 14.2,
+      "speaker": "speaker_0",
+      "endpoint": "transcribe_file",
+      "text": "Welcome everyone, let's review the agenda.",
+      "status": "completed"
+    },
+    {
+      "utterance_index": 2,
+      "start_sec": 14.2,
+      "end_sec": 29.8,
+      "duration_sec": 15.6,
+      "speaker": "speaker_1",
+      "endpoint": "transcribe_ws",
+      "text": "I will cover the launch metrics next.",
+      "status": "completed"
+    }
+  ],
+  "processing_time": 108.51,
+  "model": "diarization"
+}`,
+  },
 ];
 
 const endpoints = [
@@ -852,6 +1028,37 @@ const endpoints = [
     inputs: asyncStatusInputs,
     outputs: asyncStatusOutputs,
     examples: [responseExamples[5]],
+  },
+  {
+    id: 'stt-post-v1-audio-transcribe-diarize',
+    method: 'POST',
+    path: '/v1/audio/transcribe/diarize',
+    title: 'Diarize + Transcribe (Async)',
+    description: 'Uploads audio for speaker diarization and per-speaker transcription, returning a job_id for polling.',
+    notes: [
+      'Runs speaker diarization before transcription to label speakers.',
+      'Supports files up to 30 minutes; processing occurs in the background.',
+      'Use config_json to tune language, noise_cancellation, padding, and concurrency parameters.',
+      'Returns an estimated_time and status_url so clients can poll without blocking.',
+    ],
+    inputs: diarizeInputs,
+    outputs: diarizeOutputs,
+    examples: [responseExamples[6]],
+  },
+  {
+    id: 'stt-get-v1-audio-transcribe-diarize-status',
+    method: 'GET',
+    path: '/v1/audio/transcribe/diarize/status/{job_id}',
+    title: 'Get Diarization Status',
+    description: 'Polls the progress of a diarization + transcription job created by /v1/audio/transcribe/diarize.',
+    notes: [
+      'Poll every poll_interval seconds until status is completed or failed.',
+      'Completed responses return per-speaker utterances with start/end timestamps and transcript text.',
+      'Failed jobs include an error string so you can surface actionable feedback.',
+    ],
+    inputs: diarizeStatusInputs,
+    outputs: diarizeStatusOutputs,
+    examples: [responseExamples[7]],
   },
   {
     id: 'stt-get-v1-audio-transcribe-config',
@@ -1075,7 +1282,7 @@ export default function SttPage() {
         <h1>Speech-to-Text Service</h1>
         <p>
           Convert spoken audio into accurate transcripts using flexible endpoints.
-          Use <code>/v1/audio/transcribe</code> for streaming SSE results, <code>/v1/audio/transcribe_ws</code> for real-time WebSocket streaming, <code>/v1/audio/transcribe_file</code> + <code>GET /v1/audio/transcribe_status/{'{'}request_id{'}'}</code> for web-only batch jobs up to 10 minutes, and <code>GET /v1/audio/transcribe/config</code> to inspect supported formats and defaults before uploading.
+          Use <code>/v1/audio/transcribe</code> for streaming SSE results, <code>/v1/audio/transcribe_ws</code> for real-time WebSocket streaming, <code>/v1/audio/transcribe_file</code> + <code>GET /v1/audio/transcribe_status/{'{'}request_id{'}'}</code> for web-only batch jobs up to 10 minutes, <code>/v1/audio/transcribe/diarize</code> + <code>GET /v1/audio/transcribe/diarize/status/{'{'}job_id{'}'}</code> for speaker-labeled transcription up to 30 minutes, and <code>GET /v1/audio/transcribe/config</code> to inspect supported formats and defaults before uploading.
         </p>
         <div className={styles.apiKeyNotice} style={{
           background: 'rgba(84, 104, 255, 0.08)',
