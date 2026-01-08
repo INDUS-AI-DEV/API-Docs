@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import DocsLayout, { MethodBadge } from '@site/src/components/DocsLayout/DocsLayout';
+import React, {useState} from 'react';
+import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
-import { getSidebarSections } from '@site/src/sidebarConfig';
+import {getSidebarSections} from '@site/src/sidebarConfig';
 
 import styles from './api.module.css';
 
 const TTS_BASE_URL = 'https://voice.induslabs.io';
+const TTS_WS_URL = 'wss://voice.induslabs.io';
 
 const ttsQuickIntegration = {
   title: 'Quick Integration',
@@ -348,6 +349,108 @@ console.log('Languages:', Object.keys(voices.data));`,
         },
       ],
     },
+    {
+      id: 'tts-ws-v1-audio-speech',
+      label: 'WS /v1/audio/speech_ws',
+      defaultLanguage: 'python-websocket',
+      languages: [
+        {
+          id: 'python-websocket',
+          label: 'Python (WebSocket)',
+          language: 'python',
+          code: `import asyncio
+import json
+import websockets
+
+WS_URL = "${TTS_WS_URL}/v1/audio/speech_ws"
+
+payload = {
+    "text": "Hello, this is a websocket TTS test.",
+    "voice": "Indus-en-Ember",
+    "output_format": "wav",
+    "stream": True,
+    "model": "indus-tts-v3",
+    "api_key": "YOUR_API_KEY"
+}
+
+async def test_tts_ws():
+    async with websockets.connect(WS_URL, max_size=None) as ws:
+        # Send request
+        await ws.send(json.dumps(payload))
+        
+        audio_bytes = b""
+        while True:
+            msg = await ws.recv()
+            if isinstance(msg, bytes):
+                audio_bytes += msg
+                print(f"Received audio chunk: {len(msg)} bytes")
+            else:
+                data = json.loads(msg)
+                print("Received:", data)
+                if data.get("type") == "done":
+                    break
+                if data.get("type") == "error":
+                    return
+        
+        # Save audio
+        with open("output.wav", "wb") as f:
+            f.write(audio_bytes)
+        print("Saved output.wav")
+
+asyncio.run(test_tts_ws())`,
+        },
+        {
+          id: 'javascript',
+          label: 'JavaScript (WebSocket)',
+          language: 'javascript',
+          code: `const WebSocket = require('ws');
+const fs = require('fs');
+
+const WS_URL = '${TTS_WS_URL}/v1/audio/speech_ws';
+
+const payload = {
+  text: 'Hello, this is a websocket TTS test.',
+  voice: 'Indus-en-Ember',
+  output_format: 'wav',
+  stream: true,
+  model: 'indus-tts-v3',
+  api_key: 'YOUR_API_KEY'
+};
+
+const ws = new WebSocket(WS_URL, { maxPayload: 100 * 1024 * 1024 });
+
+let audioChunks = [];
+
+ws.on('open', () => {
+  console.log('WebSocket connected');
+  ws.send(JSON.stringify(payload));
+});
+
+ws.on('message', (data) => {
+  if (Buffer.isBuffer(data)) {
+    console.log(\`Received audio chunk: \${data.length} bytes\`);
+    audioChunks.push(data);
+  } else {
+    const msg = JSON.parse(data);
+    console.log('Received:', msg);
+    
+    if (msg.type === 'done') {
+      const audioBuffer = Buffer.concat(audioChunks);
+      fs.writeFileSync('output.wav', audioBuffer);
+      console.log('Saved output.wav');
+      ws.close();
+    } else if (msg.type === 'error') {
+      console.error('Error:', msg.message);
+      ws.close();
+    }
+  }
+});
+
+ws.on('error', (err) => console.error('WebSocket error:', err));
+ws.on('close', (code, reason) => console.log(\`WebSocket closed: \${code} \${reason}\`));`,
+        },
+      ],
+    },
   ],
 };
 
@@ -437,17 +540,70 @@ const previewResponse = `{
 }`;
 
 const sharedInputs = [
-  { name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.' },
-  { name: 'voice', type: 'string', defaultValue: 'Indus-hi-maya', description: 'The voice model to be used (e.g., "Indus-hi-maya").' },
-  { name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3", "pcm").' },
-  { name: 'model', type: 'string', defaultValue: 'indus-tts-v1', description: 'The TTS model to use (e.g., "indus-tts-v1").' },
-  { name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.' },
-  { name: 'normalize', type: 'boolean', defaultValue: 'true', description: 'Whether to normalize text before synthesis (default: true).' },
-  { name: 'stream', type: 'boolean', defaultValue: 'true', description: 'Whether to stream the output (default: true).' },
-  { name: 'speed', type: 'number', defaultValue: '1', description: 'Speed of speech synthesis (default: 1).' },
-  { name: 'pitch_shift', type: 'number', defaultValue: '0', description: 'Pitch shift adjustment (default: 0).' },
-  { name: 'loudness_db', type: 'number', defaultValue: '0', description: 'Loudness adjustment in decibels (default: 0).' },
-  { name: 'sample_rate', type: 'number', defaultValue: '24000', description: 'Audio sample rate in Hz. Accepted values: 24000 (recommended), 16000, 8000.' },
+  {name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.'},
+  {name: 'voice', type: 'string', defaultValue: 'Indus-hi-maya', description: 'The voice model to be used (e.g., "Indus-hi-maya").'},
+  {name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3", "pcm").'},
+  {name: 'model', type: 'string', defaultValue: 'indus-tts-v1', description: 'The TTS model to use (e.g., "indus-tts-v1").'},
+  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
+  {name: 'normalize', type: 'boolean', defaultValue: 'true', description: 'Whether to normalize text before synthesis (default: true).'},
+  {name: 'stream', type: 'boolean', defaultValue: 'true', description: 'Whether to stream the output (default: true).'},
+  {name: 'speed', type: 'number', defaultValue: '1', description: 'Speed of speech synthesis (default: 1).'},
+  {name: 'pitch_shift', type: 'number', defaultValue: '0', description: 'Pitch shift adjustment (default: 0).'},
+  {name: 'loudness_db', type: 'number', defaultValue: '0', description: 'Loudness adjustment in decibels (default: 0).'},
+  {name: 'sample_rate', type: 'number', defaultValue: '24000', description: 'Audio sample rate in Hz. Accepted values: 24000 (recommended), 16000, 8000.'},
+];
+
+// WebSocket-specific definitions
+const wsInputs = [
+  {name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.'},
+  {name: 'voice', type: 'string', defaultValue: 'required', description: 'The voice model to use (e.g., "Indus-en-Ember", "Indus-hi-maya").'},
+  {name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3").'},
+  {name: 'stream', type: 'boolean', defaultValue: 'true', description: 'Whether to stream the output (default: true).'},
+  {name: 'model', type: 'string', defaultValue: 'indus-tts-v3', description: 'The TTS model to use (e.g., "indus-tts-v1", "indus-tts-v3").'},
+  {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
+  {name: 'normalize', type: 'boolean', defaultValue: 'true', description: 'Whether to normalize text before synthesis (optional).'},
+  {name: 'speed', type: 'number', defaultValue: '1', description: 'Speed of speech synthesis (optional).'},
+  {name: 'pitch_shift', type: 'number', defaultValue: '0', description: 'Pitch shift adjustment (optional).'},
+  {name: 'loudness_db', type: 'number', defaultValue: '0', description: 'Loudness adjustment in decibels (optional).'},
+  {name: 'sample_rate', type: 'number', defaultValue: '24000', description: 'Audio sample rate in Hz (optional).'},
+];
+
+const wsMessageTypes = [
+  {name: 'Initial JSON Request', type: 'JSON', defaultValue: 'first', description: 'Send complete request payload as JSON string including text, voice, model, and all parameters.'},
+  {name: 'Audio Chunks', type: 'binary', defaultValue: 'continuous', description: 'Raw audio data received as binary WebSocket frames (synthesized speech audio).'},
+  {name: 'Status Messages', type: 'JSON', defaultValue: 'intermittent', description: 'JSON messages with type "done" (synthesis complete) or "error" (processing failed).'},
+];
+
+const wsOutputs = [
+  {name: 'audio chunks', type: 'binary', defaultValue: '-', description: 'Raw synthesized audio data in the requested format (wav, mp3, etc.).'},
+  {name: 'done', type: 'JSON', defaultValue: '-', description: 'Completion message indicating synthesis is finished.'},
+  {name: 'error', type: 'JSON', defaultValue: '-', description: 'Error message if synthesis fails.'},
+];
+
+const wsResponseExamples = [
+  {
+    label: 'Audio Chunk (Binary)',
+    language: 'text',
+    code: `Binary audio data (WAV/MP3 format)
+Example: 4096 bytes of audio data per chunk`,
+  },
+  {
+    label: 'Done Message',
+    language: 'json',
+    code: `{
+  "type": "done",
+  "message": "Speech synthesis completed"
+}`,
+  },
+  {
+    label: 'Error Message',
+    language: 'json',
+    code: `{
+  "type": "error",
+  "message": "Invalid API key",
+  "code": "AUTH_ERROR"
+}`,
+  },
 ];
 
 const voiceListExample = `{
@@ -544,8 +700,8 @@ const endpoints = [
     ],
     inputs: sharedInputs,
     outputs: [
-      { name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns synthesized speech audio as binary data.' },
-      { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
+      {name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns synthesized speech audio as binary data.'},
+      {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
     ],
     examples: [
       {
@@ -553,7 +709,7 @@ const endpoints = [
         language: 'text',
         code: `Binary audio data (WAV format)`,
       },
-      { label: '422 Validation Error', language: 'json', code: validationError },
+      {label: '422 Validation Error', language: 'json', code: validationError},
     ],
     outputFormat: 'wav',
   },
@@ -571,8 +727,8 @@ const endpoints = [
     ],
     inputs: sharedInputs,
     outputs: [
-      { name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns the synthesized speech audio as a downloadable file.' },
-      { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
+      {name: '200 OK', type: 'audio/wav', defaultValue: '-', description: 'Returns the synthesized speech audio as a downloadable file.'},
+      {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
     ],
     examples: [
       {
@@ -580,7 +736,7 @@ const endpoints = [
         language: 'text',
         code: `Binary audio data (WAV format)`,
       },
-      { label: '422 Validation Error', language: 'json', code: validationError },
+      {label: '422 Validation Error', language: 'json', code: validationError},
     ],
     outputFormat: 'wav',
   },
@@ -598,12 +754,12 @@ const endpoints = [
     ],
     inputs: sharedInputs,
     outputs: [
-      { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns detailed analysis including character count, word count, estimated duration, credit cost, and configuration details.' },
-      { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
+      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns detailed analysis including character count, word count, estimated duration, credit cost, and configuration details.'},
+      {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
     ],
     examples: [
-      { label: '200 OK', language: 'json', code: previewResponse },
-      { label: '422 Validation Error', language: 'json', code: validationError },
+      {label: '200 OK', language: 'json', code: previewResponse},
+      {label: '422 Validation Error', language: 'json', code: validationError},
     ],
     outputFormat: 'json',
   },
@@ -622,19 +778,43 @@ const endpoints = [
     ],
     inputs: null,
     outputs: [
-      { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns voice catalog organized by language with name, voice_id, and gender for each voice.' },
-      { name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.' },
+      {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'Returns voice catalog organized by language with name, voice_id, and gender for each voice.'},
+      {name: '422 Validation Error', type: 'application/json', defaultValue: '-', description: 'Validation failure. Inspect detail array.'},
     ],
     examples: [
-      { label: '200 OK', language: 'json', code: voiceListExample },
-      { label: '422 Validation Error', language: 'json', code: validationError },
+      {label: '200 OK', language: 'json', code: voiceListExample},
+      {label: '422 Validation Error', language: 'json', code: validationError},
     ],
     outputFormat: 'json',
     isVoiceEndpoint: true,
   },
+  {
+    anchor: 'tts-ws-v1-audio-speech',
+    method: 'WS',
+    path: '/v1/audio/speech_ws',
+    title: 'WebSocket Streaming Speech Synthesis',
+    description: 'Real-time text-to-speech synthesis using WebSocket for bidirectional streaming. Perfect for live speech generation, voice assistants, and low-latency applications.',
+    notes: [
+      '🔌 **Persistent Connection**: Maintains a WebSocket connection for real-time audio streaming.',
+      '⚡ **Real-time Generation**: Receive audio chunks as they are synthesized—no waiting for complete generation.',
+      '🎯 **Low Latency**: Optimized for live speech generation and real-time voice applications.',
+      '📊 **Streaming Output**: Get audio data progressively as binary chunks for immediate playback.',
+      '🔄 **Bidirectional**: Send synthesis request and receive audio chunks continuously.',
+      '🎵 **Multiple Formats**: Supports WAV, MP3, and other audio formats with configurable parameters.',
+    ],
+    models: [
+      {name: 'indus-tts-v1', description: 'Standard TTS model with broad language support.'},
+      {name: 'indus-tts-v3', description: 'Latest generation model with improved quality and naturalness.'},
+    ],
+    inputs: wsInputs,
+    outputs: wsOutputs,
+    messageTypes: wsMessageTypes,
+    examples: wsResponseExamples,
+    isWebSocket: true,
+  },
 ];
 
-function TableCard({ title, rows, headerLabels }) {
+function TableCard({title, rows, headerLabels}) {
   if (!rows || rows.length === 0) {
     return null;
   }
@@ -679,7 +859,7 @@ function TableCard({ title, rows, headerLabels }) {
 
 const outputHeaderLabels = ['Status', 'Type', 'Default', 'Description'];
 
-function OutputCard({ rows, headerLabels = outputHeaderLabels }) {
+function OutputCard({rows, headerLabels = outputHeaderLabels}) {
   return (
     <div className={styles.tableCard}>
       <h4>Outputs</h4>
@@ -708,9 +888,42 @@ function OutputCard({ rows, headerLabels = outputHeaderLabels }) {
   );
 }
 
-function EndpointSection({ endpoint }) {
+function MessageTypeCard({rows}) {
+  const headerLabels = ['Message', 'Type', 'Order', 'Description'];
+  return (
+      <div className={styles.tableCard}>
+      <h4>WebSocket Message Flow</h4>
+      <div className={styles.tableScroll}>
+          <table>
+          <thead>
+              <tr>
+              {headerLabels.map(label => (
+                  <th key={label}>{label}</th>
+              ))}
+              </tr>
+          </thead>
+          <tbody>
+              {rows.map(row => (
+              <tr key={row.name}>
+                  <td data-label={headerLabels[0]}><code>{row.name}</code></td>
+                  <td data-label={headerLabels[1]}>{row.type}</td>
+                  <td data-label={headerLabels[2]}>{row.defaultValue}</td>
+                  <td data-label={headerLabels[3]}>{row.description}</td>
+              </tr>
+              ))}
+          </tbody>
+          </table>
+      </div>
+      </div>
+  );
+}
+
+function EndpointSection({endpoint}) {
   const [copied, setCopied] = useState(false);
-  const copyValue = `${TTS_BASE_URL}${endpoint.path}`;
+  const isWebSocket = endpoint.isWebSocket || endpoint.method === 'WS';
+  const copyValue = isWebSocket 
+    ? `${TTS_WS_URL}${endpoint.path}`
+    : `${TTS_BASE_URL}${endpoint.path}`;
 
   const handleCopy = async () => {
     try {
@@ -735,17 +948,50 @@ function EndpointSection({ endpoint }) {
       <p>{endpoint.description}</p>
       {endpoint.notes?.length > 0 && (
         <div className={styles.callout}>
-          <strong>Functionality</strong>
+          <strong>{isWebSocket ? 'Key Features' : 'Functionality'}</strong>
           <ul>
             {endpoint.notes.map(note => (
-              <li key={note}>{note}</li>
+              <li key={note} dangerouslySetInnerHTML={{ __html: note.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
             ))}
           </ul>
         </div>
       )}
+      
+      {/* WebSocket-specific connection info */}
+      {isWebSocket && (
+        <div className={styles.callout} style={{ background: 'rgba(156, 39, 176, 0.06)', borderColor: 'rgba(156, 39, 176, 0.2)' }}>
+          <strong>🔌 WebSocket Connection</strong>
+          <p style={{ margin: '0.5rem 0 0' }}>
+            Connect to: <code>{TTS_WS_URL}{endpoint.path}</code>
+          </p>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', opacity: 0.85 }}>
+            Unlike REST endpoints, WebSocket maintains a persistent bidirectional connection for real-time streaming synthesis.
+          </p>
+        </div>
+      )}
+      
+      {/* Available Models */}
+      {endpoint.models && endpoint.models.length > 0 && (
+        <div className={styles.callout} style={{ background: 'rgba(46, 125, 50, 0.06)', borderColor: 'rgba(46, 125, 50, 0.2)' }}>
+          <strong>🤖 Available Models</strong>
+          <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.5rem' }}>
+            {endpoint.models.map(model => (
+              <li key={model.name} style={{ marginBottom: '0.4rem' }}>
+                <code style={{ fontWeight: 600 }}>{model.name}</code>: {model.description}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
+      {/* WebSocket message flow */}
+      {isWebSocket && endpoint.messageTypes && (
+        <MessageTypeCard rows={endpoint.messageTypes} />
+      )}
+      
       <div className={styles.ioGrid}>
         <TableCard
-          title="Inputs"
+          title={isWebSocket ? "Request Parameters (JSON)" : "Inputs"}
           rows={endpoint.inputs}
           headerLabels={['Name', 'Type', 'Default', 'Description']}
         />
@@ -786,11 +1032,11 @@ export default function TtsPage() {
           padding: '1.2rem 1.5rem',
           marginTop: '1rem',
         }}>
-          <p style={{ margin: 0 }}>
+          <p style={{margin: 0}}>
             <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
-            <a
-              href="https://playground.induslabs.io/register"
-              target="_blank"
+            <a 
+              href="https://playground.induslabs.io/register" 
+              target="_blank" 
               rel="noopener noreferrer"
               style={{
                 color: '#5468ff',
@@ -804,11 +1050,11 @@ export default function TtsPage() {
           </p>
         </div>
       </section>
-
-      <div style={{ marginTop: '0.75rem' }}>
+      
+      <div style={{marginTop: '0.75rem'}}>
         <div className={styles.apiKeyImage}>
-          <img src="/img/api-key-location.png" alt="Where to get your API key" style={{ maxWidth: '420px', width: '100%', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)' }} />
-          <p style={{ fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0 }}>
+          <img src="/img/api-key-location.png" alt="Where to get your API key" style={{maxWidth: '420px', width: '100%', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)'}} />
+          <p style={{fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0}}>
             Screenshot: where to find your API key. Create one at{' '}
             <a href="https://playground.induslabs.io/register" target="_blank" rel="noopener noreferrer">playground.induslabs.io/register</a>
           </p>
@@ -817,7 +1063,7 @@ export default function TtsPage() {
       <section id="tts-shared-payload" className={styles.sectionHeading}>
         <h2>Shared Request Payload</h2>
         <p>
-          All text-to-speech endpoints use the same JSON schema sent via POST request. Simply adjust parameters
+          All text-to-speech endpoints use the same JSON schema sent via POST request. Simply adjust parameters 
           like output_format or stream depending on your use case.
         </p>
       </section>
@@ -837,27 +1083,27 @@ export default function TtsPage() {
               </tr>
             </thead>
             <tbody>
-              {sharedInputs.map(field => {
-                const normalizedDefault =
-                  typeof field.defaultValue === 'string' ? field.defaultValue.toLowerCase() : field.defaultValue;
-                const isRequired = normalizedDefault === 'required';
-                return (
-                  <tr key={field.name}>
-                    <td data-label="Name">
-                      <code>{field.name}</code>
-                      {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
-                    </td>
-                    <td data-label="Type">{field.type}</td>
-                    <td
-                      data-label="Default"
-                      data-required={isRequired ? 'true' : 'false'}
-                    >
-                      {isRequired ? 'required' : field.defaultValue}
-                    </td>
-                    <td data-label="Description">{field.description}</td>
-                  </tr>
-                );
-              })}
+            {sharedInputs.map(field => {
+              const normalizedDefault =
+                typeof field.defaultValue === 'string' ? field.defaultValue.toLowerCase() : field.defaultValue;
+              const isRequired = normalizedDefault === 'required';
+              return (
+                <tr key={field.name}>
+                  <td data-label="Name">
+                    <code>{field.name}</code>
+                    {isRequired && <span className={styles.requiredBadgeMobile} aria-hidden="true">*</span>}
+                  </td>
+                  <td data-label="Type">{field.type}</td>
+                  <td
+                    data-label="Default"
+                    data-required={isRequired ? 'true' : 'false'}
+                  >
+                    {isRequired ? 'required' : field.defaultValue}
+                  </td>
+                  <td data-label="Description">{field.description}</td>
+                </tr>
+              );
+            })}
             </tbody>
           </table>
         </div>

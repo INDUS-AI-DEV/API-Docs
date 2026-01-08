@@ -10,17 +10,26 @@ const sections = [
       { label: 'SDK Documentation', page: 'sdk', id: 'sdk-introduction' },
     ],
   },
-  {
-    title: 'TTS Services',
-    items: [
-      { label: 'Introduction', page: 'tts', id: 'tts-introduction' },
-      { label: 'Shared Payload', page: 'tts', id: 'tts-shared-payload' },
-      { label: 'audio/speech', page: 'tts', id: 'tts-post-v1-audio-speech', method: 'POST' },
-      { label: 'audio/speech/file', page: 'tts', id: 'tts-post-v1-audio-speech-file', method: 'POST' },
-      { label: 'audio/speech/preview', page: 'tts', id: 'tts-post-v1-audio-speech-preview', method: 'POST' },
-      { label: 'voice/get-voices', page: 'tts', id: 'tts-get-v1-voice-get-voices', method: 'GET' },
-    ],
-  },
+{
+  title: 'TTS Services',
+  items: [
+    { label: 'Introduction', page: 'tts', id: 'tts-introduction' },
+    { label: 'Shared Payload', page: 'tts', id: 'tts-shared-payload' },
+
+    { label: 'audio/speech', page: 'tts', id: 'tts-post-v1-audio-speech', method: 'POST' },
+    { label: 'audio/speech/file', page: 'tts', id: 'tts-post-v1-audio-speech-file', method: 'POST' },
+    { label: 'audio/speech/preview', page: 'tts', id: 'tts-post-v1-audio-speech-preview', method: 'POST' },
+
+    { label: 'voice/get-voices', page: 'tts', id: 'tts-get-v1-voice-get-voices', method: 'GET' },
+
+    {
+      label: 'audio/speech_ws',
+      page: 'tts',
+      id: 'tts-ws-v1-audio-speech',
+      method: 'WS',
+    },
+  ],
+},
   {
     title: 'STT Services',
     items: [
