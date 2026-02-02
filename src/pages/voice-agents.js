@@ -1,7 +1,8 @@
 import React from 'react';
-import DocsLayout, {MethodBadge} from '@site/src/components/DocsLayout/DocsLayout';
+import DocsLayout, { MethodBadge } from '@site/src/components/DocsLayout/DocsLayout';
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
-import {getSidebarSections} from '@site/src/sidebarConfig';
+import { getSidebarSections } from '@site/src/sidebarConfig';
+import VoiceAgentCarousel from '@site/src/components/VoiceAgentCarousel/VoiceAgentCarousel';
 
 import styles from './api.module.css';
 
@@ -127,7 +128,7 @@ const voiceAgentsIntegration = {
           id: 'python-rest',
           label: 'Python (REST API)',
           language: 'python',
-            code: `import requests
+          code: `import requests
 
           url = "https://developer.induslabs.io/api/agents"
           payload = {"api_key": "YOUR_API_KEY"}
@@ -225,16 +226,16 @@ export default function VoiceAgentsPage() {
       description: 'Returns a list of configured voice agents available in the developer environment.',
       notes: ['Discover configured agents for your organization or developer environment.'],
       inputs: [
-        {name: 'api_key', type: 'string', defaultValue: 'required', description: 'API key used for authentication.'},
+        { name: 'api_key', type: 'string', defaultValue: 'required', description: 'API key used for authentication.' },
       ],
       outputs: [
-        {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'List of agents and metadata.'},
-        {name: '401 Unauthorized', type: 'application/json', defaultValue: '-', description: 'Missing or invalid credentials.'},
+        { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'List of agents and metadata.' },
+        { name: '401 Unauthorized', type: 'application/json', defaultValue: '-', description: 'Missing or invalid credentials.' },
       ],
       examples: [
-        {label: 'cURL', language: 'bash', code: agentsCurl},
-        {label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/agents"\npayload = {"api_key": "YOUR_API_KEY"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())`},
-        {label: 'React + TypeScript', language: 'tsx', code: reactTsAgents},
+        { label: 'cURL', language: 'bash', code: agentsCurl },
+        { label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/agents"\npayload = {"api_key": "YOUR_API_KEY"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())` },
+        { label: 'React + TypeScript', language: 'tsx', code: reactTsAgents },
       ],
     },
     {
@@ -245,22 +246,22 @@ export default function VoiceAgentsPage() {
       description: 'Request LiveKit session details for a given agent so clients can join the voice session.',
       notes: ['Returns connection details (token, room) required to join LiveKit.'],
       inputs: [
-        {name: 'api_key', type: 'string', defaultValue: 'required', description: 'API key used for authentication.'},
-        {name: 'agent_id', type: 'string', defaultValue: 'required', description: 'ID of the agent to connect to.'},
+        { name: 'api_key', type: 'string', defaultValue: 'required', description: 'API key used for authentication.' },
+        { name: 'agent_id', type: 'string', defaultValue: 'required', description: 'ID of the agent to connect to.' },
       ],
       outputs: [
-        {name: '200 OK', type: 'application/json', defaultValue: '-', description: 'LiveKit connection details and metadata.'},
-        {name: '401 Unauthorized', type: 'application/json', defaultValue: '-', description: 'Missing or invalid credentials.'},
+        { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'LiveKit connection details and metadata.' },
+        { name: '401 Unauthorized', type: 'application/json', defaultValue: '-', description: 'Missing or invalid credentials.' },
       ],
       examples: [
-        {label: 'cURL', language: 'bash', code: livekitCurl},
-        {label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/livekit"\npayload = {"api_key": "YOUR_API_KEY", "agent_id": "AGT_E882B100"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())`} ,
-        {label: 'React + TypeScript', language: 'tsx', code: reactTsLivekitQuick},
+        { label: 'cURL', language: 'bash', code: livekitCurl },
+        { label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/livekit"\npayload = {"api_key": "YOUR_API_KEY", "agent_id": "AGT_E882B100"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())` },
+        { label: 'React + TypeScript', language: 'tsx', code: reactTsLivekitQuick },
       ],
     },
   ];
 
-  function TableCard({title, rows, headerLabels = ['Name', 'Type', 'Default', 'Description']}) {
+  function TableCard({ title, rows, headerLabels = ['Name', 'Type', 'Default', 'Description'] }) {
     if (!rows || rows.length === 0) return null;
     return (
       <div className={styles.tableCard}>
@@ -290,7 +291,7 @@ export default function VoiceAgentsPage() {
     );
   }
 
-  function OutputCard({rows}) {
+  function OutputCard({ rows }) {
     if (!rows) return null;
     const headerLabels = ['Status', 'Type', 'Description'];
     return (
@@ -316,7 +317,7 @@ export default function VoiceAgentsPage() {
     );
   }
 
-  function EndpointSection({endpoint}) {
+  function EndpointSection({ endpoint }) {
     const [copied, setCopied] = React.useState(false);
     const copyValue = `https://developer.induslabs.io${endpoint.path}`;
     const handleCopy = async () => {
@@ -380,7 +381,7 @@ export default function VoiceAgentsPage() {
           padding: '1.2rem 1.5rem',
           marginTop: '1rem',
         }}>
-          <p style={{margin: 0}}>
+          <p style={{ margin: 0 }}>
             <strong>Need an API Key?</strong> If you don't have an API key yet, you can create one here:{' '}
             <a
               href="https://playground.induslabs.io/register"
@@ -398,16 +399,15 @@ export default function VoiceAgentsPage() {
           </p>
         </div>
       </section>
-      
-      <div style={{marginTop: '0.75rem'}}>
-        <div className={styles.apiKeyImage}>
-          <img src="/img/api-key-location.png" alt="Where to get your API key" style={{maxWidth: '420px', width: '100%', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)'}} />
-          <p style={{fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0}}>
-            Screenshot: where to find your API key. Create one at{' '}
-            <a href="https://playground.induslabs.io/register" target="_blank" rel="noopener noreferrer">playground.induslabs.io/register</a>
-          </p>
-        </div>
-      </div>
+
+      <section style={{ 
+        marginTop: '2.5rem', 
+        marginBottom: '2.5rem',
+        position: 'relative'
+      }}>
+        <VoiceAgentCarousel />
+      </section>
+
       {endpoints.map(endpoint => (
         <EndpointSection key={endpoint.id} endpoint={endpoint} />
       ))}
@@ -431,7 +431,7 @@ export default function VoiceAgentsPage() {
             <CopyableCode language="tsx">{reactTsLivekit}</CopyableCode>
           </div>
         </div>
-        <p style={{marginTop: '0.5rem'}}>
+        <p style={{ marginTop: '0.5rem' }}>
           The <code>/api/livekit</code> response should include <code>url</code> and <code>token</code>. Supply your API key via environment variables in production and extend with reconnection/error handling as needed.
         </p>
       </section>

@@ -4,8 +4,8 @@
 
 /* Page Introduction */
 .pageIntro {
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--color-border, #333);
 }
 
@@ -195,7 +195,7 @@
 
 /* Endpoint Section */
 .endpointSection {
-  padding: 1rem 0;
+  padding: 1.5rem 0;
   border-bottom: 1px solid var(--color-border-light, #262626);
 }
 
