@@ -4,23 +4,26 @@ import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
 import { getSidebarSections } from '@site/src/sidebarConfig';
 import VoiceAgentCarousel from '@site/src/components/VoiceAgentCarousel/VoiceAgentCarousel';
 
+
 import styles from './api.module.css';
 
+const API_BASE = 'https://staging-api.induslabs.io/api';
+
 const agentsCurl = `curl -N -X POST \\
-  "https://developer.induslabs.io/api/agents" \\
+  "https://api.induslabs.io/api/developer/agents" \\
   -H "accept: application/json" \\
   -H "Content-Type: application/json" \\
   -d '{"api_key":"YOUR_API_KEY"}'`;
 
 const livekitCurl = `curl -N -X POST \\
-  "https://developer.induslabs.io/api/livekit" \\
+  "https://api.induslabs.io/api/developer/livekit" \\
   -H "accept: application/json" \\
   -H "Content-Type: application/json" \\
   -d '{"api_key":"YOUR_API_KEY","agent_id":"AGENT_ID"}'`;
 
 const reactTsAgents = `type Agent = { agent_id: string; name?: string };
 
-const resp = await fetch("https://developer.induslabs.io/api/agents", {
+const resp = await fetch("https://api.induslabs.io/api/developer/agents", {
   method: "POST",
   headers: { "Content-Type": "application/json", accept: "application/json" },
   body: JSON.stringify({ api_key: process.env.NEXT_PUBLIC_INDUS_API_KEY }),
@@ -29,32 +32,45 @@ if (!resp.ok) throw new Error("Failed to load agents");
 const agents: Agent[] = await resp.json();`;
 
 const reactTsLivekit = `import { useEffect, useMemo, useState } from "react";
-import { Room, RoomEvent } from "livekit-client";
+import { Room, RoomEvent, createLocalAudioTrack } from "livekit-client";
 
-const API_BASE = "https://developer.induslabs.io/api";
+const API_BASE = "https://api.induslabs.io/api";
 const API_KEY = "YOUR_API_KEY"; // Prefer an env var like process.env.NEXT_PUBLIC_INDUS_API_KEY
 
 type Agent = { agent_id: string; name?: string };
 type LivekitSession = { url: string; token: string };
 
 async function fetchAgents(): Promise<Agent[]> {
-  const res = await fetch(\`\${API_BASE}/agents\`, {
+  const res = await fetch(\`\${API_BASE}/developer/agents\`, {
     method: "POST",
     headers: { "Content-Type": "application/json", accept: "application/json" },
     body: JSON.stringify({ api_key: API_KEY })
   });
   if (!res.ok) throw new Error("Failed to load agents");
-  return res.json();
+  const data = await res.json();
+  // Handle response format: { data: { agents: [...] } }
+  return data.data?.agents || data.agents || [];
 }
 
 async function startLivekit(agentId: string): Promise<LivekitSession> {
-  const res = await fetch(\`\${API_BASE}/livekit\`, {
+  // Step 1: Get LiveKit credentials from Indus Labs API
+  const res = await fetch(\`\${API_BASE}/developer/livekit\`, {
     method: "POST",
     headers: { "Content-Type": "application/json", accept: "application/json" },
     body: JSON.stringify({ api_key: API_KEY, agent_id: agentId })
   });
   if (!res.ok) throw new Error("Failed to start LiveKit");
-  return res.json(); // expects { url, token }
+  const response = await res.json();
+  const data = response.data || response;
+  
+  // Extract token and host URL
+  const { token, livekit_host_url } = data;
+  
+  if (!token || !livekit_host_url) {
+    throw new Error("Missing token or livekit_host_url in response");
+  }
+  
+  return { url: livekit_host_url, token };
 }
 
 export function VoiceAgentLivekit() {
@@ -68,13 +84,51 @@ export function VoiceAgentLivekit() {
 
   const connect = useMemo(
     () => async (agentId: string) => {
-      setStatus("connecting");
-      const { url, token } = await startLivekit(agentId);
-      const lkRoom = new Room();
-      lkRoom.on(RoomEvent.Connected, () => setStatus("connected"));
-      lkRoom.on(RoomEvent.Disconnected, () => setStatus("disconnected"));
-      await lkRoom.connect(url, token);
-      setRoom(lkRoom);
+      try {
+        setStatus("connecting");
+        const { url, token } = await startLivekit(agentId);
+        const lkRoom = new Room();
+        
+        lkRoom.on(RoomEvent.Connected, async () => {
+          setStatus("connected");
+          // Enable microphone to send audio to agent
+          try {
+            const audioTrack = await createLocalAudioTrack();
+            await lkRoom.localParticipant.publishTrack(audioTrack);
+          } catch (err) {
+            console.error("Failed to enable microphone:", err);
+          }
+        });
+        
+        lkRoom.on(RoomEvent.Disconnected, () => {
+          setStatus("disconnected");
+        });
+        
+        // Subscribe to remote audio tracks (agent's voice)
+        lkRoom.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+          if (track.kind === "audio") {
+            const audioElement = track.attach();
+            audioElement.setAttribute('autoplay', 'true');
+            audioElement.setAttribute('playsinline', 'true');
+            document.body.appendChild(audioElement);
+            audioElement.play().catch(err => {
+              console.warn('Autoplay blocked:', err);
+            });
+          }
+        });
+        
+        // Connect with correct protocol handling
+        let connectUrl = url;
+        if (connectUrl.startsWith('https://')) connectUrl = connectUrl.replace('https://', 'wss://');
+        else if (connectUrl.startsWith('http://')) connectUrl = connectUrl.replace('http://', 'ws://');
+        else if (!connectUrl.startsWith('ws')) connectUrl = 'wss://' + connectUrl;
+
+        await lkRoom.connect(connectUrl, token);
+        setRoom(lkRoom);
+      } catch (err) {
+        console.error("Connection failed:", err);
+        setStatus("error");
+      }
     },
     []
   );
@@ -99,7 +153,8 @@ export function VoiceAgentLivekit() {
 
 const reactTsLivekitQuick = `import { Room } from "livekit-client";
 
-const resp = await fetch("https://developer.induslabs.io/api/livekit", {
+// Step 1: Get LiveKit credentials from Indus Labs API
+const resp = await fetch("https://api.induslabs.io/api/developer/livekit", {
   method: "POST",
   headers: { "Content-Type": "application/json", accept: "application/json" },
   body: JSON.stringify({
@@ -108,11 +163,20 @@ const resp = await fetch("https://developer.induslabs.io/api/livekit", {
   }),
 });
 if (!resp.ok) throw new Error("Failed to start LiveKit");
-const { url, token } = await resp.json(); // expects { url, token }
+const response = await resp.json();
+const { token, livekit_host_url } = response.data || response;
 
+// Step 2: Connect to LiveKit room
 const room = new Room();
-await room.connect(url, token);
-// add RoomEvent listeners as needed`;
+
+// IMPORTANT: Force WebSocket protocol (wss://) to prevent HTTP validation 404s
+let host = livekit_host_url;
+if (host.startsWith('https://')) host = host.replace('https://', 'wss://');
+else if (host.startsWith('http://')) host = host.replace('http://', 'ws://');
+else if (!host.startsWith('ws')) host = 'wss://' + host;
+
+await room.connect(host, token);
+// add RoomEvent listeners and enable microphone as needed`;
 
 const voiceAgentsIntegration = {
   title: 'Quick Integration',
@@ -130,7 +194,7 @@ const voiceAgentsIntegration = {
           language: 'python',
           code: `import requests
 
-          url = "https://developer.induslabs.io/api/agents"
+          url = "https://api.induslabs.io/api/developer/agents"
           payload = {"api_key": "YOUR_API_KEY"}
 
           resp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)
@@ -141,7 +205,7 @@ const voiceAgentsIntegration = {
           id: 'javascript',
           label: 'JavaScript (fetch)',
           language: 'javascript',
-          code: `const url = "https://developer.induslabs.io/api/agents";
+          code: `const url = "https://api.induslabs.io/api/developer/agents";
 const payload = { api_key: "YOUR_API_KEY" };
 
 const resp = await fetch(url, {
@@ -177,7 +241,7 @@ console.log(await resp.json());`,
           language: 'python',
           code: `import requests
 
-      url = "https://developer.induslabs.io/api/livekit"
+      url = "https://api.induslabs.io/api/developer/livekit"
       payload = {"api_key": "YOUR_API_KEY", "agent_id": "AGT_E882B100"}
 
       resp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)
@@ -188,7 +252,7 @@ console.log(await resp.json());`,
           id: 'javascript',
           label: 'JavaScript (fetch)',
           language: 'javascript',
-          code: `const url = "https://developer.induslabs.io/api/livekit";
+          code: `const url = "https://api.induslabs.io/api/developer/livekit";
 const payload = { api_key: "YOUR_API_KEY", agent_id: "AGT_E882B100" };
 
 const resp = await fetch(url, {
@@ -221,7 +285,7 @@ export default function VoiceAgentsPage() {
     {
       id: 'va-post-api-agents',
       method: 'POST',
-      path: '/api/agents',
+      path: '/api/developer/agents',
       title: 'List Available Agents',
       description: 'Returns a list of configured voice agents available in the developer environment.',
       notes: ['Discover configured agents for your organization or developer environment.'],
@@ -234,17 +298,17 @@ export default function VoiceAgentsPage() {
       ],
       examples: [
         { label: 'cURL', language: 'bash', code: agentsCurl },
-        { label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/agents"\npayload = {"api_key": "YOUR_API_KEY"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())` },
+        { label: 'Python', language: 'python', code: `import requests\n\nurl = "https://api.induslabs.io/api/developer/agents"\npayload = {"api_key": "YOUR_API_KEY"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())` },
         { label: 'React + TypeScript', language: 'tsx', code: reactTsAgents },
       ],
     },
     {
       id: 'va-post-api-livekit',
       method: 'POST',
-      path: '/api/livekit',
+      path: '/api/developer/livekit',
       title: 'Start / Connect LiveKit Session',
       description: 'Request LiveKit session details for a given agent so clients can join the voice session.',
-      notes: ['Returns connection details (token, room) required to join LiveKit.'],
+      notes: ['Returns a direct access token and host URL for LiveKit connection.'],
       inputs: [
         { name: 'api_key', type: 'string', defaultValue: 'required', description: 'API key used for authentication.' },
         { name: 'agent_id', type: 'string', defaultValue: 'required', description: 'ID of the agent to connect to.' },
@@ -255,7 +319,7 @@ export default function VoiceAgentsPage() {
       ],
       examples: [
         { label: 'cURL', language: 'bash', code: livekitCurl },
-        { label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/livekit"\npayload = {"api_key": "YOUR_API_KEY", "agent_id": "AGT_E882B100"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())` },
+        { label: 'Python', language: 'python', code: `import requests\n\nurl = "https://api.induslabs.io/api/developer/livekit"\npayload = {"api_key": "YOUR_API_KEY", "agent_id": "AGT_E882B100"}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())` },
         { label: 'React + TypeScript', language: 'tsx', code: reactTsLivekitQuick },
       ],
     },
@@ -360,6 +424,8 @@ export default function VoiceAgentsPage() {
     );
   }
 
+
+
   return (
     <DocsLayout
       title="Voice Agents"
@@ -400,13 +466,15 @@ export default function VoiceAgentsPage() {
         </div>
       </section>
 
-      <section style={{ 
-        marginTop: '2.5rem', 
+      <section style={{
+        marginTop: '2.5rem',
         marginBottom: '2.5rem',
         position: 'relative'
       }}>
         <VoiceAgentCarousel />
       </section>
+
+
 
       {endpoints.map(endpoint => (
         <EndpointSection key={endpoint.id} endpoint={endpoint} />
@@ -432,9 +500,9 @@ export default function VoiceAgentsPage() {
           </div>
         </div>
         <p style={{ marginTop: '0.5rem' }}>
-          The <code>/api/livekit</code> response should include <code>url</code> and <code>token</code>. Supply your API key via environment variables in production and extend with reconnection/error handling as needed.
+          The <code>/api/livekit</code> response includes the <code>token</code> and <code>livekit_host_url</code> needed to connect. supply your API key via environment variables in production.
         </p>
       </section>
-    </DocsLayout>
+    </DocsLayout >
   );
 }

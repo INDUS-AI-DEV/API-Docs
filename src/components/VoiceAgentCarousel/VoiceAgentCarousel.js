@@ -120,7 +120,7 @@ function InfoBox({ children, type = 'info' }) {
 // --- Slides ---
 
 const OverviewSlide = ({ isActive }) => (
-    <div className={styles.slide} aria-hidden={!isActive} inert={!isActive ? "true" : undefined}>
+    <div className={styles.slide} aria-hidden={!isActive} {...(!isActive && { inert: true })}>
         <div className={styles.leftPane}>
             <h3 className={styles.slideTitle}>Voice Agents in<br />React + TypeScript</h3>
             <p className={styles.slideDescription}>
@@ -155,7 +155,7 @@ const OverviewSlide = ({ isActive }) => (
 );
 
 const GetApiKeySlide = ({ isActive }) => (
-    <div className={styles.slide} aria-hidden={!isActive} inert={!isActive ? "true" : undefined}>
+    <div className={styles.slide} aria-hidden={!isActive} {...(!isActive && { inert: true })}>
         <div className={styles.leftPane}>
             <span className={styles.stepBadge}>Step 1</span>
             <h3 className={styles.slideTitle}>Get Your API Key</h3>
@@ -194,7 +194,7 @@ const GetApiKeySlide = ({ isActive }) => (
 );
 
 const InstallLiveKitSlide = ({ isActive }) => (
-    <div className={styles.slide} aria-hidden={!isActive} inert={!isActive ? "true" : undefined}>
+    <div className={styles.slide} aria-hidden={!isActive} {...(!isActive && { inert: true })}>
         <div className={styles.leftPane}>
             <span className={styles.stepBadge}>Step 2</span>
             <h3 className={styles.slideTitle}>Install LiveKit</h3>
@@ -223,7 +223,7 @@ const InstallLiveKitSlide = ({ isActive }) => (
 );
 
 const FetchAgentsSlide = ({ isActive }) => (
-    <div className={styles.slide} aria-hidden={!isActive} inert={!isActive ? "true" : undefined}>
+    <div className={styles.slide} aria-hidden={!isActive} {...(!isActive && { inert: true })}>
         <div className={styles.leftPane}>
             <span className={styles.stepBadge}>Step 3</span>
             <h3 className={styles.slideTitle}>Create Component</h3>
@@ -281,6 +281,7 @@ export default function VoiceAgent() {
   // 2. Connect to LiveKit
   const connect = async (agentId: string) => {
     setStatus("connecting");
+    // Step 1: Get LiveKit credentials from Indus Labs API
     const res = await fetch(\`\${API_BASE}/livekit\`, {
       method: "POST",
       headers: { 
@@ -290,17 +291,40 @@ export default function VoiceAgent() {
       body: JSON.stringify({ api_key: API_KEY, agent_id: agentId })
     });
     if (!res.ok) throw new Error("Failed to start LiveKit");
-    const { url, token } = await res.json();
+    const response = await res.json();
+    const livekitInfo = response.data || response;
+    
+    // Step 2: Get ws_url from backend endpoint
+    const tokenRes = await fetch("http://staging-api.induslabs.io/api/generate-livekit-token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: livekitInfo.livekit_api_key,
+        api_secret: livekitInfo.livekit_api_secret,
+        room: agentId,
+        participant: "user"
+      })
+    });
+    if (!tokenRes.ok) throw new Error("Failed to generate LiveKit token");
+    const tokenData = await tokenRes.json();
+    // Response: { ws_url: "wss://livekit.induslabs.io?access_token=..." }
+    // Parse ws_url to extract base URL and token
+    const { ws_url } = tokenData;
+    const urlObj = new URL(ws_url);
+    const baseUrl = \`\${urlObj.protocol}//\${urlObj.host}\`;
+    const token = urlObj.searchParams.get('access_token');
     
     const lkRoom = new Room();
     lkRoom.on(RoomEvent.Connected, async () => {
       setStatus("connected");
       // Enable microphone
-      const audioTrack = await LocalAudioTrack.createMicrophoneTrack();
+      const { createLocalAudioTrack } = await import("livekit-client");
+      const audioTrack = await createLocalAudioTrack();
       await lkRoom.localParticipant.publishAudioTrack(audioTrack);
     });
     lkRoom.on(RoomEvent.Disconnected, () => setStatus("disconnected"));
-    await lkRoom.connect(url, token);
+    // Connect with URL and token as separate parameters
+    await lkRoom.connect(baseUrl, token);
     setRoom(lkRoom);
   };
 
@@ -330,7 +354,7 @@ export default function VoiceAgent() {
 );
 
 const UseComponentSlide = ({ isActive }) => (
-    <div className={styles.slide} aria-hidden={!isActive} inert={!isActive ? "true" : undefined}>
+    <div className={styles.slide} aria-hidden={!isActive} {...(!isActive && { inert: true })}>
         <div className={styles.leftPane}>
             <span className={styles.stepBadge}>Step 4</span>
             <h3 className={styles.slideTitle}>Use Logic</h3>

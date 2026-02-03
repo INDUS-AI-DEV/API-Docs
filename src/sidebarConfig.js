@@ -7,29 +7,30 @@ const sections = [
       { label: 'Speech-to-Text', page: 'stt', id: 'stt-introduction' },
       { label: 'Large Language Models', page: 'llm', id: 'llm-introduction' },
       { label: 'Voice Agents', page: 'voice-agents', id: 'voice-agents-introduction' },
+
       { label: 'SDK Documentation', page: 'sdk', id: 'sdk-introduction' },
     ],
   },
-{
-  title: 'TTS Services',
-  items: [
-    { label: 'Introduction', page: 'tts', id: 'tts-introduction' },
-    { label: 'Shared Payload', page: 'tts', id: 'tts-shared-payload' },
+  {
+    title: 'TTS Services',
+    items: [
+      { label: 'Introduction', page: 'tts', id: 'tts-introduction' },
+      { label: 'Shared Payload', page: 'tts', id: 'tts-shared-payload' },
 
-    { label: 'audio/speech', page: 'tts', id: 'tts-post-v1-audio-speech', method: 'POST' },
-    { label: 'audio/speech/file', page: 'tts', id: 'tts-post-v1-audio-speech-file', method: 'POST' },
-    { label: 'audio/speech/preview', page: 'tts', id: 'tts-post-v1-audio-speech-preview', method: 'POST' },
+      { label: 'audio/speech', page: 'tts', id: 'tts-post-v1-audio-speech', method: 'POST' },
+      { label: 'audio/speech/file', page: 'tts', id: 'tts-post-v1-audio-speech-file', method: 'POST' },
+      { label: 'audio/speech/preview', page: 'tts', id: 'tts-post-v1-audio-speech-preview', method: 'POST' },
 
-    { label: 'voice/get-voices', page: 'tts', id: 'tts-get-v1-voice-get-voices', method: 'GET' },
+      { label: 'voice/get-voices', page: 'tts', id: 'tts-get-v1-voice-get-voices', method: 'GET' },
 
-    {
-      label: 'audio/speech_ws',
-      page: 'tts',
-      id: 'tts-ws-v1-audio-speech',
-      method: 'WS',
-    },
-  ],
-},
+      {
+        label: 'audio/speech_ws',
+        page: 'tts',
+        id: 'tts-ws-v1-audio-speech',
+        method: 'WS',
+      },
+    ],
+  },
   {
     title: 'STT Services',
     items: [
@@ -66,6 +67,7 @@ const sections = [
       { label: 'React + TypeScript Integration', page: 'voice-agents', id: 'voice-agents-react-typescript' },
     ],
   },
+
   {
     title: 'SDK Documentation',
     items: [
