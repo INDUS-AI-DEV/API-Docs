@@ -1332,7 +1332,7 @@ function SwarmitraSection() {
         <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 600 }}>Swarmitra (Emotional Models)</h3>
       </div>
       <p style={{ marginTop: '0.5rem' }}>
-        Unlock deeper insights with <code>indus-stt-emo</code> and <code>swarmitra-v2</code>. These specialized models go beyond transcription to detect <strong>emotional nuance</strong> in <strong>Hindi</strong> and <strong>English</strong> speech.
+        Unlock deeper insights with <code>swarmitra-flash</code> and <code>swarmitra-v2</code>. These specialized models go beyond transcription to detect <strong>emotional nuance</strong> in <strong>Hindi</strong> and <strong>English</strong> speech.
       </p>
 
       <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
