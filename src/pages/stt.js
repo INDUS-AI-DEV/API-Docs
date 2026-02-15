@@ -1270,6 +1270,105 @@ function EndpointSection({ endpoint }) {
   );
 }
 
+function EmotionTranscript({ text, model, language }) {
+  // Regex to match <|emotion_{name}|> tags
+  const parts = text.split(/(<\|emotion_[a-z]+\|>)/g);
+
+  return (
+    <div style={{ marginTop: '0.5rem' }}>
+      <div style={{
+        lineHeight: '1.6',
+        fontSize: '0.9rem',
+        color: 'var(--color-text-primary, #e5e5e5)',
+        background: 'var(--color-bg-secondary, #141414)',
+        padding: '0.75rem',
+        borderRadius: '6px',
+        border: '1px solid var(--color-border, #333)'
+      }}>
+        {parts.map((part, index) => {
+          const match = part.match(/<\|emotion_([a-z]+)\|>/);
+          if (match) {
+            const emotion = match[1];
+            let bg = '#3b82f6'; // default blue
+
+            if (emotion === 'whisper') { bg = '#8b5cf6'; } // purple
+            else if (emotion === 'laugh') { bg = '#f59e0b'; } // yellow/orange
+            else if (emotion === 'angry') { bg = '#ef4444'; } // red
+            else if (emotion === 'shout') { bg = '#b91c1c'; } // dark red
+            else if (emotion === 'uhm') { bg = '#6b7280'; } // gray
+
+            return (
+              <span key={index} className={styles.emotionTag} style={{ backgroundColor: bg }}>
+                {emotion.charAt(0).toUpperCase() + emotion.slice(1)}
+              </span>
+            );
+          }
+          return <span key={index}>{part}</span>;
+        })}
+      </div>
+      <div style={{
+        marginTop: '0.25rem',
+        fontSize: '0.75rem',
+        color: 'var(--color-text-muted, #737373)',
+        display: 'flex',
+        gap: '1rem',
+        fontFamily: 'SF Mono, Monaco, monospace'
+      }}>
+        <span>model: <span style={{ color: 'var(--color-text-primary, #e5e5e5)' }}>{model || 'swarmitra-v2'}</span></span>
+        <span>language: <span style={{ color: 'var(--color-text-primary, #e5e5e5)' }}>{language}</span></span>
+      </div>
+    </div>
+  );
+}
+
+function SwarmitraSection() {
+  const sample1 = "I think I saw a ghost in the hallway last night. <|emotion_whisper|> It was a dark shadow that just moved across the wall. <|emotion_laugh|> Okay, it was probably just the cat, but I didn't sleep for an hour.";
+  const sample2 = "<|emotion_whisper|> Hi Rohit, how are you? I heard you are getting out of India right now. <|emotion_laugh|> That was just a joke, Rohit. <|emotion_angry|> What are you looking at like this?  Is it? Are you sure? No, don't worry.";
+  const sample3 = "<|emotion_angry|> मैंने क्लियरली कहा था कि ये टास्क आज ही कंप्लीट होना चाहिए, <|emotion_shout|> लेकिन किसी ने सीरियसली नहीं लिया। <|emotion_uhm|> एंड, अब डेडलाइन पास है, इसलिए सब पैनिक कर रहे हैं और प्रेशर बहुत बढ़ गया है।";
+
+  return (
+    <section className={styles.endpointSection} id="swarmitra-emotional-models">
+      <div className={styles.endpointHeader}>
+        <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 600 }}>Swarmitra (Emotional Models)</h3>
+      </div>
+      <p style={{ marginTop: '0.5rem' }}>
+        Unlock deeper insights with <code>indus-stt-emo</code> and <code>swarmitra-v2</code>. These specialized models go beyond transcription to detect <strong>emotional nuance</strong> in <strong>Hindi</strong> and <strong>English</strong> speech.
+      </p>
+
+      <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
+        <div>
+          <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 600 }}>Sample 1: English (Ghost Story)</h4>
+          <audio controls src="/audio/english_1.wav" style={{ width: '100%', borderRadius: '4px' }} />
+          <EmotionTranscript text={sample1} language="English" />
+        </div>
+
+        <div>
+          <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 600 }}>Sample 2: English (Conversation)</h4>
+          <audio controls src="/audio/english_2.wav" style={{ width: '100%', borderRadius: '4px' }} />
+          <EmotionTranscript text={sample2} language="English" />
+        </div>
+
+        <div>
+          <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 600 }}>Sample 3: Hindi (Work Pressure)</h4>
+          <audio controls src="/audio/hindi_1.wav" style={{ width: '100%', borderRadius: '4px' }} />
+          <EmotionTranscript text={sample3} language="Hindi" />
+        </div>
+      </div>
+
+      <div className={styles.callout} style={{ background: 'rgba(233, 30, 99, 0.08)', borderColor: 'rgba(233, 30, 99, 0.4)', marginTop: '2rem' }}>
+        <strong>Integration</strong>
+        <p style={{ marginTop: '0.5rem' }}>
+          Use these models seamlessly with existing endpoints:
+        </p>
+        <ul style={{ margin: '0.25rem 0 0', paddingLeft: '1.25rem' }}>
+          <li><code>transcribe_ws</code> (Real-time streaming)</li>
+          <li><code>transcribe_file</code> (Batch processing)</li>
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 export default function SttPage() {
   return (
     <DocsLayout
@@ -1331,6 +1430,8 @@ export default function SttPage() {
           </p>
         </div>
       </div>
+
+      <SwarmitraSection />
 
       {endpoints.map(endpoint => (
         <EndpointSection key={endpoint.id} endpoint={endpoint} />

@@ -35,6 +35,7 @@ const sections = [
     title: 'STT Services',
     items: [
       { label: 'Introduction', page: 'stt', id: 'stt-introduction' },
+      { label: 'Swarmitra (Emotional Models)', page: 'stt', id: 'swarmitra-emotional-models' },
       { label: 'audio/transcribe', page: 'stt', id: 'stt-post-v1-audio-transcribe', method: 'POST' },
       { label: 'audio/transcribe_ws', page: 'stt', id: 'stt-ws-v1-audio-transcribe', method: 'WS' },
       // {label: 'audio/transcribe/file', page: 'stt', id: 'stt-post-v1-audio-transcribe-file', method: 'POST'},

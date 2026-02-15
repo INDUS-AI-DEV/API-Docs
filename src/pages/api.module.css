@@ -368,3 +368,16 @@
     display: none;
   }
 }
+
+.emotionTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 0 4px;
+  text-transform: capitalize;
+  color: white;
+  vertical-align: middle;
+}
