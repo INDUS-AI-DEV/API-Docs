@@ -1335,6 +1335,58 @@ function SwarmitraSection() {
         Unlock deeper insights with <code>swarmitra-flash</code> and <code>swarmitra-v2</code>. These specialized models go beyond transcription to detect <strong>emotional nuance</strong> in <strong>Hindi</strong> and <strong>English</strong> speech.
       </p>
 
+      <div style={{
+        marginTop: '1.25rem',
+        padding: '1rem 1.25rem',
+        background: 'rgba(233, 30, 99, 0.05)',
+        border: '1px solid rgba(233, 30, 99, 0.2)',
+        borderRadius: '8px'
+      }}>
+        <h4 style={{ fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600, color: 'var(--color-text-primary, #e5e5e5)' }}>
+          Supported Emotions
+        </h4>
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
+          alignItems: 'center'
+        }}>
+          {[
+            { name: 'angry', color: '#ef4444' },
+            { name: 'sad', color: '#6366f1' },
+            { name: 'happy', color: '#10b981' },
+            { name: 'fear', color: '#8b5cf6' },
+            { name: 'whisper', color: '#8b5cf6' },
+            { name: 'laugh', color: '#f59e0b' },
+            { name: 'giggle', color: '#f59e0b' },
+            { name: 'chuckle', color: '#f59e0b' },
+            { name: 'neutral', color: '#3b82f6' },
+            { name: 'uhm', color: '#6b7280' },
+            { name: 'surprise', color: '#ec4899' },
+            { name: 'shout', color: '#b91c1c' },
+            { name: 'sigh', color: '#6b7280' }
+          ].map(emotion => (
+            <span
+              key={emotion.name}
+              style={{
+                display: 'inline-block',
+                padding: '0.35rem 0.75rem',
+                backgroundColor: emotion.color,
+                color: '#fff',
+                borderRadius: '4px',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                fontFamily: 'SF Mono, Monaco, monospace',
+                textTransform: 'capitalize',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+              }}
+            >
+              {emotion.name}
+            </span>
+          ))}
+        </div>
+      </div>
+
       <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
         <div>
           <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 600 }}>Sample 1: English (Ghost Story)</h4>
