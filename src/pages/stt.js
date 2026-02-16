@@ -1364,6 +1364,51 @@ function SwarmitraSection() {
           <li><code>transcribe_ws</code> (Real-time streaming)</li>
           <li><code>transcribe_file</code> (Batch processing)</li>
         </ul>
+
+        <h4 style={{ fontSize: '0.95rem', marginTop: '1.5rem', marginBottom: '0.75rem', fontWeight: 600 }}>Real-time Usage</h4>
+        <CopyableCode language="python">{`import asyncio
+import websockets
+import json
+
+async def transcribe_ws():
+    # Pass API key and parameters in the URL query string
+    params = {
+        "api_key": "YOUR_API_KEY",
+        "model": "swarmitra-v2",
+        "language": "hindi",
+        "streaming": "false",
+        "noise_cancellation": "false"
+    }
+    query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+    uri = f"wss://voice.induslabs.io/v1/audio/transcribe_ws?{query_string}"
+    
+    async with websockets.connect(uri) as ws:
+        # Read and send audio in chunks
+        with open("emo_hi.wav", "rb") as f:
+            while chunk := f.read(4096):
+                await ws.send(chunk)
+        
+        # Signal end of audio with __END__ marker
+        await ws.send(b"__END__")
+        
+        # Receive transcription results
+        async for message in ws:
+            data = json.loads(message)
+            msg_type = data.get("type")
+            
+            if msg_type == "chunk_interim":
+                print(f"[interim] {data.get('text', '')}")
+            elif msg_type == "chunk_final":
+                print(f"[chunk] {data.get('text', '')}")
+            elif msg_type == "final":
+                print(f"\\n[final] {data.get('text', '')}")
+                break
+
+asyncio.run(transcribe_ws())`}</CopyableCode>
+
+        <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', opacity: 0.8 }}>
+          <strong>Note:</strong> The WebSocket endpoint supports audio files up to 30 seconds. For longer audio files, use <code>transcribe_file</code> for batch processing (available in the dropdown on the right).
+        </p>
       </div>
     </section>
   );
