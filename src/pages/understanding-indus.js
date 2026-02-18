@@ -351,11 +351,6 @@ export default function UnderstandingIndusPage() {
           caption="Workflow: Start and Subagent nodes with configuration panel."
         />
         <GuideImage
-          src="/img/understanding-indus-workflow-tools.png"
-          alt="Workflow Tools: list of tools (Detect Language, Play DTMF, Voicemail Detection, Transfer To Agent, End Conversation, Skip Turn, Transfer To Phone Number) with toggles."
-          caption="Workflow Tools: enable tools at the workflow level for all nodes."
-        />
-        <GuideImage
           src="/img/understanding-indus-branches.png"
           alt="Branches: version control table with Main branch, traffic split 100%, LIVE, created by and updated date."
           caption="Branches: manage workflow versions and traffic split."
