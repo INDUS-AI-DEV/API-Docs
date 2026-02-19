@@ -60,9 +60,24 @@ const quickStartSteps = [
     targetId: 'understanding-indus-first-agent',
   },
   {
+    id: 'call-fields',
+    title: 'Call Infields & Outcomes',
+    subtitle: 'Step 3: Capture Structured Data',
+    image: '/img/quickstart-call-fields.png',
+    imageAlt: 'Call Infields and Call Outcomes configuration with field names, types, and descriptions',
+    content: [
+      'Call Infields: Define data the agent should collect (e.g., customer_name as Text Input).',
+      'Call Outcomes: Define results to track (e.g., order_number with description for support/billing).',
+      'Set Field Type (Text Input, Number, etc.) and toggle Visible to show/hide during calls.',
+      'Click "Save Infield(s)" or "Save Outcome(s)" to apply, or Add Another to collect more fields.',
+    ],
+    recommendation: 'Start with 1–2 essential fields (name, reason for call). Add more only after you confirm the agent reliably captures the basics.',
+    targetId: 'understanding-indus-first-agent',
+  },
+  {
     id: 'config',
     title: 'Configure Model & Voice',
-    subtitle: 'Step 3: Set Intelligence & Speech',
+    subtitle: 'Step 4: Set Intelligence & Speech',
     image: '/img/quickstart-config.png',
     imageAlt: 'Config tab showing Intelligence Engine, Speech To Text, and Text To Speech settings',
     content: [
@@ -84,7 +99,7 @@ const quickStartSteps = [
       'Workflow: Build visual flows (Start → Subagent) for multi-step conversations.',
       'In each node, set label, conversation goal, voice, eagerness, and LLM model.',
       'Tools: Enable workflow-level tools (Detect Language, Transfer To Agent, End Conversation, etc.).',
-      'Branches: Manage workflow versions and traffic split for safe testing and deployment.',
+      'First Message & Infields: Set the agent’s opening phrase and define structured data fields (Infields/Outcomes) to capture key information during the call.',
     ],
     recommendation: 'Only add workflow/tools after your basic prompt works well in Test Call—otherwise it’s harder to debug what changed.',
     targetId: 'understanding-indus-first-agent',
@@ -335,14 +350,14 @@ export default function UnderstandingIndusPage() {
           </ul>
         </div>
 
-        <h3 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>Workflow, Tools, and Branches (optional)</h3>
+        <h3 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>Workflow and Tools</h3>
         <p>
-          For more control over conversation flow and capabilities, use the <strong>Workflow</strong>, <strong>Tools</strong>, and <strong>Branches</strong> tabs.
+          For more control over conversation flow and capabilities, use the <strong>Workflow</strong> and <strong>Tools</strong> tabs, along with <strong>First Message</strong> settings.
         </p>
         <ul style={{ margin: '0.5rem 0', paddingLeft: '1.25rem', color: 'var(--color-text-secondary)' }}>
           <li style={{ marginBottom: '0.375rem' }}><strong>Workflow:</strong> Build a visual flow (e.g. Start → Subagent). In each node you can set a label, conversation goal, voice, eagerness, and LLM model. Use this for multi-step or branched conversations.</li>
           <li style={{ marginBottom: '0.375rem' }}><strong>Tools:</strong> Enable workflow-level tools (e.g. Detect Language, Play DTMF, Voicemail Detection, Transfer To Agent, End Conversation, Skip Turn, Transfer To Phone Number) and apply them to nodes as needed.</li>
-          <li style={{ marginBottom: '0.375rem' }}><strong>Branches:</strong> Manage versions of your agent’s workflow (e.g. Main at 100% traffic). Create branches to test changes safely, then deploy with confidence.
+          <li style={{ marginBottom: '0.375rem' }}><strong>First Message & Infields:</strong> Set the opening line the agent speaks to start the conversation. Define <strong>Call Infields</strong> to capture user data (e.g., name, account number) and <strong>Call Outcomes</strong> to categorize the call result (e.g., appointment booked, issue resolved).
           </li>
         </ul>
         <GuideImage
@@ -351,10 +366,22 @@ export default function UnderstandingIndusPage() {
           caption="Workflow: Start and Subagent nodes with configuration panel."
         />
         <GuideImage
-          src="/img/understanding-indus-branches.png"
-          alt="Branches: version control table with Main branch, traffic split 100%, LIVE, created by and updated date."
-          caption="Branches: manage workflow versions and traffic split."
+          src="/img/first-message-infields.png"
+          alt="First Message, Call Infields, and Call Outcomes configuration."
+          caption="First Message & Infields: Configure greeting and structured data capture."
         />
+        <div className={styles.callout}>
+          <strong>Recommendation</strong>
+          <p style={{ margin: '0.5rem 0 0 0' }}>
+            Only add workflow complexity or custom tools after your basic prompt works well in a Test Call.
+          </p>
+          <ul style={{ margin: '0.5rem 0 0.25rem 1.25rem', padding: 0, color: 'var(--color-text-secondary)' }}>
+            <li style={{ marginBottom: '0.25rem' }}>Keep Infields minimal initially so you can easily verify data capture.</li>
+            <li style={{ marginBottom: '0.25rem' }}>Test your <strong>First Message</strong> phrasing out loud to ensure it sounds natural.</li>
+            <li style={{ marginBottom: '0.25rem' }}>Use <strong>Call Outcomes</strong> to track specific successful resolutions (e.g. "Appointment Confirmed") rather than generic call completion.</li>
+            <li style={{ marginBottom: '0.25rem' }}>Verify <strong>Tools</strong> configuration (like Transfer) with real numbers if possible.</li>
+          </ul>
+        </div>
       </section>
 
       <section id="understanding-indus-voice-sessions" className={styles.endpointSection}>
