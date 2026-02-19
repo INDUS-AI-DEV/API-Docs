@@ -3,7 +3,7 @@ const sections = [
     title: 'Get started',
     items: [
       { label: 'Quick Start Guide', page: 'understanding-indus', id: 'understanding-indus-quick-start' },
-      { label: 'Overview', page: 'understanding-indus', id: 'understanding-indus-overview' },
+      { label: 'Introduction', page: 'understanding-indus', id: 'understanding-indus-overview' },
       { label: 'Creating Your First Agent', page: 'understanding-indus', id: 'understanding-indus-first-agent' },
       { label: 'Test Call & Voice Sessions', page: 'understanding-indus', id: 'understanding-indus-voice-sessions' },
     ],

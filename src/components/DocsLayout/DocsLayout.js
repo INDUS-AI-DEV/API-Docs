@@ -81,10 +81,8 @@ function SidebarGroup({ title, links, activeId, onNavigate, isExpanded, onToggle
     return null;
   }
 
-  // Check if any link in this group is active
-  const hasActiveLink = links.some(link => link.targetId === activeId);
-  // Auto-expand if has active link
-  const shouldExpand = isExpanded || hasActiveLink;
+  // Expand/collapse is now fully controlled by user toggles via isExpanded
+  const shouldExpand = isExpanded;
 
   return (
     <div className={styles.sidebarGroup}>
@@ -125,7 +123,7 @@ function SidebarGroup({ title, links, activeId, onNavigate, isExpanded, onToggle
               // Extract hash from the link URL for scroll-after-navigation
               const hashMatch = link.to.match(/#(.+)$/);
               const targetHash = hashMatch ? hashMatch[1] : null;
-              
+
               return (
                 <li key={key}>
                   <Link
@@ -349,7 +347,15 @@ export default function DocsLayout({
   // Track which sidebar sections are expanded
   const [expandedSections, setExpandedSections] = useState(() => {
     // Start with first section expanded
-    return new Set(sidebarSections.length > 0 ? [sidebarSections[0]?.title] : []);
+    const initial = new Set(sidebarSections.length > 0 ? [sidebarSections[0]?.title] : []);
+    // Also auto-expand any section whose links include a targetId (i.e. active page links)
+    sidebarSections.forEach(section => {
+      const hasPageLink = (section.links ?? section.items ?? []).some(link => link.targetId);
+      if (hasPageLink) {
+        initial.add(section.title);
+      }
+    });
+    return initial;
   });
 
   const toggleSection = (title) => {
@@ -586,7 +592,7 @@ export default function DocsLayout({
                                 // Extract hash from the link URL for scroll-after-navigation
                                 const hashMatch = link.to.match(/#(.+)$/);
                                 const targetHash = hashMatch ? hashMatch[1] : null;
-                                
+
                                 return (
                                   <li key={key}>
                                     <Link

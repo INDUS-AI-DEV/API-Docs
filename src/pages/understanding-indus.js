@@ -15,8 +15,8 @@ function GuideImage({ src, alt, caption }) {
 
 const quickStartSteps = [
   {
-    id: 'overview',
-    title: 'Overview',
+    id: 'platform-basics',
+    title: 'Platform Basics',
     subtitle: 'Get Started with Indus.io',
     image: '/img/quickstart-dashboard.png',
     imageAlt: 'IndusLabs Studio dashboard with feature cards and usage snapshot',
