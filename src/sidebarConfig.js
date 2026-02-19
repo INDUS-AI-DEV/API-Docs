@@ -1,13 +1,5 @@
 const sections = [
-  {
-    title: 'Get started',
-    items: [
-      { label: 'Quick Start Guide', page: 'understanding-indus', id: 'understanding-indus-quick-start' },
-      { label: 'Introduction', page: 'understanding-indus', id: 'understanding-indus-overview' },
-      { label: 'Creating Your First Agent', page: 'understanding-indus', id: 'understanding-indus-first-agent' },
-      { label: 'Test Call & Voice Sessions', page: 'understanding-indus', id: 'understanding-indus-voice-sessions' },
-    ],
-  },
+
   {
     title: 'Overview',
     items: [
@@ -18,6 +10,13 @@ const sections = [
       { label: 'Voice Agents', page: 'voice-agents', id: 'voice-agents-introduction' },
 
       { label: 'SDK Documentation', page: 'sdk', id: 'sdk-introduction' },
+      { label: 'Guide', page: 'understanding-indus', id: 'understanding-indus-overview' },
+    ],
+  },
+  {
+    title: 'Guides',
+    items: [
+      { label: 'Agent Creation Guide', page: 'understanding-indus', id: 'understanding-indus-quick-start' },
     ],
   },
   {
@@ -96,6 +95,7 @@ const sections = [
       { label: 'Async API', page: 'sdk', id: 'async-api' },
     ],
   },
+
 ];
 
 function pageToPath(page) {
