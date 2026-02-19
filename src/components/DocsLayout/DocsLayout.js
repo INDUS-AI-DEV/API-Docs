@@ -122,12 +122,27 @@ function SidebarGroup({ title, links, activeId, onNavigate, isExpanded, onToggle
             );
 
             if (link.to) {
+              // Extract hash from the link URL for scroll-after-navigation
+              const hashMatch = link.to.match(/#(.+)$/);
+              const targetHash = hashMatch ? hashMatch[1] : null;
+              
               return (
                 <li key={key}>
                   <Link
                     className={clsx(styles.sidebarLink, isActive && styles.sidebarLinkActive)}
                     to={link.to}
                     data-sidebar-item={link.targetId ?? key}
+                    onClick={() => {
+                      // After SPA navigation, scroll to the hash element
+                      if (targetHash) {
+                        setTimeout(() => {
+                          const element = document.getElementById(targetHash);
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                        }, 100);
+                      }
+                    }}
                   >
                     {content}
                   </Link>
@@ -446,54 +461,6 @@ export default function DocsLayout({
     if (typeof window === 'undefined') {
       return undefined;
     }
-    if (!trackedIds.length) {
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      entries => {
-        let nextId = activeRef.current;
-        const visible = entries
-          .filter(entry => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-
-        if (visible.length) {
-          nextId = visible[0].target.id;
-        } else {
-          const closest = entries.reduce((closestEntry, entry) => {
-            const currentDistance = Math.abs(entry.boundingClientRect.top);
-            const closestDistance = closestEntry ? Math.abs(closestEntry.boundingClientRect.top) : Infinity;
-            return currentDistance < closestDistance ? entry : closestEntry;
-          }, null);
-          if (closest) {
-            nextId = closest.target.id;
-          }
-        }
-
-        if (nextId && nextId !== activeRef.current) {
-          activeRef.current = nextId;
-          setActiveId(nextId);
-        }
-      },
-      {
-        rootMargin: '-55% 0px -35% 0px',
-        threshold: [0, 0.25, 0.5, 0.75, 1],
-      },
-    );
-
-    const observedElements = trackedIds
-      .map(id => document.getElementById(id))
-      .filter(Boolean);
-
-    observedElements.forEach(element => observer.observe(element));
-
-    return () => observer.disconnect();
-  }, [trackedIds]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return undefined;
-    }
 
     const handleScroll = () => {
       const scrollY = window.scrollY ?? 0;
@@ -616,13 +583,28 @@ export default function DocsLayout({
                               );
 
                               if (link.to) {
+                                // Extract hash from the link URL for scroll-after-navigation
+                                const hashMatch = link.to.match(/#(.+)$/);
+                                const targetHash = hashMatch ? hashMatch[1] : null;
+                                
                                 return (
                                   <li key={key}>
                                     <Link
                                       to={link.to}
                                       className={styles.mobileMenuLink}
                                       role="menuitem"
-                                      onClick={() => setIsMobileMenuOpen(false)}
+                                      onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        // After SPA navigation, scroll to the hash element
+                                        if (targetHash) {
+                                          setTimeout(() => {
+                                            const element = document.getElementById(targetHash);
+                                            if (element) {
+                                              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }
+                                          }, 100);
+                                        }
+                                      }}
                                     >
                                       {content}
                                     </Link>

@@ -500,7 +500,7 @@ export default function VoiceAgentsPage() {
           </div>
         </div>
         <p style={{ marginTop: '0.5rem' }}>
-          The <code>/api/livekit</code> response includes the <code>token</code> and <code>livekit_host_url</code> needed to connect. supply your API key via environment variables in production.
+          The <code>/api/livekit</code> response includes the <code>token</code> and <code>livekit_host_url</code> needed to connect. Supply your API key via environment variables in production.
         </p>
       </section>
     </DocsLayout >

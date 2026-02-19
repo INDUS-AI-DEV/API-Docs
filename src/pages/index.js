@@ -16,6 +16,13 @@ export default function HomePage() {
         <p className={styles.heroDescription}>
           Discover how to launch expressive voice experiences, reliable transcription, and intelligent conversational AI with a consistent REST interface. Choose one of the services below to get started.
         </p>
+        <div className={styles.getStartedCallout}>
+          <strong>New to Indus.io?</strong> Start with our beginner’s guide:{' '}
+          <Link to="/understanding-indus" className={styles.inlineLink}>
+            Understanding Indus.io
+          </Link>
+          {' '}—from sign-in to a working Voice Agent.
+        </div>
       </section>
 
       <section className={styles.servicesGrid}>
