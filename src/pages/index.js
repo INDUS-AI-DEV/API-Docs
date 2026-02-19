@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import DocsLayout from '@site/src/components/DocsLayout/DocsLayout';
-import {getSidebarSections} from '@site/src/sidebarConfig';
+import { getSidebarSections } from '@site/src/sidebarConfig';
 import styles from './index.module.css';
 
 export default function HomePage() {
@@ -25,7 +25,10 @@ export default function HomePage() {
         </div>
       </section>
 
+
+
       <section className={styles.servicesGrid}>
+
         <div className={styles.serviceCard}>
           <h2 className={styles.serviceTitle}>Text-to-Speech</h2>
           <p className={styles.serviceDescription}>
@@ -80,7 +83,21 @@ export default function HomePage() {
             View SDK Docs →
           </Link>
         </div>
+
+        <div className={styles.serviceCard}>
+          <h2 className={styles.serviceTitle}>Guides</h2>
+          <p className={styles.serviceDescription}>
+            Explore step-by-step guides and walkthroughs. Start with Understanding Indus.io to go from sign-in to a working Voice Agent.
+          </p>
+          <Link to="/understanding-indus" className={styles.serviceLink}>
+            View Guides →
+          </Link>
+        </div>
+
+
       </section>
+
+
     </DocsLayout>
   );
 }

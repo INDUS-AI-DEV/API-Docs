@@ -185,30 +185,44 @@ function QuickStartSlider() {
             </div>
           </div>
         ))}
+        <div
+          className={styles.scrollMoreIndicator}
+          onClick={() => {
+            const element = document.getElementById('understanding-indus-overview');
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }}
+        >
+          <div className={styles.scrollMoreIcon}>↓</div>
+          <div>Continue to full guide</div>
+        </div>
       </div>
 
-      {lightbox && (
-        <div
-          className={styles.quickStartLightboxBackdrop}
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setLightbox(null)}
-        >
-          <div className={styles.quickStartLightbox} onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className={styles.quickStartLightboxClose}
-              onClick={() => setLightbox(null)}
-              aria-label="Close image"
-              title="Close"
-            >
-              ×
-            </button>
-            <img className={styles.quickStartLightboxImg} src={lightbox.src} alt={lightbox.alt} />
+      {
+        lightbox && (
+          <div
+            className={styles.quickStartLightboxBackdrop}
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setLightbox(null)}
+          >
+            <div className={styles.quickStartLightbox} onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className={styles.quickStartLightboxClose}
+                onClick={() => setLightbox(null)}
+                aria-label="Close image"
+                title="Close"
+              >
+                ×
+              </button>
+              <img className={styles.quickStartLightboxImg} src={lightbox.src} alt={lightbox.alt} />
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 
