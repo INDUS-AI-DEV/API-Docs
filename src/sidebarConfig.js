@@ -17,6 +17,7 @@ const sections = [
     title: 'Guides',
     items: [
       { label: 'Agent Creation Guide', page: 'understanding-indus', id: 'understanding-indus-quick-start' },
+      { label: 'LiveKit Plugin Guide', page: 'livekit-plugin', id: 'livekit-plugin-introduction' },
     ],
   },
   {
