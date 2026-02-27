@@ -30,7 +30,7 @@ This endpoint expects a JSON object (dictionary) in the request body with the `a
 curl --location 'https://developer.induslabs.io/api/agents' \
 --header 'accept: application/json' \
 --header 'Content-Type: application/json' \
---data '{"api_key": "4RzC13dC8ZUasNUwn1yJGi7bI1bwT1_U-t8oCfnSbBc"}'
+--data '{"api_key": "YOUR_API_KEY"}'
 ```
 
 2) Start / connect to a LiveKit session for a specific agent
@@ -41,7 +41,7 @@ This endpoint accepts a JSON body containing `api_key` and `agent_id`.
 curl --location 'https://developer.induslabs.io/api/livekit' \
 --header 'accept: application/json' \
 --header 'Content-Type: application/json' \
---data '{"api_key": "4RzC13dC8ZUasNUwn1yJGi7bI1bwT1_U-t8oCfnSbBc", "agent_id": "AGT_E882B100"}'
+--data '{"api_key": "YOUR_API_KEY", "agent_id": "YOUR_AGENT_ID"}'
 ```
 
 ## React + TypeScript: Connect to LiveKit
