@@ -74,6 +74,17 @@ export default function HomePage() {
         </div>
 
         <div className={styles.serviceCard}>
+          <h2 className={styles.serviceTitle}>Developer Click2Call</h2>
+          <p className={styles.serviceDescription}>
+            Login with developer credentials, create async click2call requests, and poll transcript status with
+            internal call IDs.
+          </p>
+          <Link to="/developer-click2call" className={styles.serviceLink}>
+            View Developer APIs →
+          </Link>
+        </div>
+
+        <div className={styles.serviceCard}>
           <h2 className={styles.serviceTitle}>Python SDK</h2>
           <p className={styles.serviceDescription}>
             Official Python SDK for seamless integration. Features synchronous and asynchronous APIs, streaming

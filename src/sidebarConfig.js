@@ -8,6 +8,7 @@ const sections = [
       { label: 'Speech-to-Text', page: 'stt', id: 'stt-introduction' },
       { label: 'Large Language Models', page: 'llm', id: 'llm-introduction' },
       { label: 'Voice Agents', page: 'voice-agents', id: 'voice-agents-introduction' },
+      { label: 'Developer Click2Call APIs', page: 'developer-click2call', id: 'developer-click2call-introduction' },
 
       { label: 'SDK Documentation', page: 'sdk', id: 'sdk-introduction' },
       { label: 'Guide', page: 'understanding-indus', id: 'understanding-indus-overview' },
@@ -75,6 +76,18 @@ const sections = [
       { label: 'agents', page: 'voice-agents', id: 'va-post-api-agents', method: 'POST' },
       { label: 'livekit', page: 'voice-agents', id: 'va-post-api-livekit', method: 'POST' },
       { label: 'React + TypeScript Integration', page: 'voice-agents', id: 'voice-agents-react-typescript' },
+    ],
+  },
+  {
+    title: 'Click to Call Service',
+    items: [
+      { label: 'Introduction', page: 'developer-click2call', id: 'developer-click2call-introduction' },
+      { label: 'login', page: 'developer-click2call', id: 'developer-click2call-post-login', method: 'POST' },
+      { label: 'calls/click2call', page: 'developer-click2call', id: 'developer-click2call-post-click2call', method: 'POST' },
+      { label: 'calls/{call_id}/transcript', page: 'developer-click2call', id: 'developer-click2call-get-transcript', method: 'GET' },
+      { label: 'Recommended Usage Flow', page: 'developer-click2call', id: 'developer-click2call-usage-flow' },
+      { label: 'End-to-End Curl Flow', page: 'developer-click2call', id: 'developer-click2call-end-to-end' },
+      { label: 'Notes', page: 'developer-click2call', id: 'developer-click2call-notes' },
     ],
   },
 
