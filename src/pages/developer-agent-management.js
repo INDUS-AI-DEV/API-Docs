@@ -206,26 +206,6 @@ const createAgentRequestJson = `{
   }
 }`;
 
-const listAgentsResponseJson = `[
-  {
-    "id": "...",
-    "agent_id": "AGT_XXXX",
-    "agent_name": "Support Agent",
-    "agent_description": "Handles support flows",
-    "user_id": "...",
-    "organization_id": "...",
-    "team": [],
-    "is_active": true,
-    "agent_type": "INBOUND",
-    "whatsapp_enabled": false,
-    "is_auto": true,
-    "team_size": 0,
-    "created_at": "...",
-    "updated_at": "...",
-    "agent_cost": 5.0
-  }
-]`;
-
 const renderRequestJson = `{
   "customer_name": "Rahul",
   "city": "Mumbai"
@@ -242,34 +222,6 @@ const validateResponseJson = `{
   "errors": []
 }`;
 
-const liveSessionsResponseJson = `{
-  "status_code": 200,
-  "message": "Live sessions fetched successfully",
-  "error": null,
-  "data": {
-    "total_rooms": 1,
-    "agent_id": "AGT_XXXX",
-    "agent_name": "Support Agent",
-    "sessions": [
-      {
-        "agent_id": "...",
-        "agent_name": "Support Agent",
-        "room_name": "room-1",
-        "room_sid": "RM_...",
-        "num_participants": 2,
-        "participants": [
-          {
-            "identity": "user-1",
-            "status": "Active",
-            "joined_at": "..."
-          }
-        ]
-      }
-    ],
-    "timestamp": "..."
-  }
-}`;
-
 const recommendedFlowCurl = `BASE_URL="https://developer.induslabs.io"
 
 LOGIN_RESP=$(curl -s -X POST "$BASE_URL/api/developer/login" \\
@@ -283,7 +235,7 @@ curl -s -X POST "$BASE_URL/api/developer/agents/create" \\
   -H "Authorization: Bearer $ACCESS_TOKEN" \\
   -d @create-agent.json
 
-curl -s "$BASE_URL/api/developer/agents/?skip=0&limit=20" \\
+curl -s "$BASE_URL/api/developer/agents/AGT_12345678" \\
   -H "Authorization: Bearer $ACCESS_TOKEN"
 
 curl -s -X POST "$BASE_URL/api/developer/agents/AGT_12345678/configs/render" \\
@@ -305,8 +257,8 @@ const createAgentCurl = `curl -X POST \\
   -H "Authorization: Bearer <access_token>" \\
   -d @create-agent.json`;
 
-const listAgentsCurl = `curl -X GET \\
-  "${PROD_BASE_URL}/api/developer/agents/?skip=0&limit=20" \\
+const getAgentCurl = `curl -X GET \\
+  "${PROD_BASE_URL}/api/developer/agents/AGT_12345678" \\
   -H "Authorization: Bearer <access_token>"`;
 
 const renderCurl = `curl -X POST \\
@@ -320,7 +272,7 @@ const renderCurl = `curl -X POST \\
 
 const quickIntegration = {
   title: 'Quick Integration',
-  description: 'Start with login, create an agent, fetch it back, then render prompts with metadata.',
+  description: 'Login, use a bearer token, create your own agent, inspect it, then render prompts with metadata.',
   defaultApi: 'developer-agent-management-post-login',
   apis: [
     {
@@ -336,10 +288,10 @@ const quickIntegration = {
       languages: [{ id: 'curl', label: 'cURL', language: 'bash', code: createAgentCurl }],
     },
     {
-      id: 'developer-agent-management-get-agents',
-      label: 'GET /api/developer/agents/',
+      id: 'developer-agent-management-get-agent',
+      label: 'GET /api/developer/agents/{agent_id}',
       defaultLanguage: 'curl',
-      languages: [{ id: 'curl', label: 'cURL', language: 'bash', code: listAgentsCurl }],
+      languages: [{ id: 'curl', label: 'cURL', language: 'bash', code: getAgentCurl }],
     },
     {
       id: 'developer-agent-management-post-configs-render',
@@ -355,7 +307,6 @@ const authBadgeClass = {
   apiKey: styles.tagApiKey,
   legacy: styles.tagLegacy,
   public: styles.tagNeutral,
-  superuser: styles.tagWarning,
   raw: styles.tagResponseRaw,
   envelope: styles.tagResponseEnvelope,
 };
@@ -365,7 +316,6 @@ const authBadgeLabel = {
   apiKey: 'API Key',
   legacy: 'Legacy',
   public: 'Public',
-  superuser: 'Superuser',
   raw: 'Raw Model Response',
   envelope: 'Response Envelope',
 };
@@ -374,7 +324,7 @@ const groups = [
   {
     id: 'developer-agent-management-authentication',
     title: 'Developer Authentication',
-    description: 'Developer users should authenticate once with email and password, then send the returned access token as a bearer token on developer-facing APIs.',
+    description: 'Developer users should authenticate once with email and password, then send the returned access token as a bearer token on developer-facing APIs scoped to their own data.',
     endpoints: [
       {
         id: 'developer-agent-management-post-login',
@@ -408,7 +358,7 @@ const groups = [
   {
     id: 'developer-agent-management-legacy-listing',
     title: 'Legacy Developer Agent Listing',
-    description: 'This older API-key-based listing endpoint remains available for backward compatibility, but new integrations should move to bearer-token developer endpoints.',
+    description: 'This older API-key-based endpoint remains available for backward compatibility, but new integrations should move to bearer-token developer endpoints.',
     endpoints: [
       {
         id: 'developer-agent-management-post-legacy-agents',
@@ -441,7 +391,7 @@ const groups = [
   {
     id: 'developer-agent-management-agents',
     title: 'Agents',
-    description: 'These endpoints expose agent CRUD and discovery under the developer namespace. Most reuse the underlying platform logic used by `/api/agents/...`, but are published under `/api/developer/agents/...` for external integrations.',
+    description: 'These endpoints expose self-service agent CRUD under the developer namespace. They are documented only for the authenticated developer to manage their own agent resources.',
     endpoints: [
       {
         id: 'developer-agent-management-post-agents-create',
@@ -456,6 +406,7 @@ const groups = [
           'LiveKit credentials are assigned from system settings.',
           'Initial call outcomes and call infields are optional.',
           'Agent cost is calculated from user credit settings.',
+          'This is the recommended creation endpoint for bearer-token-based integrations.',
         ],
         inputs: [
           { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token> from /api/developer/login.' },
@@ -477,33 +428,6 @@ const groups = [
         ],
       },
       {
-        id: 'developer-agent-management-get-agents',
-        method: 'GET',
-        path: '/api/developer/agents/',
-        title: 'List Agents',
-        description: 'Lists agents visible to the authenticated developer user with pagination and optional user or organization filtering.',
-        badges: ['bearer', 'raw'],
-        notes: [
-          'Non-superusers are restricted to agents they can access.',
-          'Returns the same agent response model used by standard agent management.',
-        ],
-        inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
-          { name: 'skip', type: 'query integer', defaultValue: '0', description: 'Pagination offset.' },
-          { name: 'limit', type: 'query integer', defaultValue: '100', description: 'Maximum 100.' },
-          { name: 'user_id', type: 'query string', defaultValue: 'optional', description: 'Optional user filter.' },
-          { name: 'organization_id', type: 'query string', defaultValue: 'optional', description: 'Optional organization filter.' },
-        ],
-        outputs: [
-          { name: '200 OK', type: 'application/json', description: 'Returns an array of agent objects.' },
-          { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
-        ],
-        examples: [
-          { label: 'cURL', language: 'bash', code: listAgentsCurl },
-          { label: 'Success Response', language: 'json', code: listAgentsResponseJson },
-        ],
-      },
-      {
         id: 'developer-agent-management-get-agent',
         method: 'GET',
         path: '/api/developer/agents/{agent_id}',
@@ -511,7 +435,7 @@ const groups = [
         description: 'Fetches a single agent by its public `agent_id` such as `AGT_12345678`.',
         badges: ['bearer', 'raw'],
         notes: [
-          'Access is verified for owners, team members, and superusers.',
+          'A logged-in developer can access only their own agent data in the developer domain.',
           'Returns full agent details.',
         ],
         inputs: [
@@ -529,11 +453,12 @@ const groups = [
         method: 'PUT',
         path: '/api/developer/agents/{agent_id}',
         title: 'Update Agent',
-        description: 'Partially updates an existing agent. The owner controls the update flow.',
+        description: 'Partially updates an existing agent owned by the authenticated developer.',
         badges: ['bearer', 'raw'],
         notes: [
           'Partial updates are supported.',
           'Typical editable fields include agent_name, agent_description, is_active, whatsapp_enabled, is_auto, agent_cost, and optional LiveKit overrides.',
+          'Developer docs do not describe this as an organization-wide or admin-wide update API.',
         ],
         inputs: [
           { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
@@ -552,7 +477,7 @@ const groups = [
         method: 'DELETE',
         path: '/api/developer/agents/{agent_id}',
         title: 'Delete Agent',
-        description: 'Deletes an agent through the owner-only delete flow.',
+        description: 'Deletes an agent owned by the authenticated developer.',
         badges: ['bearer', 'raw'],
         inputs: [
           { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
@@ -567,73 +492,9 @@ const groups = [
     ],
   },
   {
-    id: 'developer-agent-management-search-analytics-templates',
-    title: 'Search / Analytics / Templates',
-    description: 'Use these endpoints to search agents quickly, retrieve global analytics, and bootstrap from approved template agents.',
-    endpoints: [
-      {
-        id: 'developer-agent-management-get-search',
-        method: 'GET',
-        path: '/api/developer/agents/search',
-        title: 'Search Agents',
-        description: 'Searches agents by name for the current user.',
-        badges: ['bearer', 'raw'],
-        notes: ['The search term `q` must be at least 2 characters.', 'The default limit is 20 and the maximum is 50.'],
-        inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
-          { name: 'q', type: 'query string', defaultValue: 'required', description: 'Search term.' },
-          { name: 'user_id', type: 'query string', defaultValue: 'optional', description: 'Defaults to the current user.' },
-          { name: 'limit', type: 'query integer', defaultValue: '20', description: 'Maximum 50.' },
-        ],
-        outputs: [
-          { name: '200 OK', type: 'application/json', description: 'Returns `{ agents: [...], total: number }`.' },
-        ],
-      },
-      {
-        id: 'developer-agent-management-get-analytics',
-        method: 'GET',
-        path: '/api/developer/agents/analytics',
-        title: 'Agent Analytics',
-        description: 'Returns platform-level agent analytics for administrative visibility.',
-        badges: ['bearer', 'superuser', 'raw'],
-        notes: [
-          'Requires a superuser bearer token.',
-          'Response includes total_agents, active_agents, agents_by_organization, top_agents_by_team_size, and recent_agents.',
-        ],
-        inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Superuser bearer token.' },
-        ],
-        outputs: [
-          { name: '200 OK', type: 'application/json', description: 'Returns the analytics summary object.' },
-          { name: '403 Forbidden', type: 'application/json', description: 'Non-superuser access denied.' },
-        ],
-      },
-      {
-        id: 'developer-agent-management-get-template',
-        method: 'GET',
-        path: '/api/developer/agents/template/{agent_id}',
-        title: 'Get Template Agent Config',
-        description: 'Fetches the current config for an approved template agent for onboarding or quick-start flows.',
-        badges: ['bearer', 'raw'],
-        notes: [
-          'Only a small allowlist of template agent IDs is accepted.',
-          'Some internal fields are removed before the config is returned.',
-        ],
-        inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
-          { name: 'agent_id', type: 'path string', defaultValue: 'required', description: 'Approved template agent identifier.' },
-        ],
-        outputs: [
-          { name: '200 OK', type: 'application/json', description: 'Returns the current config for the template agent.' },
-          { name: '404 Not Found', type: 'application/json', description: 'No current config found or invalid template ID.' },
-        ],
-      },
-    ],
-  },
-  {
     id: 'developer-agent-management-configs',
     title: 'Agent Configs',
-    description: 'Config endpoints handle versioned prompts and service settings. Draft and published versions are distinct, and publish operations can clone current outcomes and infields into the new current version.',
+    description: 'Config endpoints handle versioned prompts and service settings for the authenticated developer’s own agents. Draft and published versions are distinct, and publish operations can clone current outcomes and infields into the new current version.',
     endpoints: [
       {
         id: 'developer-agent-management-post-configs',
@@ -643,6 +504,7 @@ const groups = [
         description: 'Creates a new config version for an agent as a draft, or publishes it immediately when `publish=true`.',
         badges: ['bearer', 'raw'],
         notes: [
+          'This endpoint operates only on the authenticated developer’s own agent.',
           'If a current config exists, the backend clones it and overlays the provided values.',
           'Publishing also clones current call outcomes and call infields.',
         ],
@@ -663,6 +525,7 @@ const groups = [
         title: 'List Config Versions',
         description: 'Lists config versions for an agent, optionally filtered by status.',
         badges: ['bearer', 'raw'],
+        notes: ['Returns config history only for the authenticated developer’s own agent.'],
         inputs: [
           { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
           { name: 'agent_id', type: 'path string', defaultValue: 'required', description: 'Agent identifier.' },
@@ -841,81 +704,9 @@ const groups = [
     ],
   },
   {
-    id: 'developer-agent-management-team',
-    title: 'Team Management',
-    description: 'Agent owners can grant and revoke access for collaborators directly from the developer API.',
-    endpoints: [
-      {
-        id: 'developer-agent-management-post-team',
-        method: 'POST',
-        path: '/api/developer/agents/{agent_id}/team',
-        title: 'Add Team Member',
-        description: 'Adds a team member to an agent.',
-        badges: ['bearer', 'raw'],
-        notes: [
-          'Owner-only endpoint.',
-          'Allowed roles: admin, member, viewer, editor.',
-          'Duplicate team membership is rejected.',
-        ],
-        inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Owner bearer token.' },
-          { name: 'agent_id', type: 'path string', defaultValue: 'required', description: 'Agent identifier.' },
-          { name: 'user_id', type: 'string', defaultValue: 'required', description: 'User to add.' },
-          { name: 'role', type: 'string', defaultValue: 'required', description: 'One of admin, member, viewer, editor.' },
-        ],
-        outputs: [
-          { name: '200 OK', type: 'application/json', description: 'Team member added.' },
-          { name: '400 Bad Request', type: 'application/json', description: 'Duplicate membership or validation issue.' },
-          { name: '403 Forbidden', type: 'application/json', description: 'Owner-only restriction.' },
-        ],
-      },
-      {
-        id: 'developer-agent-management-delete-team-member',
-        method: 'DELETE',
-        path: '/api/developer/agents/{agent_id}/team/{user_id}',
-        title: 'Remove Team Member',
-        description: 'Removes a team member from an agent.',
-        badges: ['bearer', 'raw'],
-        notes: ['Owner-only endpoint.'],
-        inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Owner bearer token.' },
-          { name: 'agent_id', type: 'path string', defaultValue: 'required', description: 'Agent identifier.' },
-          { name: 'user_id', type: 'path string', defaultValue: 'required', description: 'User to remove.' },
-        ],
-        outputs: [
-          { name: '200 OK', type: 'application/json', description: 'Team member removed.' },
-          { name: '403 Forbidden', type: 'application/json', description: 'Owner-only restriction.' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'developer-agent-management-stats',
-    title: 'Stats',
-    description: 'Use per-agent statistics to drive dashboards, health checks, or administrative automation.',
-    endpoints: [
-      {
-        id: 'developer-agent-management-get-stats',
-        method: 'GET',
-        path: '/api/developer/agents/{agent_id}/stats',
-        title: 'Get Agent Stats',
-        description: 'Returns detailed statistics for a single agent.',
-        badges: ['bearer', 'raw'],
-        notes: ['Typical fields include agent_id, agent_name, team_size, active_team_members, tasks_completed, created_at, user_id, and organization_id.'],
-        inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
-          { name: 'agent_id', type: 'path string', defaultValue: 'required', description: 'Agent identifier.' },
-        ],
-        outputs: [
-          { name: '200 OK', type: 'application/json', description: 'Returns the agent stats object.' },
-        ],
-      },
-    ],
-  },
-  {
     id: 'developer-agent-management-call-outcomes',
     title: 'Call Outcomes',
-    description: 'Call outcomes define structured data collected after conversations. They can be created at agent setup time or managed independently later.',
+    description: 'Call outcomes define structured data collected after conversations for the authenticated developer’s own agents.',
     endpoints: [
       {
         id: 'developer-agent-management-post-call-outcomes',
@@ -991,7 +782,7 @@ const groups = [
   {
     id: 'developer-agent-management-call-infields',
     title: 'Call Infields',
-    description: 'Call infields define structured input fields attached to an agent. They follow the same lifecycle as call outcomes.',
+    description: 'Call infields define structured input fields attached to the authenticated developer’s own agents.',
     endpoints: [
       {
         id: 'developer-agent-management-post-call-infields',
@@ -1064,48 +855,16 @@ const groups = [
     ],
   },
   {
-    id: 'developer-agent-management-live-sessions',
-    title: 'Live Sessions',
-    description: 'Live session inspection helps developers and operators understand which LiveKit rooms are currently active for a specific agent.',
-    endpoints: [
-      {
-        id: 'developer-agent-management-get-live-sessions',
-        method: 'GET',
-        path: '/api/developer/agents/{agent_id}/live-sessions',
-        title: 'Get Live Sessions',
-        description: 'Returns active LiveKit room and participant details for a specific agent.',
-        badges: ['bearer', 'envelope'],
-        notes: [
-          'Access is validated before querying LiveKit.',
-          'The backend uses the agent-specific LiveKit credentials.',
-        ],
-        inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
-          { name: 'agent_id', type: 'path string', defaultValue: 'required', description: 'Agent identifier.' },
-        ],
-        outputs: [
-          { name: '200 OK', type: 'application/json', description: 'Returns active room/session details in the response envelope.' },
-          { name: '400 Bad Request', type: 'application/json', description: 'Incomplete LiveKit credentials.' },
-          { name: '404 Not Found', type: 'application/json', description: 'Agent not found.' },
-          { name: '500 Internal Server Error', type: 'application/json', description: 'Failed to fetch sessions.' },
-        ],
-        examples: [
-          { label: 'Success Response', language: 'json', code: liveSessionsResponseJson },
-        ],
-      },
-    ],
-  },
-  {
     id: 'developer-agent-management-service-config',
     title: 'Service Config',
-    description: 'This endpoint updates one service-specific section of the current config without replacing the entire config document.',
+    description: 'This endpoint updates one service-specific section of the current config for the authenticated developer’s own agent without replacing the entire config document.',
     endpoints: [
       {
         id: 'developer-agent-management-put-service-config',
         method: 'PUT',
         path: '/api/developer/agents/{agent_id}/config/{service_type}',
-        title: 'Update Service Config Section',
-        description: 'Updates exactly one of `tts_config`, `stt_config`, `vad_config`, or `llm_config` on the current config.',
+      title: 'Update Service Config Section',
+      description: 'Updates exactly one of `tts_config`, `stt_config`, `vad_config`, or `llm_config` on the current config.',
         badges: ['bearer', 'raw'],
         notes: [
           'Owner-only endpoint.',
@@ -1265,31 +1024,42 @@ export default function DeveloperAgentManagementPage() {
   return (
     <DocsLayout
       title="Developer Agent Management APIs"
-      description="Developer authentication, agent management, configs, team access, metadata, and service settings"
+      description="Developer authentication, own-agent management, configs, metadata, and service settings"
       sidebarSections={getSidebarSections('developer-agent-management')}
       integration={quickIntegration}
     >
       <section id="developer-agent-management-introduction" className={styles.pageIntro}>
         <h1>Developer Agent Management</h1>
         <p>
-          Use the developer-domain APIs to authenticate developers, create and manage agents, version configs,
-          validate metadata, manage team access, and inspect runtime sessions programmatically.
+          IndusAI Developer APIs let external systems authenticate and manage the authenticated developer&apos;s own
+          agent resources, including agent creation, configuration, prompt tooling, call outcomes, call input
+          fields, and runtime service settings. Use the developer login endpoint to obtain a bearer token for
+          the recommended integration flow. Some older endpoints continue to support API-key-based access and are
+          marked as legacy.
         </p>
         <div className={styles.callout}>
           <strong>Namespace split</strong>
           <ul>
             <li>Standard platform APIs: <code>/api/agents/...</code></li>
             <li>Developer-facing APIs: <code>/api/developer/...</code></li>
-            <li>Most agent-management integrations should target <code>/api/developer/agents/...</code>.</li>
+            <li>External developer docs are intentionally limited to self-service agent lifecycle and configuration APIs.</li>
           </ul>
         </div>
         <div className={styles.callout} id="developer-agent-management-auth-model">
-          <strong>Authentication model</strong>
+          <strong>Onboarding flow</strong>
           <ul>
-            <li>Recommended flow: <code>POST /api/developer/login</code> then <code>Authorization: Bearer &lt;token&gt;</code>.</li>
-            <li>Legacy flow: some older developer endpoints still accept an API key and are marked with <code>Legacy</code> and <code>API Key</code> badges.</li>
-            <li>Every endpoint below is labeled to show both auth type and response shape.</li>
+            <li>Login with <code>POST /api/developer/login</code>.</li>
+            <li>Use <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+            <li>Create and manage only your own agents.</li>
+            <li>Use legacy API-key endpoints only where explicitly marked.</li>
           </ul>
+        </div>
+        <div className={styles.warningCallout}>
+          <strong>Public developer scope</strong>
+          <p>
+            These docs do not include internal, admin, observability, or team-management endpoints. All
+            documented Developer Agent Management APIs are scoped to the authenticated user only.
+          </p>
         </div>
         <div className={styles.modelGrid}>
           <div className={styles.responseExampleCard}>
@@ -1313,9 +1083,10 @@ export default function DeveloperAgentManagementPage() {
           <li>Authenticate the developer with <code>POST /api/developer/login</code>.</li>
           <li>Store the returned <code>access_token</code> securely and send it as a bearer token.</li>
           <li>Create an agent with <code>POST /api/developer/agents/create</code>.</li>
+          <li>Inspect, update, or delete only the authenticated developer&apos;s own agents.</li>
           <li>Create or publish configs, then use render and validate endpoints to test metadata-driven prompts.</li>
-          <li>Manage team members, outcomes, infields, and service config sections as your integration matures.</li>
-          <li>Only use the legacy API-key listing endpoint when maintaining older integrations.</li>
+          <li>Manage outcomes, infields, and service config sections as your integration matures.</li>
+          <li>Use the legacy API-key endpoint only when explicitly required for older integrations.</li>
         </ol>
         <CopyableCode language="bash">{recommendedFlowCurl}</CopyableCode>
       </section>

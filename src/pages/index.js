@@ -76,8 +76,8 @@ export default function HomePage() {
         <div className={styles.serviceCard}>
           <h2 className={styles.serviceTitle}>Developer Agent Management</h2>
           <p className={styles.serviceDescription}>
-            Authenticate developers, create and manage agents, version configs, validate metadata, and control
-            team access under the <code>/api/developer/agents</code> namespace.
+            Authenticate developers, then create, inspect, update, configure, and delete only their own agents
+            under the <code>/api/developer/agents</code> namespace.
           </p>
           <Link to="/developer-agent-management" className={styles.serviceLink}>
             View Agent Management APIs →
