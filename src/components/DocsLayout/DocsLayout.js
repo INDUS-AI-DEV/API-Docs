@@ -12,6 +12,7 @@ import logoImageDark from '../../../transparent-background-with-white-text.png';
 const methodBadgeClass = {
   GET: styles.methodGet,
   POST: styles.methodPost,
+  PATCH: styles.methodPatch,
   PUT: styles.methodPut,
   DELETE: styles.methodDelete,
   WS: styles.methodWs,

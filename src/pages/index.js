@@ -74,6 +74,17 @@ export default function HomePage() {
         </div>
 
         <div className={styles.serviceCard}>
+          <h2 className={styles.serviceTitle}>Developer Agent Management</h2>
+          <p className={styles.serviceDescription}>
+            Authenticate developers, then create, inspect, update, configure, and delete only their own agents
+            under the <code>/api/developer/agents</code> namespace.
+          </p>
+          <Link to="/developer-agent-management" className={styles.serviceLink}>
+            View Agent Management APIs →
+          </Link>
+        </div>
+
+        <div className={styles.serviceCard}>
           <h2 className={styles.serviceTitle}>Developer Click2Call</h2>
           <p className={styles.serviceDescription}>
             Login with developer credentials, create async click2call requests, and poll transcript status with
