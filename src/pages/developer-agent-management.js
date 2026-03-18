@@ -224,27 +224,27 @@ const validateResponseJson = `{
 
 const recommendedFlowCurl = `BASE_URL="https://developer.induslabs.io"
 
-LOGIN_RESP=$(curl -s -X POST "$BASE_URL/api/developer/login" \\
+LOGIN_RESP=$(curl -s -X POST "$BASE_URL/api/login" \\
   -H "Content-Type: application/json" \\
   -d '{"email":"developer@example.com","password":"your-password"}')
 
 ACCESS_TOKEN=$(echo "$LOGIN_RESP" | jq -r '.data.access_token')
 
-curl -s -X POST "$BASE_URL/api/developer/agents/create" \\
+curl -s -X POST "$BASE_URL/api/agents/create" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $ACCESS_TOKEN" \\
   -d @create-agent.json
 
-curl -s "$BASE_URL/api/developer/agents/AGT_12345678" \\
+curl -s "$BASE_URL/api/agents/AGT_12345678" \\
   -H "Authorization: Bearer $ACCESS_TOKEN"
 
-curl -s -X POST "$BASE_URL/api/developer/agents/AGT_12345678/configs/render" \\
+curl -s -X POST "$BASE_URL/api/agents/AGT_12345678/configs/render" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $ACCESS_TOKEN" \\
   -d '{"customer_name":"Rahul","city":"Mumbai"}'`;
 
 const loginCurl = `curl -X POST \\
-  "${PROD_BASE_URL}/api/developer/login" \\
+  "${PROD_BASE_URL}/api/login" \\
   -H "Content-Type: application/json" \\
   -d '{
     "email": "developer@example.com",
@@ -252,17 +252,17 @@ const loginCurl = `curl -X POST \\
   }'`;
 
 const createAgentCurl = `curl -X POST \\
-  "${PROD_BASE_URL}/api/developer/agents/create" \\
+  "${PROD_BASE_URL}/api/agents/create" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer <access_token>" \\
   -d @create-agent.json`;
 
 const getAgentCurl = `curl -X GET \\
-  "${PROD_BASE_URL}/api/developer/agents/AGT_12345678" \\
+  "${PROD_BASE_URL}/api/agents/AGT_12345678" \\
   -H "Authorization: Bearer <access_token>"`;
 
 const renderCurl = `curl -X POST \\
-  "${PROD_BASE_URL}/api/developer/agents/AGT_12345678/configs/render" \\
+  "${PROD_BASE_URL}/api/agents/AGT_12345678/configs/render" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer <access_token>" \\
   -d '{
@@ -277,25 +277,25 @@ const quickIntegration = {
   apis: [
     {
       id: 'developer-agent-management-post-login',
-      label: 'POST /api/developer/login',
+      label: 'POST /api/login',
       defaultLanguage: 'curl',
       languages: [{ id: 'curl', label: 'cURL', language: 'bash', code: loginCurl }],
     },
     {
       id: 'developer-agent-management-post-agents-create',
-      label: 'POST /api/developer/agents/create',
+      label: 'POST /api/agents/create',
       defaultLanguage: 'curl',
       languages: [{ id: 'curl', label: 'cURL', language: 'bash', code: createAgentCurl }],
     },
     {
       id: 'developer-agent-management-get-agent',
-      label: 'GET /api/developer/agents/{agent_id}',
+      label: 'GET /api/agents/{agent_id}',
       defaultLanguage: 'curl',
       languages: [{ id: 'curl', label: 'cURL', language: 'bash', code: getAgentCurl }],
     },
     {
       id: 'developer-agent-management-post-configs-render',
-      label: 'POST /api/developer/agents/{agent_id}/configs/render',
+      label: 'POST /api/agents/{agent_id}/configs/render',
       defaultLanguage: 'curl',
       languages: [{ id: 'curl', label: 'cURL', language: 'bash', code: renderCurl }],
     },
@@ -329,7 +329,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-login',
         method: 'POST',
-        path: '/api/developer/login',
+        path: '/api/login',
         title: 'Developer Login',
         description: 'Authenticates a developer user using email and password and returns access and refresh tokens for bearer-token-based developer APIs.',
         badges: ['public', 'bearer', 'envelope'],
@@ -363,7 +363,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-legacy-agents',
         method: 'POST',
-        path: '/api/developer/agents',
+        path: '/api/agents',
         title: 'List Developer Agents (Legacy API Key Endpoint)',
         description: 'Returns all agents belonging to the user associated with the provided API key.',
         badges: ['apiKey', 'legacy', 'envelope'],
@@ -396,11 +396,11 @@ const groups = [
       {
         id: 'developer-agent-management-post-agents-create',
         method: 'POST',
-        path: '/api/developer/agents/create',
+        path: '/api/agents/create',
         title: 'Create Agent',
         description: 'Creates a new agent and its initial config, with optional first call outcome and call infield definitions.',
         badges: ['bearer', 'raw'],
-        warning: 'Creation uses `/create` because POST `/api/developer/agents` is already reserved by a legacy endpoint.',
+        warning: 'Creation uses `/create` because POST `/api/agents` is already reserved by a legacy endpoint.',
         notes: [
           'Creates the agent first, then creates a draft config and may publish it.',
           'LiveKit credentials are assigned from system settings.',
@@ -409,7 +409,7 @@ const groups = [
           'This is the recommended creation endpoint for bearer-token-based integrations.',
         ],
         inputs: [
-          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token> from /api/developer/login.' },
+          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token> from /api/login.' },
           { name: 'agent_in', type: 'object', defaultValue: 'required', description: 'Agent definition including name, description, team, agent_type, and is_auto.' },
           { name: 'agent_config', type: 'object', defaultValue: 'required', description: 'Initial prompt and service configuration payload.' },
           { name: 'call_outcome', type: 'object', defaultValue: 'optional', description: 'Optional first outcome definition created alongside the agent.' },
@@ -430,7 +430,7 @@ const groups = [
       {
         id: 'developer-agent-management-get-agent',
         method: 'GET',
-        path: '/api/developer/agents/{agent_id}',
+        path: '/api/agents/{agent_id}',
         title: 'Get Agent',
         description: 'Fetches a single agent by its public `agent_id` such as `AGT_12345678`.',
         badges: ['bearer', 'raw'],
@@ -451,7 +451,7 @@ const groups = [
       {
         id: 'developer-agent-management-put-agent',
         method: 'PUT',
-        path: '/api/developer/agents/{agent_id}',
+        path: '/api/agents/{agent_id}',
         title: 'Update Agent',
         description: 'Partially updates an existing agent owned by the authenticated developer.',
         badges: ['bearer', 'raw'],
@@ -475,7 +475,7 @@ const groups = [
       {
         id: 'developer-agent-management-delete-agent',
         method: 'DELETE',
-        path: '/api/developer/agents/{agent_id}',
+        path: '/api/agents/{agent_id}',
         title: 'Delete Agent',
         description: 'Deletes an agent owned by the authenticated developer.',
         badges: ['bearer', 'raw'],
@@ -499,7 +499,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-configs',
         method: 'POST',
-        path: '/api/developer/agents/{agent_id}/configs',
+        path: '/api/agents/{agent_id}/configs',
         title: 'Create Config Version',
         description: 'Creates a new config version for an agent as a draft, or publishes it immediately when `publish=true`.',
         badges: ['bearer', 'raw'],
@@ -521,7 +521,7 @@ const groups = [
       {
         id: 'developer-agent-management-get-configs',
         method: 'GET',
-        path: '/api/developer/agents/{agent_id}/configs',
+        path: '/api/agents/{agent_id}/configs',
         title: 'List Config Versions',
         description: 'Lists config versions for an agent, optionally filtered by status.',
         badges: ['bearer', 'raw'],
@@ -540,7 +540,7 @@ const groups = [
       {
         id: 'developer-agent-management-get-configs-current',
         method: 'GET',
-        path: '/api/developer/agents/{agent_id}/configs/current',
+        path: '/api/agents/{agent_id}/configs/current',
         title: 'Get Current Config',
         description: 'Returns the currently active published config for the agent.',
         badges: ['bearer', 'raw'],
@@ -556,7 +556,7 @@ const groups = [
       {
         id: 'developer-agent-management-get-config-by-version',
         method: 'GET',
-        path: '/api/developer/agents/{agent_id}/configs/{version}',
+        path: '/api/agents/{agent_id}/configs/{version}',
         title: 'Get Config Version',
         description: 'Returns a specific config version for an agent.',
         badges: ['bearer', 'raw'],
@@ -573,7 +573,7 @@ const groups = [
       {
         id: 'developer-agent-management-put-config-by-version',
         method: 'PUT',
-        path: '/api/developer/agents/{agent_id}/configs/{version}',
+        path: '/api/agents/{agent_id}/configs/{version}',
         title: 'Update Draft Config',
         description: 'Updates an existing draft config version. Published configs must be copied into a new draft instead of being edited in place.',
         badges: ['bearer', 'raw'],
@@ -592,7 +592,7 @@ const groups = [
       {
         id: 'developer-agent-management-delete-config-by-version',
         method: 'DELETE',
-        path: '/api/developer/agents/{agent_id}/configs/{version}',
+        path: '/api/agents/{agent_id}/configs/{version}',
         title: 'Delete Draft Config',
         description: 'Deletes a draft config version.',
         badges: ['bearer', 'raw'],
@@ -610,7 +610,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-config-publish',
         method: 'POST',
-        path: '/api/developer/agents/{agent_id}/configs/{version}/publish',
+        path: '/api/agents/{agent_id}/configs/{version}/publish',
         title: 'Publish Config Version',
         description: 'Publishes a chosen config version and makes it current.',
         badges: ['bearer', 'raw'],
@@ -626,7 +626,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-config-rollback',
         method: 'POST',
-        path: '/api/developer/agents/{agent_id}/configs/{version}/rollback',
+        path: '/api/agents/{agent_id}/configs/{version}/rollback',
         title: 'Rollback to Config Version',
         description: 'Rolls back the current agent config to a previous version.',
         badges: ['bearer', 'raw'],
@@ -642,7 +642,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-configs-enhance',
         method: 'POST',
-        path: '/api/developer/agents/{agent_id}/configs/enhance',
+        path: '/api/agents/{agent_id}/configs/enhance',
         title: 'Enhance Prompt Configuration',
         description: 'Uses prompt enhancement logic to improve the provided prompts and metadata instructions.',
         badges: ['bearer', 'raw'],
@@ -659,7 +659,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-configs-render',
         method: 'POST',
-        path: '/api/developer/agents/{agent_id}/configs/render',
+        path: '/api/agents/{agent_id}/configs/render',
         title: 'Render Prompt Templates',
         description: 'Renders prompt templates using metadata values against either a selected version or the current config.',
         badges: ['bearer', 'raw'],
@@ -684,7 +684,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-configs-validate',
         method: 'POST',
-        path: '/api/developer/agents/{agent_id}/configs/validate',
+        path: '/api/agents/{agent_id}/configs/validate',
         title: 'Validate Metadata',
         description: 'Validates metadata values against the agent config metadata schema.',
         badges: ['bearer', 'raw'],
@@ -711,7 +711,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-call-outcomes',
         method: 'POST',
-        path: '/api/developer/agents/{agent_id}/call_outcomes',
+        path: '/api/agents/{agent_id}/call_outcomes',
         title: 'Create Call Outcome',
         description: 'Creates a call outcome definition for the agent.',
         badges: ['bearer', 'envelope'],
@@ -732,7 +732,7 @@ const groups = [
       {
         id: 'developer-agent-management-get-call-outcomes',
         method: 'GET',
-        path: '/api/developer/agents/{agent_id}/call_outcomes',
+        path: '/api/agents/{agent_id}/call_outcomes',
         title: 'List Call Outcomes',
         description: 'Lists all call outcome definitions for the agent.',
         badges: ['bearer', 'envelope'],
@@ -747,7 +747,7 @@ const groups = [
       {
         id: 'developer-agent-management-patch-call-outcome',
         method: 'PATCH',
-        path: '/api/developer/agents/{agent_id}/call_outcomes/{outcome_name}',
+        path: '/api/agents/{agent_id}/call_outcomes/{outcome_name}',
         title: 'Update Call Outcome',
         description: 'Updates a call outcome definition by outcome name.',
         badges: ['bearer', 'envelope'],
@@ -764,7 +764,7 @@ const groups = [
       {
         id: 'developer-agent-management-delete-call-outcome',
         method: 'DELETE',
-        path: '/api/developer/agents/{agent_id}/call_outcomes/{outcome_name}',
+        path: '/api/agents/{agent_id}/call_outcomes/{outcome_name}',
         title: 'Delete Call Outcome',
         description: 'Deletes a call outcome definition by name.',
         badges: ['bearer', 'envelope'],
@@ -787,7 +787,7 @@ const groups = [
       {
         id: 'developer-agent-management-post-call-infields',
         method: 'POST',
-        path: '/api/developer/agents/{agent_id}/call_infields',
+        path: '/api/agents/{agent_id}/call_infields',
         title: 'Create Call Infield',
         description: 'Creates an input field definition for the agent.',
         badges: ['bearer', 'envelope'],
@@ -807,7 +807,7 @@ const groups = [
       {
         id: 'developer-agent-management-get-call-infields',
         method: 'GET',
-        path: '/api/developer/agents/{agent_id}/call_infields',
+        path: '/api/agents/{agent_id}/call_infields',
         title: 'List Call Infields',
         description: 'Lists configured call input fields for the agent.',
         badges: ['bearer', 'envelope'],
@@ -822,7 +822,7 @@ const groups = [
       {
         id: 'developer-agent-management-patch-call-infield',
         method: 'PATCH',
-        path: '/api/developer/agents/{agent_id}/call_infields/{field_name}',
+        path: '/api/agents/{agent_id}/call_infields/{field_name}',
         title: 'Update Call Infield',
         description: 'Updates a call input field definition by field name.',
         badges: ['bearer', 'envelope'],
@@ -839,7 +839,7 @@ const groups = [
       {
         id: 'developer-agent-management-delete-call-infield',
         method: 'DELETE',
-        path: '/api/developer/agents/{agent_id}/call_infields/{field_name}',
+        path: '/api/agents/{agent_id}/call_infields/{field_name}',
         title: 'Delete Call Infield',
         description: 'Deletes a call input field definition by name.',
         badges: ['bearer', 'envelope'],
@@ -862,7 +862,7 @@ const groups = [
       {
         id: 'developer-agent-management-put-service-config',
         method: 'PUT',
-        path: '/api/developer/agents/{agent_id}/config/{service_type}',
+        path: '/api/agents/{agent_id}/config/{service_type}',
       title: 'Update Service Config Section',
       description: 'Updates exactly one of `tts_config`, `stt_config`, `vad_config`, or `llm_config` on the current config.',
         badges: ['bearer', 'raw'],
@@ -1041,14 +1041,14 @@ export default function DeveloperAgentManagementPage() {
           <strong>Namespace split</strong>
           <ul>
             <li>Standard platform APIs: <code>/api/agents/...</code></li>
-            <li>Developer-facing APIs: <code>/api/developer/...</code></li>
+            <li>Developer-facing APIs in this section: <code>/api/...</code></li>
             <li>External developer docs are intentionally limited to self-service agent lifecycle and configuration APIs.</li>
           </ul>
         </div>
         <div className={styles.callout} id="developer-agent-management-auth-model">
           <strong>Onboarding flow</strong>
           <ul>
-            <li>Login with <code>POST /api/developer/login</code>.</li>
+            <li>Login with <code>POST /api/login</code>.</li>
             <li>Use <code>Authorization: Bearer &lt;token&gt;</code>.</li>
             <li>Create and manage only your own agents.</li>
             <li>Use legacy API-key endpoints only where explicitly marked.</li>
@@ -1080,9 +1080,9 @@ export default function DeveloperAgentManagementPage() {
       <section id="developer-agent-management-recommended-flow" className={styles.endpointSection}>
         <h3 className={styles.anchorTitle}>Recommended Integration Flow</h3>
         <ol className={styles.stackList}>
-          <li>Authenticate the developer with <code>POST /api/developer/login</code>.</li>
+          <li>Authenticate the developer with <code>POST /api/login</code>.</li>
           <li>Store the returned <code>access_token</code> securely and send it as a bearer token.</li>
-          <li>Create an agent with <code>POST /api/developer/agents/create</code>.</li>
+          <li>Create an agent with <code>POST /api/agents/create</code>.</li>
           <li>Inspect, update, or delete only the authenticated developer&apos;s own agents.</li>
           <li>Create or publish configs, then use render and validate endpoints to test metadata-driven prompts.</li>
           <li>Manage outcomes, infields, and service config sections as your integration matures.</li>
