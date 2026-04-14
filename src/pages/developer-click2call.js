@@ -8,7 +8,7 @@ import styles from './api.module.css';
 const PROD_BASE_URL = 'https://developer.induslabs.io';
 
 const loginCurl = `curl -X POST \\
-  "https://developer.induslabs.io/api/developer/login" \\
+  "https://developer.induslabs.io/api/login" \\
   -H "Content-Type: application/json" \\
   -d '{
     "email": "user@example.com",
@@ -16,7 +16,7 @@ const loginCurl = `curl -X POST \\
   }'`;
 
 const click2callCurl = `curl -X POST \\
-  "https://developer.induslabs.io/api/developer/calls/click2call" \\
+  "https://developer.induslabs.io/api/calls/click2call" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer <access_token>" \\
   -d '{
@@ -29,22 +29,22 @@ const click2callCurl = `curl -X POST \\
   }'`;
 
 const recentCallsCurl = `curl -X GET \\
-  "https://developer.induslabs.io/api/developer/calls/recent?limit=10&page=1&transcript_status=ready" \\
+  "https://developer.induslabs.io/api/calls/recent?limit=10&page=1&transcript_status=ready" \\
   -H "Authorization: Bearer <access_token>"`;
 
 const transcriptCurl = `curl -X GET \\
-  "https://developer.induslabs.io/api/developer/calls/call_ab12cd34ef56gh78/transcript" \\
+  "https://developer.induslabs.io/api/calls/call_ab12cd34ef56gh78/transcript" \\
   -H "Authorization: Bearer <access_token>"`;
 
 const endToEndFlow = `BASE_URL="https://developer.induslabs.io"
 
-LOGIN_RESP=$(curl -s -X POST "$BASE_URL/api/developer/login" \\
+LOGIN_RESP=$(curl -s -X POST "$BASE_URL/api/login" \\
   -H "Content-Type: application/json" \\
   -d '{"email":"user@example.com","password":"your_password"}')
 
 ACCESS_TOKEN=$(echo "$LOGIN_RESP" | jq -r '.data.access_token')
 
-CALL_RESP=$(curl -s -X POST "$BASE_URL/api/developer/calls/click2call" \\
+CALL_RESP=$(curl -s -X POST "$BASE_URL/api/calls/click2call" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $ACCESS_TOKEN" \\
   -d '{
@@ -58,10 +58,10 @@ CALL_RESP=$(curl -s -X POST "$BASE_URL/api/developer/calls/click2call" \\
 
 CALL_ID=$(echo "$CALL_RESP" | jq -r '.data.call_id')
 
-curl -s -X GET "$BASE_URL/api/developer/calls/recent?limit=10&page=1" \\
+curl -s -X GET "$BASE_URL/api/calls/recent?limit=10&page=1" \\
   -H "Authorization: Bearer $ACCESS_TOKEN"
 
-curl -s -X GET "$BASE_URL/api/developer/calls/$CALL_ID/transcript" \\
+curl -s -X GET "$BASE_URL/api/calls/$CALL_ID/transcript" \\
   -H "Authorization: Bearer $ACCESS_TOKEN"`;
 
 const loginSuccessJson = `{
@@ -250,7 +250,7 @@ const developerQuickIntegration = {
   apis: [
     {
       id: 'developer-click2call-post-login',
-      label: 'POST /api/developer/login',
+      label: 'POST /api/login',
       defaultLanguage: 'curl',
       languages: [
         {
@@ -263,7 +263,7 @@ const developerQuickIntegration = {
     },
     {
       id: 'developer-click2call-post-click2call',
-      label: 'POST /api/developer/calls/click2call',
+      label: 'POST /api/calls/click2call',
       defaultLanguage: 'curl',
       languages: [
         {
@@ -276,7 +276,7 @@ const developerQuickIntegration = {
     },
     {
       id: 'developer-click2call-get-transcript',
-      label: 'GET /api/developer/calls/{call_id}/transcript',
+      label: 'GET /api/calls/{call_id}/transcript',
       defaultLanguage: 'curl',
       languages: [
         {
@@ -289,7 +289,7 @@ const developerQuickIntegration = {
     },
     {
       id: 'developer-click2call-get-recent',
-      label: 'GET /api/developer/calls/recent',
+      label: 'GET /api/calls/recent',
       defaultLanguage: 'curl',
       languages: [
         {
@@ -307,7 +307,7 @@ const endpoints = [
   {
     id: 'developer-click2call-post-login',
     method: 'POST',
-    path: '/api/developer/login',
+    path: '/api/login',
     title: 'Developer Login',
     description: 'Authenticate a verified active user and return access + refresh tokens.',
     notes: [
@@ -330,7 +330,7 @@ const endpoints = [
   {
     id: 'developer-click2call-post-click2call',
     method: 'POST',
-    path: '/api/developer/calls/click2call',
+    path: '/api/calls/click2call',
     title: 'Create Click2Call Request',
     description: 'Create a click2call job for authenticated user. Call is queued and processed asynchronously.',
     notes: [
@@ -363,7 +363,7 @@ const endpoints = [
   {
     id: 'developer-click2call-get-recent',
     method: 'GET',
-    path: '/api/developer/calls/recent',
+    path: '/api/calls/recent',
     title: 'Get Recent Click2Call Logs',
     description: 'Fetch paginated Click2Call records for the authenticated user with filters for call status, transcript status, phone numbers, DID, and date range.',
     notes: [
@@ -398,7 +398,7 @@ const endpoints = [
   {
     id: 'developer-click2call-get-transcript',
     method: 'GET',
-    path: '/api/developer/calls/{call_id}/transcript',
+    path: '/api/calls/{call_id}/transcript',
     title: 'Get Click2Call Transcript by Call ID',
     description: 'Fetch transcript metadata/content for a previously created click2call request.',
     notes: [
@@ -537,7 +537,7 @@ export default function DeveloperClick2CallPage() {
       <section id="developer-click2call-introduction" className={styles.pageIntro}>
         <h1>Developer Domain APIs: Login, Click2Call, Recent Logs, Transcript Fetch</h1>
         <p>
-          This page documents the developer-domain flow to authenticate, create async click2call jobs,
+          This page documents the Click2Call API flow to authenticate, create async click2call jobs,
           receive callback events, list recent call logs, and fetch transcript status using internal call IDs.
         </p>
         <div className={styles.callout}>
@@ -545,7 +545,7 @@ export default function DeveloperClick2CallPage() {
           <ul>
             <li>Production: <code>{PROD_BASE_URL}</code></li>
           </ul>
-          <p>Developer APIs route prefix: <code>/api/developer</code>.</p>
+          <p>Click2Call API route prefix: <code>/api</code>.</p>
         </div>
         <div className={styles.callout}>
           <strong>Common Response Envelope</strong>
@@ -573,7 +573,7 @@ export default function DeveloperClick2CallPage() {
         <div className={styles.callout}>
           <strong>Callback sequence</strong>
           <ol>
-            <li>Your server calls <code>POST /api/developer/calls/click2call</code> with <code>callback_url</code>.</li>
+            <li>Your server calls <code>POST /api/calls/click2call</code> with <code>callback_url</code>.</li>
             <li>The API returns <code>call_id</code> immediately. Store it.</li>
             <li>The backend sends the outbound call request to the provider.</li>
             <li>The provider later calls the backend with call status and recording details.</li>
@@ -586,9 +586,9 @@ export default function DeveloperClick2CallPage() {
           <ul>
             <li>Your <code>callback_url</code> must be publicly reachable from the backend. Do not use <code>localhost</code> for production calls.</li>
             <li>The callback is sent in the background. Your create request does not wait for the call, recording, or transcript.</li>
-            <li>The callback <code>data</code> object uses the same compact shape as <code>GET /api/developer/calls/{'{call_id}'}/transcript</code>.</li>
+            <li>The callback <code>data</code> object uses the same compact shape as <code>GET /api/calls/{'{call_id}'}/transcript</code>.</li>
             <li>Return a 2xx response from your webhook to mark the event as delivered.</li>
-            <li>If no <code>callback_url</code> is supplied, no webhook is sent. Use <code>GET /api/developer/calls/recent</code> or transcript polling.</li>
+            <li>If no <code>callback_url</code> is supplied, no webhook is sent. Use <code>GET /api/calls/recent</code> or transcript polling.</li>
           </ul>
         </div>
         <div className={styles.tableCard}>
@@ -649,8 +649,8 @@ export default function DeveloperClick2CallPage() {
           <li>Create click2call request with <code>did</code>, optional <code>callback_url</code>, and <code>transcript: true</code> when transcript is needed.</li>
           <li>Store <code>call_id</code> from the create response.</li>
           <li>Use callbacks as the primary async notification path when <code>callback_url</code> is configured.</li>
-          <li>Use <code>GET /api/developer/calls/recent</code> to list and filter many calls efficiently.</li>
-          <li>Use <code>GET /api/developer/calls/{'{call_id}'}/transcript</code> when you need a single call transcript payload.</li>
+          <li>Use <code>GET /api/calls/recent</code> to list and filter many calls efficiently.</li>
+          <li>Use <code>GET /api/calls/{'{call_id}'}/transcript</code> when you need a single call transcript payload.</li>
         </ol>
       </section>
 
