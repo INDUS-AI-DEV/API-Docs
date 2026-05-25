@@ -111,7 +111,7 @@ const recentCallsSuccessJson = `{
     "calls": [
       {
         "call_id": "call_ab12cd34ef56gh78",
-        "status": "completed",
+        "status": "Answered",
         "customer_number": "919999999999",
         "agent_number": "918888888888",
         "did": "919484956750",
@@ -374,7 +374,7 @@ const endpoints = [
     ],
     inputs: [
       { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
-      { name: 'status', type: 'query string', defaultValue: 'optional', description: 'Exact call status filter, e.g. queued, completed, failed, Answered.' },
+      { name: 'status', type: 'query string', defaultValue: 'optional', description: 'Exact call status filter, e.g. queued, Answered, NoAnswered, or failed.' },
       { name: 'call_type', type: 'query string', defaultValue: 'optional', description: 'Exact call type filter, e.g. C2C, outbound, agent_telephony.' },
       { name: 'transcript_status', type: 'query string', defaultValue: 'optional', description: 'Filter by pending, processing, ready, disabled, or failed.' },
       { name: 'customer_number', type: 'query string', defaultValue: 'optional', description: 'Case-insensitive partial match on customer number.' },
@@ -563,6 +563,52 @@ export default function DeveloperClick2CallPage() {
       {endpoints.map(endpoint => (
         <EndpointSection key={endpoint.id} endpoint={endpoint} />
       ))}
+
+      <section id="developer-click2call-statuses" className={styles.endpointSection}>
+        <h3 className={styles.anchorTitle}>C2C Call Statuses</h3>
+        <p>
+          The main Click2Call status values currently used in the API are <code>queued</code>, <code>Answered</code>, <code>NoAnswered</code>, and <code>failed</code>.
+        </p>
+        <div className={styles.tableCard}>
+          <h4>Status Reference</h4>
+          <div className={styles.tableScroll}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Status"><code>queued</code></td>
+                  <td data-label="Meaning">The Click2Call request was accepted and is waiting for final provider processing.</td>
+                </tr>
+                <tr>
+                  <td data-label="Status"><code>answered</code></td>
+                  <td data-label="Meaning">The provider reported that the call was answered.</td>
+                </tr>
+                <tr>
+                  <td data-label="Status"><code>noAnswered</code></td>
+                  <td data-label="Meaning">The provider reported that the call was not answered.</td>
+                </tr>
+                <tr>
+                  <td data-label="Status"><code>failed</code></td>
+                  <td data-label="Meaning">The call failed technically or could not be completed.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className={styles.callout}>
+          <strong>Notes</strong>
+          <ul>
+            <li><code>Answered</code> and <code>NoAnswered</code> are provider-style status values and should be treated as final call results.</li>
+            <li><code>queued</code> is the initial state before a final provider callback is received.</li>
+            <li><code>call.completed</code> is a callback event name, not the same thing as a stored call <code>status</code> value.</li>
+          </ul>
+        </div>
+      </section>
 
       <section id="developer-click2call-callback-flow" className={styles.endpointSection}>
         <h3 className={styles.anchorTitle}>How Click2Call Callbacks Work</h3>

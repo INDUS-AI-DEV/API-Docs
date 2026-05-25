@@ -109,6 +109,7 @@ const sections = [
       { label: 'calls/click2call', page: 'developer-click2call', id: 'developer-click2call-post-click2call', method: 'POST' },
       { label: 'calls/recent', page: 'developer-click2call', id: 'developer-click2call-get-recent', method: 'GET' },
       { label: 'calls/{call_id}/transcript', page: 'developer-click2call', id: 'developer-click2call-get-transcript', method: 'GET' },
+      { label: 'C2C Call Statuses', page: 'developer-click2call', id: 'developer-click2call-statuses' },
       { label: 'Callback Flow', page: 'developer-click2call', id: 'developer-click2call-callback-flow' },
       { label: 'Recommended Usage Flow', page: 'developer-click2call', id: 'developer-click2call-usage-flow' },
       { label: 'End-to-End Curl Flow', page: 'developer-click2call', id: 'developer-click2call-end-to-end' },
