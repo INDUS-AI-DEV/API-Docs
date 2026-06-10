@@ -67,6 +67,32 @@ const agentConfigObjectJson = `{
   "guidelines": ["Be concise"],
   "call_outcomes": [],
   "call_infields": [],
+  "post_call_actions": [
+    {
+      "action_type": "CALLBACK_URL",
+      "enabled": true,
+      "callback_url": "https://api.yourdomain.com/webhooks/call-completed"
+    },
+    {
+      "action_type": "WHATSAPP",
+      "enabled": false,
+      "message": "Custom WhatsApp message",
+      "whatsapp_template_name": "welcome_template",
+      "whatsapp_template_language": "en"
+    },
+    {
+      "action_type": "GOOGLE_MAIL",
+      "enabled": false,
+      "subject": "Call Follow-up",
+      "message": "Here is the summary of our call."
+    },
+    {
+      "action_type": "GOOGLE_CALENDAR",
+      "enabled": false,
+      "subject": "Follow-up Meeting",
+      "duration_minutes": 30
+    }
+  ],
   "notes": "Initial config",
   "tts_config": {
     "voice_id": "Indus-hi-maya"
@@ -95,6 +121,75 @@ const agentConfigObjectJson = `{
   "created_by": "user-id",
   "updated_by": "user-id"
 }`;
+
+const postCallCallbackWebhookJson = `{
+  "status_code": 200,
+  "message": "Transcript ready",
+  "error": null,
+  "event": "transcript.ready",
+  "data": {
+    "call_id": "transcript_abc",
+    "status": "completed",
+    "transcript_status": "ready",
+    "customer_number": "+1234567890",
+    "did": "919484956750",
+    "call_type": "agent_telephony",
+    "call_date": "2026-06-09",
+    "duration": "52",
+    "answer_duration": 48,
+    "recording": "https://s3.amazonaws.com/your-bucket/recordings/call.wav",
+    "transcript": {
+      "transcript_id": "transcript_abc",
+      "summary": "The customer requested a follow-up demo tomorrow.",
+      "call_outcome": {
+        "interested": true,
+        "customer_budget": 5000
+      },
+      "history": [
+        {
+          "role": "assistant",
+          "content": "Hello! How can I help you today?"
+        },
+        {
+          "role": "user",
+          "content": "Hi, I am looking to book a product demo."
+        }
+      ],
+      "createdAt": "2026-06-09T11:20:00Z",
+      "updatedAt": "2026-06-09T11:21:00Z"
+    }
+  }
+}`;
+
+const patchCallbackRequestJson = `{
+  "callback_url": "https://api.yourdomain.com/webhooks/call-completed",
+  "enabled": true
+}`;
+
+const patchCallbackSuccessJson = `{
+  "agent_id": "AGT_12345678",
+  "system_prompt": "You are a helpful agent.",
+  "starting_instructions": "Greet the user.",
+  "post_call_actions": [
+    {
+      "action_type": "CALLBACK_URL",
+      "enabled": true,
+      "callback_url": "https://api.yourdomain.com/webhooks/call-completed"
+    }
+  ],
+  "version": 1,
+  "status": "published",
+  "is_current": true
+}`;
+
+const patchCallbackCurl = `curl -X PATCH \\
+  "https://developer.induslabs.io/api/agents/AGT_12345678/configs/current/callback" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "callback_url": "https://api.yourdomain.com/webhooks/call-completed",
+    "enabled": true
+  }'`;
 
 const loginRequestJson = `{
   "email": "developer@example.com",
@@ -170,6 +265,13 @@ const createAgentRequestJson = `{
     "metadata_schema": [],
     "examples": [],
     "guidelines": [],
+    "post_call_actions": [
+      {
+        "action_type": "CALLBACK_URL",
+        "enabled": true,
+        "callback_url": "https://api.yourdomain.com/webhooks/sales-calls"
+      }
+    ],
     "llm_config": {
       "provider": "groq",
       "model": "openai/gpt-oss-120b",
@@ -552,7 +654,39 @@ const groups = [
           { name: '200 OK', type: 'application/json', description: 'Returns the current published config object.' },
           { name: '404 Not Found', type: 'application/json', description: 'No current config found.' },
         ],
+        examples: [
+          { label: 'Success Response', language: 'json', code: agentConfigObjectJson }
+        ]
       },
+      {
+        id: 'developer-agent-management-patch-configs-current-callback',
+        method: 'PATCH',
+        path: '/api/agents/{agent_id}/configs/current/callback',
+        title: 'Configure Callback URL',
+        description: 'Directly configures the post-call callback webhook URL and enabled status on the current active configuration.',
+        badges: ['bearer', 'raw'],
+        notes: [
+          'Owner-only endpoint.',
+          'Updates the CALLBACK_URL post-call action on the current config version without requiring a full config publish cycle.',
+        ],
+        inputs: [
+          { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
+          { name: 'agent_id', type: 'path string', defaultValue: 'required', description: 'Agent identifier.' },
+          { name: 'callback_url', type: 'string', defaultValue: 'required', description: 'The webhook URL to post the transcript payload to.' },
+          { name: 'enabled', type: 'boolean', defaultValue: 'true', description: 'Whether the callback webhook is enabled.' },
+        ],
+        outputs: [
+          { name: '200 OK', type: 'application/json', description: 'Returns the updated agent configuration object.' },
+          { name: '403 Forbidden', type: 'application/json', description: 'Not authorized for this agent.' },
+          { name: '404 Not Found', type: 'application/json', description: 'No current config found or agent not found.' },
+        ],
+        examples: [
+          { label: 'Request Body', language: 'json', code: patchCallbackRequestJson },
+          { label: 'cURL', language: 'bash', code: patchCallbackCurl },
+          { label: 'Success Response', language: 'json', code: patchCallbackSuccessJson },
+        ],
+      },
+
       {
         id: 'developer-agent-management-get-config-by-version',
         method: 'GET',
@@ -569,6 +703,9 @@ const groups = [
           { name: '200 OK', type: 'application/json', description: 'Returns the requested config version.' },
           { name: '404 Not Found', type: 'application/json', description: 'Version not found.' },
         ],
+        examples: [
+          { label: 'Success Response', language: 'json', code: agentConfigObjectJson }
+        ]
       },
       {
         id: 'developer-agent-management-put-config-by-version',
@@ -863,8 +1000,8 @@ const groups = [
         id: 'developer-agent-management-put-service-config',
         method: 'PUT',
         path: '/api/agents/{agent_id}/config/{service_type}',
-      title: 'Update Service Config Section',
-      description: 'Updates exactly one of `tts_config`, `stt_config`, `vad_config`, or `llm_config` on the current config.',
+        title: 'Update Service Config Section',
+        description: 'Updates exactly one of `tts_config`, `stt_config`, `vad_config`, or `llm_config` on the current config.',
         badges: ['bearer', 'raw'],
         notes: [
           'Owner-only endpoint.',
@@ -1091,17 +1228,63 @@ export default function DeveloperAgentManagementPage() {
         <CopyableCode language="bash">{recommendedFlowCurl}</CopyableCode>
       </section>
 
-      <section id="developer-agent-management-common-models" className={styles.endpointSection}>
-        <h3 className={styles.anchorTitle}>Common Models</h3>
-        <p>These models appear repeatedly across the developer agent management surface.</p>
-        <div className={styles.modelGrid}>
-          <div className={styles.responseExampleCard}>
-            <h4>Agent Object</h4>
-            <CopyableCode language="json">{agentObjectJson}</CopyableCode>
+      <section id="developer-agent-management-post-call-callback-flow" className={styles.endpointSection}>
+        <h3 className={styles.anchorTitle}>How Post-Call Callbacks Work</h3>
+        <p>
+          Post-call callbacks allow the backend to notify your external server asynchronously once a call ends and its transcript processing finishes.
+        </p>
+        <div className={styles.callout}>
+          <strong>Callback Sequence</strong>
+          <ol>
+            <li>Configure <code>post_call_actions</code> with action type <code>CALLBACK_URL</code> on your agent configuration.</li>
+            <li>When a call terminates, the backend extracts outcomes (like lead status) and generates the call summary.</li>
+            <li>Once the transcript data is fully saved, the backend issues an HTTP <code>POST</code> request directly to your configured webhook URL.</li>
+            <li>Your webhook endpoint must return a <code>2xx</code> success status code to acknowledge receipt of the event.</li>
+          </ol>
+        </div>
+        <div className={styles.callout}>
+          <strong>Event Details</strong>
+          <ul>
+            <li><strong>Event Type:</strong> <code>transcript.ready</code></li>
+            <li><strong>Payload Content:</strong> Contains general call metadata (call ID, customer number, DID, duration, recording link) along with the full conversation transcripts and AI-extracted outcomes.</li>
+          </ul>
+        </div>
+        <div className={styles.callout}>
+          <strong>Updating the Configuration</strong>
+          <p>
+            You can configure the post-call callback action directly using the PATCH method. This will update the active callback settings (webhook URL and enable/disable status) in-place on your current active configuration:
+          </p>
+          <ol style={{ margin: '0 0 1rem 0', paddingLeft: '1.25rem' }}>
+            <li>
+              <strong>Configure Callback (PATCH)</strong>: Send a <code>PATCH</code> request to <code>/api/agents/&#123;agent_id&#125;/configs/current/callback</code> with the target webhook URL and enabled flag.
+            </li>
+          </ol>
+          <p style={{ margin: '1rem 0 0.5rem 0' }}>
+            <strong>CALLBACK_URL Action Parameters:</strong>
+          </p>
+          <ul style={{ margin: '0 0 1rem 0', paddingLeft: '1.25rem' }}>
+            <li><code>callback_url</code> (string, required): The public target webhook endpoint that receives backend POST payloads.</li>
+            <li><code>enabled</code> (boolean, optional): Set to <code>true</code> to enable webhook triggers or <code>false</code> to disable/pause them (default: <code>true</code>).</li>
+          </ul>
+          <div className={styles.modelGrid} style={{ marginTop: '1rem' }}>
+            <div className={styles.responseExampleCard}>
+              <h4>cURL Request</h4>
+              <CopyableCode language="bash">{patchCallbackCurl}</CopyableCode>
+            </div>
+            <div className={styles.responseExampleCard}>
+              <h4>Request Body JSON</h4>
+              <CopyableCode language="json">{patchCallbackRequestJson}</CopyableCode>
+            </div>
+            <div className={styles.responseExampleCard} style={{ gridColumn: 'span 2' }}>
+              <h4>Success Response Body</h4>
+              <CopyableCode language="json">{patchCallbackSuccessJson}</CopyableCode>
+            </div>
           </div>
-          <div className={styles.responseExampleCard}>
-            <h4>Agent Config Object</h4>
-            <CopyableCode language="json">{agentConfigObjectJson}</CopyableCode>
+        </div>
+        <div className={styles.responseExamples}>
+          <div className={styles.responseExampleCard} style={{ maxWidth: '100%', flex: '1 1 100%' }}>
+            <h4>Webhook Payload Example: transcript.ready</h4>
+            <CopyableCode language="json">{postCallCallbackWebhookJson}</CopyableCode>
           </div>
         </div>
       </section>
