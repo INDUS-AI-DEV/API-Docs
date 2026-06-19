@@ -35,9 +35,9 @@ curl --location 'https://developer.induslabs.io/api/agents' \
 
 2) Start / connect to a LiveKit session for a specific agent
 
-This endpoint accepts a JSON body containing `api_key`, `agent_id`, and optional `dispatch` metadata.
-The `dispatch` object is forwarded to the LiveKit agent dispatch payload so your agent can receive customer or CRM context.
-Do not include secrets inside `dispatch`.
+This endpoint accepts a JSON body containing `api_key`, `agent_id`, and optional `call_infields` metadata.
+The `call_infields` object is forwarded to the LiveKit agent dispatch payload so your agent can receive customer or CRM context.
+Do not include secrets inside `call_infields`.
 
 ```bash
 curl --location 'https://developer.induslabs.io/api/livekit' \
@@ -46,8 +46,8 @@ curl --location 'https://developer.induslabs.io/api/livekit' \
 --data '{
   "api_key": "YOUR_API_KEY",
   "agent_id": "YOUR_AGENT_ID",
-  "dispatch": {
-    "customer_name": "Manish",
+  "call_infields": {
+    "customer_name": "Aarav Sharma",
     "phone_number": "+919999999999",
     "crm_id": "CRM_123"
   }
@@ -57,8 +57,8 @@ curl --location 'https://developer.induslabs.io/api/livekit' \
 Compatibility note:
 
 - Custom metadata can also be sent as top-level fields beside `api_key` and `agent_id`.
-- Prefer the nested `dispatch` object for new integrations.
-- If the same key is sent top-level and inside `dispatch`, the value inside `dispatch` wins.
+- Prefer the nested `call_infields` object for new integrations.
+- If the same key is sent top-level and inside `call_infields`, the value inside `call_infields` wins.
 - The backend adds `agent_id` and agent config fields such as `voice_id`, `language`, and `starting_instructions` to the final dispatch payload.
 
 ## React + TypeScript: Connect to LiveKit
@@ -100,8 +100,8 @@ async function startLivekit(agentId: string): Promise<LivekitSession> {
     body: JSON.stringify({
       api_key: API_KEY,
       agent_id: agentId,
-      dispatch: {
-        customer_name: "Manish",
+      call_infields: {
+        customer_name: "Aarav Sharma",
         phone_number: "+919999999999",
         crm_id: "CRM_123"
       }
@@ -158,7 +158,7 @@ The `/api/livekit` response should return the LiveKit server `url` and `token`. 
 
 - Replace the `api_key` with your own API key; do not commit keys to source control.
 - The `agent_id` identifies the configured voice agent to connect to.
-- Use `dispatch` for customer/session metadata that the LiveKit agent should receive.
+- Use `call_infields` for customer/session metadata that the LiveKit agent should receive.
 - Responses will be in `application/json` and include any session/connection details required to join the LiveKit room or control the agent.
 
 If you want, I can expand this page with response schemas, curl examples that include headers for authorization rather than a secret in the body, SDK snippets (Node/Python), and a short walkthrough for wiring STT → NLU → TTS flows.

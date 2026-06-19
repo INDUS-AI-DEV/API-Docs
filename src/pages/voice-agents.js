@@ -22,8 +22,8 @@ const livekitCurl = `curl -N -X POST \\
   -d '{
     "api_key": "YOUR_API_KEY",
     "agent_id": "AGENT_ID",
-    "dispatch": {
-      "customer_name": "Manish",
+    "call_infields": {
+      "customer_name": "Aarav Sharma",
       "phone_number": "+919999999999",
       "crm_id": "CRM_123"
     }
@@ -68,8 +68,8 @@ async function startLivekit(agentId: string): Promise<LivekitSession> {
     body: JSON.stringify({
       api_key: API_KEY,
       agent_id: agentId,
-      dispatch: {
-        customer_name: "Manish",
+      call_infields: {
+        customer_name: "Aarav Sharma",
         phone_number: "+919999999999",
         crm_id: "CRM_123"
       }
@@ -176,8 +176,8 @@ const resp = await fetch("https://developer.induslabs.io/api/livekit", {
   body: JSON.stringify({
     api_key: process.env.NEXT_PUBLIC_INDUS_API_KEY,
     agent_id: "AGENT_ID",
-    dispatch: {
-      customer_name: "Manish",
+    call_infields: {
+      customer_name: "Aarav Sharma",
       phone_number: "+919999999999",
       crm_id: "CRM_123"
     }
@@ -266,8 +266,8 @@ console.log(await resp.json());`,
       payload = {
           "api_key": "YOUR_API_KEY",
           "agent_id": "AGT_E882B100",
-          "dispatch": {
-              "customer_name": "Manish",
+          "call_infields": {
+              "customer_name": "Aarav Sharma",
               "phone_number": "+919999999999",
               "crm_id": "CRM_123",
           },
@@ -285,8 +285,8 @@ console.log(await resp.json());`,
 const payload = {
   api_key: "YOUR_API_KEY",
   agent_id: "AGT_E882B100",
-  dispatch: {
-    customer_name: "Manish",
+  call_infields: {
+    customer_name: "Aarav Sharma",
     phone_number: "+919999999999",
     crm_id: "CRM_123",
   },
@@ -347,14 +347,14 @@ export default function VoiceAgentsPage() {
       description: 'Request LiveKit session details for a given agent so clients can join the voice session.',
       notes: [
         'Returns a direct access token and host URL for LiveKit connection.',
-        'Optional dispatch metadata is forwarded to the LiveKit agent dispatch payload. Use the nested dispatch object for custom fields. Top-level custom fields are also accepted for compatibility.',
-        'Do not put secrets in dispatch metadata. The api_key is only used for authentication and is not forwarded to LiveKit dispatch.',
+        'Optional call input fields are forwarded to the LiveKit agent dispatch payload. Use the nested call_infields object for custom fields. Top-level custom fields are also accepted for compatibility.',
+        'Do not put secrets in call_infields metadata. The api_key is only used for authentication and is not forwarded to LiveKit dispatch.',
       ],
       inputs: [
         { name: 'api_key', type: 'string', defaultValue: 'required', description: 'API key used for authentication.' },
         { name: 'agent_id', type: 'string', defaultValue: 'required', description: 'ID of the agent to connect to.' },
-        { name: 'dispatch', type: 'object', defaultValue: 'optional', description: 'Custom metadata forwarded to the LiveKit agent dispatch payload, for example customer_name, phone_number, or crm_id.' },
-        { name: 'dispatch.*', type: 'string | number | boolean | object', defaultValue: 'optional', description: 'Arbitrary custom metadata fields. If the same key is sent both top-level and inside dispatch, the dispatch value wins.' },
+        { name: 'call_infields', type: 'object', defaultValue: 'optional', description: 'Custom call input fields forwarded to the LiveKit agent dispatch payload, for example customer_name, phone_number, or crm_id.' },
+        { name: 'call_infields.*', type: 'string | number | boolean | object', defaultValue: 'optional', description: 'Arbitrary custom metadata fields. If the same key is sent both top-level and inside call_infields, the call_infields value wins.' },
       ],
       outputs: [
         { name: '200 OK', type: 'application/json', defaultValue: '-', description: 'LiveKit connection details and metadata.' },
@@ -362,7 +362,7 @@ export default function VoiceAgentsPage() {
       ],
       examples: [
         { label: 'cURL', language: 'bash', code: livekitCurl },
-        { label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/livekit"\npayload = {\n    "api_key": "YOUR_API_KEY",\n    "agent_id": "AGT_E882B100",\n    "dispatch": {\n        "customer_name": "Manish",\n        "phone_number": "+919999999999",\n        "crm_id": "CRM_123",\n    },\n}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())` },
+        { label: 'Python', language: 'python', code: `import requests\n\nurl = "https://developer.induslabs.io/api/livekit"\npayload = {\n    "api_key": "YOUR_API_KEY",\n    "agent_id": "AGT_E882B100",\n    "call_infields": {\n        "customer_name": "Aarav Sharma",\n        "phone_number": "+919999999999",\n        "crm_id": "CRM_123",\n    },\n}\n\nresp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)\nresp.raise_for_status()\nprint(resp.json())` },
         { label: 'React + TypeScript', language: 'tsx', code: reactTsLivekitQuick },
       ],
     },
