@@ -35,14 +35,31 @@ curl --location 'https://developer.induslabs.io/api/agents' \
 
 2) Start / connect to a LiveKit session for a specific agent
 
-This endpoint accepts a JSON body containing `api_key` and `agent_id`.
+This endpoint accepts a JSON body containing `api_key`, `agent_id`, and optional `dispatch` metadata.
+The `dispatch` object is forwarded to the LiveKit agent dispatch payload so your agent can receive customer or CRM context.
+Do not include secrets inside `dispatch`.
 
 ```bash
 curl --location 'https://developer.induslabs.io/api/livekit' \
 --header 'accept: application/json' \
 --header 'Content-Type: application/json' \
---data '{"api_key": "YOUR_API_KEY", "agent_id": "YOUR_AGENT_ID"}'
+--data '{
+  "api_key": "YOUR_API_KEY",
+  "agent_id": "YOUR_AGENT_ID",
+  "dispatch": {
+    "customer_name": "Manish",
+    "phone_number": "+919999999999",
+    "crm_id": "CRM_123"
+  }
+}'
 ```
+
+Compatibility note:
+
+- Custom metadata can also be sent as top-level fields beside `api_key` and `agent_id`.
+- Prefer the nested `dispatch` object for new integrations.
+- If the same key is sent top-level and inside `dispatch`, the value inside `dispatch` wins.
+- The backend adds `agent_id` and agent config fields such as `voice_id`, `language`, and `starting_instructions` to the final dispatch payload.
 
 ## React + TypeScript: Connect to LiveKit
 
@@ -80,7 +97,15 @@ async function startLivekit(agentId: string): Promise<LivekitSession> {
   const res = await fetch(`${API_BASE}/livekit`, {
     method: "POST",
     headers: { "Content-Type": "application/json", accept: "application/json" },
-    body: JSON.stringify({ api_key: API_KEY, agent_id: agentId })
+    body: JSON.stringify({
+      api_key: API_KEY,
+      agent_id: agentId,
+      dispatch: {
+        customer_name: "Manish",
+        phone_number: "+919999999999",
+        crm_id: "CRM_123"
+      }
+    })
   });
   if (!res.ok) throw new Error("Failed to start LiveKit");
   return res.json(); // expected to include { url, token }
@@ -133,6 +158,7 @@ The `/api/livekit` response should return the LiveKit server `url` and `token`. 
 
 - Replace the `api_key` with your own API key; do not commit keys to source control.
 - The `agent_id` identifies the configured voice agent to connect to.
+- Use `dispatch` for customer/session metadata that the LiveKit agent should receive.
 - Responses will be in `application/json` and include any session/connection details required to join the LiveKit room or control the agent.
 
 If you want, I can expand this page with response schemas, curl examples that include headers for authorization rather than a secret in the body, SDK snippets (Node/Python), and a short walkthrough for wiring STT → NLU → TTS flows.
