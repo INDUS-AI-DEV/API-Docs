@@ -928,7 +928,10 @@ const groups = [
         title: 'Create Call Infield',
         description: 'Creates an input field definition for the agent.',
         badges: ['bearer', 'envelope'],
-        notes: ['Supported field_type values: TEXT, DATE, BOOLEAN, FIXED, NUMBER.'],
+        notes: [
+          'Supported field_type values: TEXT, DATE, BOOLEAN, FIXED, NUMBER.',
+          'field_name is the key you send per call and the placeholder you use in prompts, e.g. {customer_name}. For voice-agent phone calls, send values as flat keys in agent_config on POST /api/calls/click2call (see Developer Click2Call APIs, Voice-Agent Calls). For web calls, send them in call_infields on POST /api/livekit.',
+        ],
         inputs: [
           { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>.' },
           { name: 'agent_id', type: 'path string', defaultValue: 'required', description: 'Agent identifier.' },

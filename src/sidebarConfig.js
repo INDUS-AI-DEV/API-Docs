@@ -108,6 +108,7 @@ const sections = [
       { label: 'Introduction', page: 'developer-click2call', id: 'developer-click2call-introduction' },
       { label: 'login', page: 'developer-click2call', id: 'developer-click2call-post-login', method: 'POST' },
       { label: 'calls/click2call', page: 'developer-click2call', id: 'developer-click2call-post-click2call', method: 'POST' },
+      { label: 'Voice-Agent Calls (AGT_)', page: 'developer-click2call', id: 'developer-click2call-voice-agent-calls' },
       { label: 'calls/recent', page: 'developer-click2call', id: 'developer-click2call-get-recent', method: 'GET' },
       { label: 'calls/{call_id}/transcript', page: 'developer-click2call', id: 'developer-click2call-get-transcript', method: 'GET' },
       { label: 'C2C Call Statuses', page: 'developer-click2call', id: 'developer-click2call-statuses' },
