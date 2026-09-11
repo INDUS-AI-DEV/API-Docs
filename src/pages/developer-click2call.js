@@ -133,6 +133,16 @@ payload = {
 resp = requests.post(url, json=payload, headers=headers, timeout=60)
 print(resp.status_code, resp.json())`;
 
+const defineInfieldCurl = `curl -X POST \\
+  "https://developer.induslabs.io/api/agents/AGT_E882B100/call_infields" \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -d '{
+    "field_name": "customer_name",
+    "field_type": "TEXT",
+    "is_visible": true
+  }'`;
+
 const agentPromptTemplateExample = `System prompt:
 You are a collections assistant for Acme Finance. You are speaking with {customer_name}.
 Their outstanding amount is Rs {loan_amount}, due on {due_date}. CRM reference: {crm_id}.
@@ -711,8 +721,19 @@ export default function DeveloperClick2CallPage() {
         <div className={styles.callout}>
           <strong>Passing call infields in agent_config</strong>
           <ol>
-            <li>In the agent&apos;s system prompt or first message, write placeholders with single curly braces, for example <code>{'{customer_name}'}</code>.</li>
-            <li>On each request, send the values as flat keys in <code>agent_config</code>. Key names must match the placeholders exactly (case-sensitive).</li>
+            <li>
+              Define each infield on the agent: in the dashboard (Agent tab, Call Infields), or with{' '}
+              <code>POST /api/agents/{'{agent_id}'}/call_infields</code> (see{' '}
+              <a href="/developer-agent-management#developer-agent-management-call-infields">Call Infields</a>). The{' '}
+              <code>field_name</code> you define, e.g. <code>customer_name</code>, is the key you send on each call.
+              Defining fields is recommended so every integration uses the same names; substitution itself works for any key you send.
+            </li>
+            <li>
+              Use the field in the agent&apos;s system prompt or first message as a placeholder with single curly braces, e.g.{' '}
+              <code>{'{customer_name}'}</code>. Make sure that prompt is in the agent&apos;s current (published) config.
+            </li>
+            <li>On each click2call request, send the values as flat keys in <code>agent_config</code>. Key names must match the placeholders exactly (case-sensitive).</li>
+            <li>When the call connects, the agent replaces each placeholder with the value you sent for that call.</li>
           </ol>
           <ul>
             <li>Do not nest the values under <code>call_infields</code>. Unlike <code>POST /api/livekit</code>, this endpoint does not unwrap a nested object.</li>
@@ -741,15 +762,19 @@ export default function DeveloperClick2CallPage() {
         </div>
         <div className={styles.responseExamples}>
           <div className={styles.responseExampleCard}>
-            <h4>Agent Prompt Using Infields</h4>
+            <h4>Step 1: Define an Infield on the Agent</h4>
+            <CopyableCode language="bash">{defineInfieldCurl}</CopyableCode>
+          </div>
+          <div className={styles.responseExampleCard}>
+            <h4>Step 2: Agent Prompt Using Infields</h4>
             <CopyableCode language="text">{agentPromptTemplateExample}</CopyableCode>
           </div>
           <div className={styles.responseExampleCard}>
-            <h4>cURL</h4>
+            <h4>Step 3: Place the Call (cURL)</h4>
             <CopyableCode language="bash">{agentClick2callCurl}</CopyableCode>
           </div>
           <div className={styles.responseExampleCard}>
-            <h4>Python</h4>
+            <h4>Step 3: Place the Call (Python)</h4>
             <CopyableCode language="python">{agentClick2callPython}</CopyableCode>
           </div>
           <div className={styles.responseExampleCard}>

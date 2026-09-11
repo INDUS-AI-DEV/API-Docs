@@ -151,8 +151,19 @@ Use `agent_config` to pass **call infields**: per-call values such as the custom
 
 ### Call infields in `agent_config`
 
-1. In the agent's system prompt or first message, write placeholders with single curly braces, for example `{customer_name}`.
-2. On each request, send the values as **flat keys** in `agent_config`. Key names must match the placeholders exactly (case-sensitive).
+1. **Define each infield on the agent.** Use the dashboard (Agent tab, Call Infields) or `POST /api/agents/{agent_id}/call_infields`. The `field_name` you define, for example `customer_name`, is the key you send on each call. Defining fields is recommended so every integration uses the same names; substitution itself works for any key you send.
+
+   ```bash
+   curl -X POST \
+     "https://developer.induslabs.io/api/agents/AGT_E882B100/call_infields" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <access_token>" \
+     -d '{"field_name": "customer_name", "field_type": "TEXT", "is_visible": true}'
+   ```
+
+2. **Use the field in the agent's prompt.** In the system prompt or first message, write a placeholder with single curly braces, for example `{customer_name}`. Make sure that prompt is in the agent's current (published) config.
+3. **Send the values on each call** as **flat keys** in `agent_config`. Key names must match the placeholders exactly (case-sensitive).
+4. When the call connects, the agent replaces each placeholder with the value you sent for that call.
 
 - Do **not** nest the values under `call_infields`. Unlike `POST /api/livekit`, this endpoint does not unwrap a nested object.
 - If a placeholder has no matching key, the agent says it as-is (for example it speaks the text `{customer_name}`).
