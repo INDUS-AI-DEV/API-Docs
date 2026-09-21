@@ -44,6 +44,14 @@ LOGIN_RESP=$(curl -s -X POST "$BASE_URL/api/login" \\
 
 ACCESS_TOKEN=$(echo "$LOGIN_RESP" | jq -r '.data.access_token')
 
+# Discover the C2C DIDs assigned to you
+curl -s -X GET "$BASE_URL/api/mobile-numbers" \\
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+
+# Confirm there is free concurrency before dialing
+curl -s -X GET "$BASE_URL/api/mobile-numbers/channel-allocation/utilization?did=919484956750" \\
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+
 CALL_RESP=$(curl -s -X POST "$BASE_URL/api/calls/click2call" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $ACCESS_TOKEN" \\
@@ -62,6 +70,10 @@ curl -s -X GET "$BASE_URL/api/calls/recent?limit=10&page=1" \\
   -H "Authorization: Bearer $ACCESS_TOKEN"
 
 curl -s -X GET "$BASE_URL/api/calls/$CALL_ID/transcript" \\
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+
+# If the transcript failed, reprocess the stored recording
+curl -s -X POST "$BASE_URL/api/calls/$CALL_ID/transcript/retry" \\
   -H "Authorization: Bearer $ACCESS_TOKEN"`;
 
 const loginSuccessJson = `{
@@ -222,6 +234,7 @@ const recentCallsSuccessJson = `{
         "did": "919484956750",
         "duration": "52",
         "answer_duration": "48",
+        "hangup_cause": "ANSWER",
         "call_type": "C2C",
         "transcript_enabled": true,
         "transcript_status": "ready",
@@ -264,6 +277,7 @@ const transcriptReadyJson = `{
     "customer_number": "xxxxx9999999",
     "agent_number": "xxxxx8888888",
     "duration": "52",
+    "hangup_cause": "ANSWER",
     "recording": "https://signed-recording-url",
     "transcript": {
       "transcript_id": "67c7....",
@@ -348,9 +362,295 @@ const transcriptFailedCallbackJson = `{
   }
 }`;
 
+/* ---------------------------------------------------------------
+   Token refresh
+   --------------------------------------------------------------- */
+
+const refreshTokenCurl = `curl -X POST \\
+  "https://developer.induslabs.io/api/refresh_token?refresh_token=<refresh_token>" \\
+  -H "Accept: application/json"`;
+
+const refreshTokenSuccessJson = `{
+  "status_code": 200,
+  "message": "Token refreshed successfully",
+  "error": null,
+  "data": {
+    "access_token": "<new_jwt_access_token>",
+    "refresh_token": "<same_refresh_token>",
+    "token_type": "bearer"
+  }
+}`;
+
+/* ---------------------------------------------------------------
+   DID inventory and channel allocation
+   --------------------------------------------------------------- */
+
+const mobileNumbersCurl = `curl -X GET \\
+  "https://developer.induslabs.io/api/mobile-numbers" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -H "Accept: application/json"`;
+
+const mobileNumbersSuccessJson = `{
+  "status_code": 200,
+  "message": "Mobile numbers fetched successfully",
+  "error": null,
+  "data": {
+    "user_id": "USR_2079589C",
+    "number_type": "c2c",
+    "count": 2,
+    "pool_total_channels": 50,
+    "pool_active_channels": 7,
+    "numbers": [
+      {
+        "phone_number_id": "PN_1234567890",
+        "mobile_number": "919484956750",
+        "did_status": "active",
+        "max_channels": 20,
+        "allocated_channels": 5,
+        "active_channels": 3
+      },
+      {
+        "phone_number_id": "PN_1234567891",
+        "mobile_number": "919484956751",
+        "did_status": "expired",
+        "max_channels": 20,
+        "allocated_channels": 0,
+        "active_channels": 0
+      }
+    ]
+  }
+}`;
+
+const channelAllocationGetCurl = `curl -X GET \\
+  "https://developer.induslabs.io/api/mobile-numbers/channel-allocation" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -H "Accept: application/json"`;
+
+const channelAllocationSuccessJson = `{
+  "status_code": 200,
+  "message": "Channel allocation fetched successfully",
+  "error": null,
+  "data": {
+    "user_id": "USR_2079589C",
+    "pool_total_channels": 50,
+    "pool_active_channels": 7,
+    "pool_available_channels": 43,
+    "count": 2,
+    "numbers": [
+      {
+        "phone_number_id": "PN_1234567890",
+        "mobile_number": "919484956750",
+        "did_status": "active",
+        "max_channels": 20,
+        "allocated_channels": 5,
+        "active_channels": 3,
+        "available_channels": 2
+      },
+      {
+        "phone_number_id": "PN_1234567891",
+        "mobile_number": "919484956751",
+        "did_status": "active",
+        "max_channels": 20,
+        "allocated_channels": 10,
+        "active_channels": 4,
+        "available_channels": 6
+      }
+    ]
+  }
+}`;
+
+const channelAllocationPutCurl = `curl -X PUT \\
+  "https://developer.induslabs.io/api/mobile-numbers/channel-allocation" \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -d '{
+    "allocations": [
+      { "did": "919484956750", "allocated_channels": 5 },
+      { "did": "919484956751", "allocated_channels": 10 },
+      { "phone_number_id": "PN_1234567892", "allocated_channels": 0 }
+    ]
+  }'`;
+
+const channelAllocationPatchCurl = `curl -X PATCH \\
+  "https://developer.induslabs.io/api/mobile-numbers/channel-allocation" \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -d '{
+    "allocations": [
+      { "did": "919484956750", "allocated_channels": 8 }
+    ]
+  }'`;
+
+const channelAllocationErrorJson = `{
+  "status_code": 422,
+  "message": null,
+  "error": "Total allocated channels (60) exceed the shared pool (50).",
+  "data": null
+}`;
+
+const channelUtilizationCurl = `curl -X GET \\
+  "https://developer.induslabs.io/api/mobile-numbers/channel-allocation/utilization" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -H "Accept: application/json"
+
+# Single DID
+curl -X GET \\
+  "https://developer.induslabs.io/api/mobile-numbers/channel-allocation/utilization?did=919484956750" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -H "Accept: application/json"`;
+
+const channelUtilizationSuccessJson = `{
+  "status_code": 200,
+  "message": "Channel utilization fetched successfully",
+  "error": null,
+  "data": {
+    "user_id": "USR_2079589C",
+    "pool_total_channels": 50,
+    "pool_active_channels": 7,
+    "pool_available_channels": 43,
+    "numbers": [
+      {
+        "phone_number_id": "PN_1234567890",
+        "did": null,
+        "allocated_channels": 5,
+        "active_channels": 3,
+        "available_channels": 2
+      }
+    ]
+  }
+}`;
+
+/* ---------------------------------------------------------------
+   Transcript retry
+   --------------------------------------------------------------- */
+
+const transcriptRetryCurl = `curl -X POST \\
+  "https://developer.induslabs.io/api/calls/call_ab12cd34ef56gh78/transcript/retry" \\
+  -H "Authorization: Bearer <access_token>"`;
+
+const transcriptRetrySuccessJson = `{
+  "status_code": 200,
+  "message": "Transcript retry queued",
+  "error": null,
+  "data": {
+    "call_id": "call_ab12cd34ef56gh78",
+    "transcript_status": "pending",
+    "status": "Answered",
+    "recording": "https://signed-recording-url"
+  }
+}`;
+
+/* ---------------------------------------------------------------
+   Inbound DID callback configuration
+   --------------------------------------------------------------- */
+
+const inboundCallbackPostCurl = `curl -X POST \\
+  "https://developer.induslabs.io/api/calls/inbound-callback-url" \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -d '{
+    "phone_number": "919484956750",
+    "callback_url": "https://example.com/webhooks/indus/inbound",
+    "transcript": true
+  }'`;
+
+const inboundCallbackPostSuccessJson = `{
+  "status_code": 200,
+  "message": "Inbound callback configuration updated",
+  "error": null,
+  "data": {
+    "phone_number_id": "PN_1234567890",
+    "phone_number": "919484956750",
+    "assigned_user_id": "USR_2079589C",
+    "callback_url": "https://example.com/webhooks/indus/inbound",
+    "transcript": true
+  }
+}`;
+
+const inboundCallbackClearCurl = `curl -X POST \\
+  "https://developer.induslabs.io/api/calls/inbound-callback-url" \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer <access_token>" \\
+  -d '{
+    "phone_number_id": "PN_1234567890",
+    "callback_url": null,
+    "transcript": false
+  }'`;
+
+const inboundCallbackGetCurl = `curl -X GET \\
+  "https://developer.induslabs.io/api/calls/inbound-callback-url?configured_only=true" \\
+  -H "Authorization: Bearer <access_token>"`;
+
+const inboundCallbackGetSuccessJson = `{
+  "status_code": 200,
+  "message": "Inbound callback configurations fetched",
+  "error": null,
+  "data": {
+    "user_id": "USR_2079589C",
+    "configured_only": true,
+    "count": 1,
+    "callbacks": [
+      {
+        "phone_number_id": "PN_1234567890",
+        "phone_number": "919484956750",
+        "assigned_user_id": "USR_2079589C",
+        "assigned_org_id": null,
+        "assigned_agent_id": null,
+        "assigned_workflow_id": null,
+        "callback_url": "https://example.com/webhooks/indus/inbound",
+        "transcript": true,
+        "status": "active",
+        "provider_name": "greeter",
+        "metadata_type": "c2c"
+      }
+    ]
+  }
+}`;
+
+/* ---------------------------------------------------------------
+   Provider call-log ingest
+   --------------------------------------------------------------- */
+
+const callLogIngestCurl = `curl -X POST \\
+  "https://developer.induslabs.io/api/calls/call-log" \\
+  -H "Content-Type: application/json" \\
+  -H "X-Greeter-Username: <provider_username>" \\
+  -H "X-Greeter-Password: <provider_password>" \\
+  -d '{
+    "recording": "https://example.com/recording.wav",
+    "customer_number": "919876543210",
+    "agent_number": "918888888888",
+    "did": "919484956750",
+    "call_date": "2026-04-06 18:20:00",
+    "duration": "120",
+    "answer_duration": "110",
+    "status": "Answered",
+    "call_type": "outbound",
+    "customer_crm_id": "call_ab12cd34ef56gh78",
+    "hangup_cause": "ANSWER"
+  }'`;
+
+const callLogIngestSuccessJson = `{
+  "status_code": 200,
+  "message": "Call log stored",
+  "error": null,
+  "data": {
+    "call_id": "call_ab12cd34ef56gh78",
+    "status": "Answered",
+    "recording": "https://example.com/recording.wav"
+  }
+}`;
+
+const callLogIngestUnauthorizedJson = `{
+  "status_code": 401,
+  "message": null,
+  "error": "Missing auth. Use X-Greeter-Username/X-Greeter-Password, Authorization Basic/Bearer, or X-API-Key",
+  "data": null
+}`;
+
 const developerQuickIntegration = {
   title: 'Quick Integration',
-  description: 'Reference snippets for login, click2call creation, and transcript polling.',
+  description: 'Reference snippets for login, DID capacity, click2call creation, inbound webhooks, and transcript polling.',
   defaultApi: 'developer-click2call-post-login',
   apis: [
     {
@@ -421,6 +721,58 @@ const developerQuickIntegration = {
           label: 'cURL',
           language: 'bash',
           code: recentCallsCurl,
+        },
+      ],
+    },
+    {
+      id: 'developer-click2call-get-mobile-numbers',
+      label: 'GET /api/mobile-numbers',
+      defaultLanguage: 'curl',
+      languages: [
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: mobileNumbersCurl,
+        },
+      ],
+    },
+    {
+      id: 'developer-click2call-put-channel-allocation',
+      label: 'PUT /api/mobile-numbers/channel-allocation',
+      defaultLanguage: 'curl',
+      languages: [
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: channelAllocationPutCurl,
+        },
+      ],
+    },
+    {
+      id: 'developer-click2call-get-channel-utilization',
+      label: 'GET /api/mobile-numbers/channel-allocation/utilization',
+      defaultLanguage: 'curl',
+      languages: [
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: channelUtilizationCurl,
+        },
+      ],
+    },
+    {
+      id: 'developer-click2call-post-inbound-callback-url',
+      label: 'POST /api/calls/inbound-callback-url',
+      defaultLanguage: 'curl',
+      languages: [
+        {
+          id: 'curl',
+          label: 'cURL',
+          language: 'bash',
+          code: inboundCallbackPostCurl,
         },
       ],
     },
@@ -556,6 +908,309 @@ const endpoints = [
       { label: 'Success: Transcript Failed (200)', language: 'json', code: transcriptFailedJson },
     ],
   },
+  {
+    id: 'developer-click2call-post-refresh-token',
+    method: 'POST',
+    path: '/api/refresh_token',
+    title: 'Refresh Access Token',
+    description: 'Exchange a valid refresh token for a new access token without asking the user to log in again.',
+    notes: [
+      'refresh_token is sent as a query parameter, not in the request body.',
+      'The refresh token itself is not rotated. The same refresh token is returned and stays valid until it expires.',
+      'The refresh token must carry the session it was issued with. Tokens issued outside a login session are rejected.',
+    ],
+    inputs: [
+      { name: 'refresh_token', type: 'query string', defaultValue: 'required', description: 'Refresh token returned by POST /api/login.' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'New access token issued.' },
+      { name: '400 Bad Request', type: 'application/json', description: 'Refresh token could not be decoded or carries no session.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Refresh token is expired, revoked, or invalid.' },
+      { name: '422 Unprocessable Entity', type: 'application/json', description: 'refresh_token query parameter is missing.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: refreshTokenCurl },
+      { label: 'Success Response (200)', language: 'json', code: refreshTokenSuccessJson },
+    ],
+  },
+  {
+    id: 'developer-click2call-get-mobile-numbers',
+    method: 'GET',
+    path: '/api/mobile-numbers',
+    title: 'List Assigned C2C DIDs',
+    description: 'List the C2C DIDs assigned to the authenticated user, with a lightweight channel snapshot for each number.',
+    notes: [
+      'Requires bearer access token.',
+      'Only numbers assigned to you whose metadata type is c2c are returned. Voice-agent numbers are not listed here.',
+      'Use this endpoint to discover the did values you can pass to POST /api/calls/click2call.',
+      'active_channels is counted from live call records, so it reflects real concurrency rather than a stored counter.',
+      'Stale channel reservations are swept before the response is built, so the counts are current at read time.',
+      'Up to 500 numbers are returned. There is no pagination on this endpoint.',
+    ],
+    inputs: [
+      { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Assigned C2C numbers with pool totals and per-DID channel counts.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: mobileNumbersCurl },
+      { label: 'Success Response (200)', language: 'json', code: mobileNumbersSuccessJson },
+    ],
+  },
+  {
+    id: 'developer-click2call-get-channel-allocation',
+    method: 'GET',
+    path: '/api/mobile-numbers/channel-allocation',
+    title: 'Get DID Channel Allocation',
+    description: 'Fetch the shared channel pool summary and the full per-DID allocation and utilization state.',
+    notes: [
+      'Requires bearer access token.',
+      'pool_total_channels is your total concurrent capacity. It comes from your C2C batch totals, falling back to the sum of purchased channels across assigned C2C numbers.',
+      'available_channels is allocated_channels minus active_channels for that DID, floored at zero.',
+      'pool_active_channels is always your account-wide live channel count.',
+      'If you have never saved an explicit allocation map, the backend seeds one from purchased channel values. Save an explicit map with PUT to normalize the configuration.',
+    ],
+    inputs: [
+      { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Pool summary plus per-DID allocated, active, and available channel counts.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: channelAllocationGetCurl },
+      { label: 'Success Response (200)', language: 'json', code: channelAllocationSuccessJson },
+    ],
+  },
+  {
+    id: 'developer-click2call-put-channel-allocation',
+    method: 'PUT',
+    path: '/api/mobile-numbers/channel-allocation',
+    title: 'Replace DID Channel Allocation',
+    description: 'Replace the entire DID channel allocation map for the authenticated user. Any assigned DID left out of the request is treated as zero allocation.',
+    notes: [
+      'Requires bearer access token.',
+      'This is a full replacement. Omitted DIDs drop to zero allocated channels, so always send your complete map. Use PATCH to change only some DIDs.',
+      'Identify each DID by either did or phone_number_id. Sending both on one item is rejected; sending neither is rejected.',
+      'No DID may appear twice in one request.',
+      'Each allocated_channels must be between 0 and that DID max_channels, and may not drop below the DID current active_channels.',
+      'The sum of all allocated_channels must not exceed pool_total_channels.',
+      'The response body is the same shape as GET /api/mobile-numbers/channel-allocation.',
+    ],
+    inputs: [
+      { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
+      { name: 'allocations', type: 'array', defaultValue: 'required', description: 'Complete list of allocation items. Must contain at least one item.' },
+      { name: 'allocations[].did', type: 'string', defaultValue: 'either this or phone_number_id', description: 'Assigned C2C DID number, e.g. 919484956750.' },
+      { name: 'allocations[].phone_number_id', type: 'string', defaultValue: 'either this or did', description: 'Assigned C2C DID phone_number_id, e.g. PN_1234567890.' },
+      { name: 'allocations[].allocated_channels', type: 'integer', defaultValue: 'required', description: 'Maximum concurrent channels for this DID. Must be 0 or greater.' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Allocation replaced. Returns the updated full allocation state.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
+      { name: '404 Not Found', type: 'application/json', description: 'A DID in the request is not assigned to the current user.' },
+      { name: '422 Unprocessable Entity', type: 'application/json', description: 'Empty allocations, duplicate DID target, allocation above max_channels, allocation below live active channels, or total above the shared pool.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: channelAllocationPutCurl },
+      { label: 'Success Response (200)', language: 'json', code: channelAllocationSuccessJson },
+      { label: 'Validation Error (422)', language: 'json', code: channelAllocationErrorJson },
+    ],
+  },
+  {
+    id: 'developer-click2call-patch-channel-allocation',
+    method: 'PATCH',
+    path: '/api/mobile-numbers/channel-allocation',
+    title: 'Update Some DID Channel Allocations',
+    description: 'Update only the DIDs listed in the request. Every DID not named keeps its current allocation.',
+    notes: [
+      'Requires bearer access token.',
+      'Use this instead of PUT when you only need to retune a few DIDs and do not want to resend the whole map.',
+      'The same identification, max_channels, active-channel, and shared-pool rules as the PUT endpoint apply.',
+      'The response body is the same shape as GET /api/mobile-numbers/channel-allocation.',
+    ],
+    inputs: [
+      { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
+      { name: 'allocations', type: 'array', defaultValue: 'required', description: 'Partial list of allocation items. Must contain at least one item. Unlisted DIDs are left unchanged.' },
+      { name: 'allocations[].did', type: 'string', defaultValue: 'either this or phone_number_id', description: 'Assigned C2C DID number, e.g. 919484956750.' },
+      { name: 'allocations[].phone_number_id', type: 'string', defaultValue: 'either this or did', description: 'Assigned C2C DID phone_number_id, e.g. PN_1234567890.' },
+      { name: 'allocations[].allocated_channels', type: 'integer', defaultValue: 'required', description: 'New maximum concurrent channels for this DID. Must be 0 or greater.' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Allocation updated. Returns the updated full allocation state.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
+      { name: '404 Not Found', type: 'application/json', description: 'A DID in the request is not assigned to the current user.' },
+      { name: '422 Unprocessable Entity', type: 'application/json', description: 'Empty allocations, duplicate DID target, allocation above max_channels, allocation below live active channels, or total above the shared pool.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: channelAllocationPatchCurl },
+      { label: 'Success Response (200)', language: 'json', code: channelAllocationSuccessJson },
+      { label: 'Validation Error (422)', language: 'json', code: channelAllocationErrorJson },
+    ],
+  },
+  {
+    id: 'developer-click2call-get-channel-utilization',
+    method: 'GET',
+    path: '/api/mobile-numbers/channel-allocation/utilization',
+    title: 'Get Live Channel Utilization',
+    description: 'Lightweight live utilization counters for dashboards and pre-call capacity checks. Returns the same numbers as the allocation endpoint without the DID metadata.',
+    notes: [
+      'Requires bearer access token.',
+      'Poll this before a burst of calls to confirm you have free channels, rather than relying on the warning in the click2call response.',
+      'Pass did to narrow the numbers array to one DID. The pool counters stay account-wide either way.',
+      'The did field in each numbers item is currently always null. Use phone_number_id to identify the DID, or read the number from GET /api/mobile-numbers/channel-allocation.',
+    ],
+    inputs: [
+      { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
+      { name: 'did', type: 'query string', defaultValue: 'optional', description: 'Restrict the numbers array to a single assigned C2C DID, e.g. 919484956750.' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Pool and per-DID utilization counters.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
+      { name: '404 Not Found', type: 'application/json', description: 'The did filter does not match any DID assigned to you.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: channelUtilizationCurl },
+      { label: 'Success Response (200)', language: 'json', code: channelUtilizationSuccessJson },
+    ],
+  },
+  {
+    id: 'developer-click2call-post-transcript-retry',
+    method: 'POST',
+    path: '/api/calls/{call_id}/transcript/retry',
+    title: 'Retry Click2Call Transcript',
+    description: 'Re-run transcript processing for a provider Click2Call whose transcript failed or stalled. The stored recording is reprocessed; the call is not dialed again.',
+    notes: [
+      'Requires bearer access token.',
+      'Only provider Click2Call transcripts can be retried. Voice-agent (AGT_) calls are rejected with 409.',
+      'The call must have been created with transcript: true, and a stored recording must be available.',
+      'Retrying resets transcript_status to pending and clears any previously sent transcript.ready, transcript.failed, and transcript.disabled callback events, so those events can be delivered again.',
+      'Processing runs in the background. Poll GET /api/calls/{call_id}/transcript or wait for the callback.',
+    ],
+    inputs: [
+      { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
+      { name: 'call_id', type: 'path', defaultValue: 'required', description: 'Call ID returned by the click2call endpoint.' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Retry queued. transcript_status is set back to pending.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
+      { name: '403 Forbidden', type: 'application/json', description: 'The call belongs to another user.' },
+      { name: '404 Not Found', type: 'application/json', description: 'call_id not found.' },
+      { name: '409 Conflict', type: 'application/json', description: 'Transcript is disabled for the call, already ready, already processing, a voice-agent call, or no stored recording is available.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: transcriptRetryCurl },
+      { label: 'Success Response (200)', language: 'json', code: transcriptRetrySuccessJson },
+    ],
+  },
+  {
+    id: 'developer-click2call-post-inbound-callback-url',
+    method: 'POST',
+    path: '/api/calls/inbound-callback-url',
+    title: 'Configure Inbound DID Callback',
+    description: 'Set the webhook URL and transcript behavior for calls that arrive on one of your C2C DIDs. Outbound Click2Call uses the per-call callback_url; inbound calls use this per-DID setting.',
+    notes: [
+      'Requires bearer access token.',
+      'Identify the DID with either phone_number_id or phone_number. Sending both is rejected; sending neither is rejected.',
+      'Send callback_url: null to clear the webhook for that DID.',
+      'transcript is a per-DID setting: it decides whether inbound recordings on that number are transcribed. It is sent on every request and defaults to false when omitted.',
+      'When an inbound callback URL is configured, the terminal call event is held until the recording is stored in S3, so the callback carries a usable recording link.',
+      'The DID must already be assigned to a user before a callback URL can be set.',
+    ],
+    inputs: [
+      { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
+      { name: 'phone_number_id', type: 'string', defaultValue: 'either this or phone_number', description: 'DID phone_number_id to configure, e.g. PN_1234567890.' },
+      { name: 'phone_number', type: 'string', defaultValue: 'either this or phone_number_id', description: 'DID number to configure, e.g. 919484956750.' },
+      { name: 'callback_url', type: 'url', defaultValue: 'null', description: 'Public webhook URL for inbound call lifecycle events. Send null to clear it.' },
+      { name: 'transcript', type: 'boolean', defaultValue: 'false', description: 'Set true to transcribe inbound recordings on this DID.' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Inbound callback configuration updated.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
+      { name: '403 Forbidden', type: 'application/json', description: 'The DID is assigned to another user.' },
+      { name: '404 Not Found', type: 'application/json', description: 'Phone number not found.' },
+      { name: '409 Conflict', type: 'application/json', description: 'The phone number is not assigned to any user yet.' },
+      { name: '422 Unprocessable Entity', type: 'application/json', description: 'Neither or both of phone_number_id and phone_number were sent, or callback_url is not a valid URL.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: inboundCallbackPostCurl },
+      { label: 'Success Response (200)', language: 'json', code: inboundCallbackPostSuccessJson },
+      { label: 'cURL: Clear the callback URL', language: 'bash', code: inboundCallbackClearCurl },
+    ],
+  },
+  {
+    id: 'developer-click2call-get-inbound-callback-url',
+    method: 'GET',
+    path: '/api/calls/inbound-callback-url',
+    title: 'List Inbound DID Callback Settings',
+    description: 'List the inbound webhook and transcript settings for every C2C DID assigned to you.',
+    notes: [
+      'Requires bearer access token.',
+      'Use configured_only=true to see just the DIDs that already have a webhook, which is the quickest way to audit inbound coverage.',
+      'callback_url is null for DIDs with no webhook configured.',
+      'Up to 500 numbers are returned. There is no pagination on this endpoint.',
+    ],
+    inputs: [
+      { name: 'Authorization', type: 'header', defaultValue: 'required', description: 'Bearer <access_token>' },
+      { name: 'configured_only', type: 'query boolean', defaultValue: 'false', description: 'Set true to return only DIDs that have an inbound callback URL configured.' },
+      { name: 'user_id', type: 'query string', defaultValue: 'optional', description: 'Superusers only. Inspect another user DID callback configuration. Ignored for regular users.' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Inbound callback configuration for each assigned C2C DID.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'Missing or invalid token.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: inboundCallbackGetCurl },
+      { label: 'Success Response (200)', language: 'json', code: inboundCallbackGetSuccessJson },
+    ],
+  },
+  {
+    id: 'developer-click2call-post-call-log',
+    method: 'POST',
+    path: '/api/calls/call-log',
+    title: 'Ingest Provider Call Log',
+    description: 'Receives the final call result from the telephony provider and closes out the Click2Call record: it stores status, durations, hangup cause, and recording, then starts recording storage and transcript processing.',
+    notes: [
+      'Most integrations never call this endpoint. It is the provider-facing ingest hook; consume the outcome through your callback_url or the recent-logs API instead.',
+      'It is documented here because it is the step that turns a queued call into a terminal status, and because partners running their own telephony can post results into it.',
+      'Unlike the other endpoints on this page, this route is served at the platform API root and is not behind the developer route prefix.',
+      'Accepts application/json, application/x-www-form-urlencoded, and multipart/form-data.',
+      'Field names are case and spacing tolerant. "Customer Number", "customer_number", "Agent Number", "agen_number", "DID", "Virtual Number", and "Hangup Cause" are all accepted.',
+      'customer_crm_id carries the Indus call_id and is how the provider result is matched back to the original Click2Call request.',
+      'Ingest is idempotent. A repeated post for a call already processed updates the stored record but does not re-run the recording pipeline or resend a delivered callback event.',
+      'A terminal status releases the DID channel reservation held by that call.',
+    ],
+    inputs: [
+      { name: 'X-Greeter-Username / X-Greeter-Password', type: 'header', defaultValue: 'one auth mode required', description: 'Provider credential headers.' },
+      { name: 'Authorization', type: 'header', defaultValue: 'one auth mode required', description: 'Basic <provider_credentials> for the provider, or Bearer <access_token> for a user posting their own call result.' },
+      { name: 'X-API-Key', type: 'header', defaultValue: 'one auth mode required', description: 'Developer API key.' },
+      { name: 'auth_user / auth_pass', type: 'query string', defaultValue: 'one auth mode required', description: 'Provider credentials as query parameters, for providers that cannot set headers.' },
+      { name: 'customer_number', type: 'string', defaultValue: 'required', description: 'Customer number on the call.' },
+      { name: 'status', type: 'string', defaultValue: 'required', description: 'Provider call status, e.g. Answered, NoAnswered, failed.' },
+      { name: 'recording', type: 'string', defaultValue: '""', description: 'Provider recording URL or identifier.' },
+      { name: 'agent_number', type: 'string', defaultValue: 'null', description: 'Agent number on the call.' },
+      { name: 'did', type: 'string', defaultValue: 'null', description: 'Caller DID used for the call.' },
+      { name: 'call_date', type: 'string', defaultValue: 'null', description: 'Provider call date/time string, e.g. 2026-04-06 18:20:00.' },
+      { name: 'duration', type: 'string', defaultValue: 'null', description: 'Total call duration in seconds.' },
+      { name: 'answer_duration', type: 'string', defaultValue: 'null', description: 'Connected talk time in seconds.' },
+      { name: 'call_type', type: 'string', defaultValue: 'null', description: 'Call direction/type, e.g. outbound or inbound.' },
+      { name: 'customer_crm_id', type: 'string', defaultValue: 'null', description: 'The Indus call_id this result belongs to.' },
+      { name: 'hangup_cause', type: 'string', defaultValue: 'null', description: 'Provider hangup cause, e.g. ANSWER, BUSY, CANCEL, NOANSWER.' },
+    ],
+    outputs: [
+      { name: '200 OK', type: 'application/json', description: 'Call log stored. Returns the resolved call_id, stored status, and recording.' },
+      { name: '401 Unauthorized', type: 'application/json', description: 'No auth mode supplied, or the supplied credentials are invalid.' },
+      { name: '403 Forbidden', type: 'application/json', description: 'Bearer auth was used for a call belonging to another user.' },
+      { name: '422 Unprocessable Entity', type: 'application/json', description: 'customer_number or status is missing, or the payload failed validation.' },
+      { name: '400 Bad Request', type: 'application/json', description: 'The body could not be parsed in any supported content type.' },
+    ],
+    examples: [
+      { label: 'cURL', language: 'bash', code: callLogIngestCurl },
+      { label: 'Success Response (200)', language: 'json', code: callLogIngestSuccessJson },
+      { label: 'Missing Auth (401)', language: 'json', code: callLogIngestUnauthorizedJson },
+    ],
+  },
 ];
 
 function TableCard({ title, rows, headerLabels = ['Name', 'Type', 'Default', 'Description'] }) {
@@ -662,15 +1317,16 @@ export default function DeveloperClick2CallPage() {
   return (
     <DocsLayout
       title="Developer Domain APIs"
-      description="Login, Click2Call creation, and transcript retrieval APIs"
+      description="Authentication, DID capacity, Click2Call creation, callbacks, and transcript APIs"
       sidebarSections={getSidebarSections('developer-click2call')}
       integration={developerQuickIntegration}
     >
       <section id="developer-click2call-introduction" className={styles.pageIntro}>
-        <h1>Developer Domain APIs: Login, Click2Call, Recent Logs, Transcript Fetch</h1>
+        <h1>Click to Call (C2C) Service APIs</h1>
         <p>
-          This page documents the Click2Call API flow to authenticate, create async click2call jobs,
-          receive callback events, list recent call logs, and fetch transcript status using internal call IDs.
+          This page documents the complete Click2Call surface: authenticate and refresh tokens, inspect your
+          assigned C2C DIDs, distribute concurrent channels across them, create async click2call jobs, receive
+          callback events, configure inbound webhooks, list recent call logs, and fetch or retry transcripts.
           The same Click2Call endpoint can also place calls handled by an Indus voice agent: pass an{' '}
           <code>AGT_</code> agent ID as <code>agent_number</code> (see <a href="#developer-click2call-voice-agent-calls">Voice-Agent Calls</a>).
         </p>
@@ -680,6 +1336,77 @@ export default function DeveloperClick2CallPage() {
             <li>Production: <code>{PROD_BASE_URL}</code></li>
           </ul>
           <p>Click2Call API route prefix: <code>/api</code>.</p>
+        </div>
+        <div className={styles.tableCard}>
+          <h4>API Inventory</h4>
+          <div className={styles.tableScroll}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Endpoint</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Endpoint"><code>POST /api/login</code></td>
+                  <td data-label="Purpose">Authenticate and obtain access and refresh tokens.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>POST /api/refresh_token</code></td>
+                  <td data-label="Purpose">Issue a new access token from a refresh token.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>POST /api/calls/click2call</code></td>
+                  <td data-label="Purpose">Create a Click2Call request, provider or voice agent.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>GET /api/calls/recent</code></td>
+                  <td data-label="Purpose">List and filter recent Click2Call records.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>GET /api/calls/{'{call_id}'}/transcript</code></td>
+                  <td data-label="Purpose">Fetch one call result, recording, and transcript.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>POST /api/calls/{'{call_id}'}/transcript/retry</code></td>
+                  <td data-label="Purpose">Reprocess a failed or stalled transcript.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>GET /api/mobile-numbers</code></td>
+                  <td data-label="Purpose">List assigned C2C DIDs with a channel snapshot.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>GET /api/mobile-numbers/channel-allocation</code></td>
+                  <td data-label="Purpose">Read the shared pool and per-DID allocation state.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>PUT /api/mobile-numbers/channel-allocation</code></td>
+                  <td data-label="Purpose">Replace the full DID allocation map.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>PATCH /api/mobile-numbers/channel-allocation</code></td>
+                  <td data-label="Purpose">Update selected DID allocations only.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>GET /api/mobile-numbers/channel-allocation/utilization</code></td>
+                  <td data-label="Purpose">Live utilization counters for pre-call checks.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>POST /api/calls/inbound-callback-url</code></td>
+                  <td data-label="Purpose">Set the inbound webhook and transcript flag for a DID.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>GET /api/calls/inbound-callback-url</code></td>
+                  <td data-label="Purpose">List inbound webhook settings across your DIDs.</td>
+                </tr>
+                <tr>
+                  <td data-label="Endpoint"><code>POST /api/calls/call-log</code></td>
+                  <td data-label="Purpose">Provider-facing ingest for final call results.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div className={styles.callout}>
           <strong>Common Response Envelope</strong>
@@ -792,10 +1519,78 @@ export default function DeveloperClick2CallPage() {
         </div>
       </section>
 
+      <section id="developer-click2call-capacity-model" className={styles.endpointSection}>
+        <h3 className={styles.anchorTitle}>DID Channel Capacity Model</h3>
+        <p>
+          Provider Click2Call concurrency is governed by a shared channel pool that you distribute across your
+          assigned C2C DIDs. Each accepted call reserves one channel on its DID and releases it when the call
+          reaches a terminal status. Voice-agent (<code>AGT_</code>) calls are outside this model: they consume
+          the purchased channels of the agent outbound number instead.
+        </p>
+        <div className={styles.tableCard}>
+          <h4>Terms</h4>
+          <div className={styles.tableScroll}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Field"><code>pool_total_channels</code></td>
+                  <td data-label="Meaning">Total concurrent capacity for your account. Derived from your C2C batch totals, falling back to the sum of purchased channels across assigned C2C numbers.</td>
+                </tr>
+                <tr>
+                  <td data-label="Field"><code>pool_active_channels</code></td>
+                  <td data-label="Meaning">Channels currently reserved by live Click2Call requests, counted account-wide from live call records.</td>
+                </tr>
+                <tr>
+                  <td data-label="Field"><code>pool_available_channels</code></td>
+                  <td data-label="Meaning"><code>pool_total_channels</code> minus <code>pool_active_channels</code>.</td>
+                </tr>
+                <tr>
+                  <td data-label="Field"><code>max_channels</code></td>
+                  <td data-label="Meaning">Hard ceiling for one DID, set when the number was provisioned. An allocation may never exceed it.</td>
+                </tr>
+                <tr>
+                  <td data-label="Field"><code>allocated_channels</code></td>
+                  <td data-label="Meaning">Concurrent channels you have assigned to one DID. The sum across DIDs may not exceed <code>pool_total_channels</code>.</td>
+                </tr>
+                <tr>
+                  <td data-label="Field"><code>active_channels</code></td>
+                  <td data-label="Meaning">Live reservations currently held on that DID.</td>
+                </tr>
+                <tr>
+                  <td data-label="Field"><code>available_channels</code></td>
+                  <td data-label="Meaning"><code>allocated_channels</code> minus <code>active_channels</code>, floored at zero.</td>
+                </tr>
+                <tr>
+                  <td data-label="Field"><code>did_status</code></td>
+                  <td data-label="Meaning"><code>active</code> or <code>expired</code>. A retired DID keeps its record and history rather than being deleted.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className={styles.callout}>
+          <strong>Over-limit behavior</strong>
+          <ul>
+            <li>Exceeding a DID allocation or the shared pool does not reject the call. The request is accepted and <code>data.warning</code> explains which limit was crossed.</li>
+            <li>Possible warnings: <code>Allocated channel limit exceeded for this DID; call accepted</code>, <code>No channels allocated for this DID; call accepted</code>, and <code>Client channel pool exhausted; call accepted</code>. Multiple warnings are joined with <code>|</code>.</li>
+            <li>Treat a non-null <code>warning</code> as a signal to slow down or rebalance allocations, not as a failure.</li>
+            <li>Check <code>GET /api/mobile-numbers/channel-allocation/utilization</code> before a burst if you need to stay strictly inside your limits.</li>
+            <li>A channel reserved by a call the provider never reports on is freed automatically after 5 minutes, and the call moves to <code>temporaryfailed</code>.</li>
+          </ul>
+        </div>
+      </section>
+
       <section id="developer-click2call-statuses" className={styles.endpointSection}>
         <h3 className={styles.anchorTitle}>C2C Call Statuses</h3>
         <p>
-          The main Click2Call status values currently used in the API are <code>queued</code>, <code>Answered</code>, <code>NoAnswered</code>, and <code>failed</code>.
+          The main Click2Call status values currently used in the API are <code>queued</code>, <code>Answered</code>, <code>NoAnswered</code>, <code>failed</code>, and <code>temporaryfailed</code>.
+          Compare status values case-insensitively: the provider sends mixed casing such as <code>Answered</code> and <code>NoAnswered</code>.
         </p>
         <div className={styles.tableCard}>
           <h4>Status Reference</h4>
@@ -825,6 +1620,14 @@ export default function DeveloperClick2CallPage() {
                   <td data-label="Meaning">The call failed technically or could not be completed.</td>
                 </tr>
                 <tr>
+                  <td data-label="Status"><code>temporaryfailed</code></td>
+                  <td data-label="Meaning">The provider never reported on the call within 5 minutes, so it was timed out. A late provider callback can still replace this with the real outcome.</td>
+                </tr>
+                <tr>
+                  <td data-label="Status"><code>afthrs</code></td>
+                  <td data-label="Meaning">The provider rejected the call as outside permitted calling hours. Treated as a not-answered terminal result.</td>
+                </tr>
+                <tr>
                   <td data-label="Status"><code>success</code></td>
                   <td data-label="Meaning">Voice-agent (AGT_) calls only: the customer answered and the voice agent is on the call.</td>
                 </tr>
@@ -842,6 +1645,9 @@ export default function DeveloperClick2CallPage() {
             <li><code>Answered</code> and <code>NoAnswered</code> are provider-style status values and should be treated as final call results.</li>
             <li><code>queued</code> is the initial state before a final provider callback is received.</li>
             <li><code>call.completed</code> is a callback event name, not the same thing as a stored call <code>status</code> value.</li>
+            <li>A call that reaches any terminal status releases the DID channel it reserved. Terminal statuses are <code>Answered</code>, <code>NoAnswered</code>, <code>afthrs</code>, <code>failed</code>, <code>temporaryfailed</code>, and <code>completed</code>.</li>
+            <li><code>temporaryfailed</code> is provisional. If the provider reports late, the record is reprocessed and the corrected outcome is delivered to your <code>callback_url</code>.</li>
+            <li>Answered calls also carry <code>hangup_cause</code> from the provider, for example <code>ANSWER</code>, <code>BUSY</code>, <code>CANCEL</code>, or <code>NOANSWER</code>.</li>
           </ul>
         </div>
       </section>
@@ -871,6 +1677,8 @@ export default function DeveloperClick2CallPage() {
             <li>The callback <code>data</code> object uses the same compact shape as <code>GET /api/calls/{'{call_id}'}/transcript</code>.</li>
             <li>Return a 2xx response from your webhook to mark the event as delivered.</li>
             <li>If no <code>callback_url</code> is supplied, no webhook is sent. Use <code>GET /api/calls/recent</code> or transcript polling.</li>
+            <li>Each event is delivered once per call. Retrying a transcript with <code>POST /api/calls/{'{call_id}'}/transcript/retry</code> re-arms the transcript events so they can be delivered again.</li>
+            <li>Inbound calls use the per-DID webhook set with <code>POST /api/calls/inbound-callback-url</code> instead of a per-call <code>callback_url</code>.</li>
           </ul>
         </div>
         <div className={styles.tableCard}>
@@ -885,12 +1693,24 @@ export default function DeveloperClick2CallPage() {
               </thead>
               <tbody>
                 <tr>
+                  <td data-label="Event"><code>call.answered</code></td>
+                  <td data-label="Meaning">The provider reported status <code>Answered</code>. The call connected.</td>
+                </tr>
+                <tr>
+                  <td data-label="Event"><code>call.not_answered</code></td>
+                  <td data-label="Meaning">The provider reported <code>NoAnswered</code> or <code>afthrs</code>. The customer did not take the call.</td>
+                </tr>
+                <tr>
+                  <td data-label="Event"><code>call.temporaryfailed</code></td>
+                  <td data-label="Meaning">The call was timed out after 5 minutes without a provider report. A later report can still supersede this with the real outcome.</td>
+                </tr>
+                <tr>
                   <td data-label="Event"><code>call.completed</code></td>
-                  <td data-label="Meaning">The call has reached a completed terminal state and call-log data was stored.</td>
+                  <td data-label="Meaning">The call reached a terminal state that maps to none of the specific events above, and call-log data was stored.</td>
                 </tr>
                 <tr>
                   <td data-label="Event"><code>call.failed</code></td>
-                  <td data-label="Meaning">The call failed to connect or the provider reported a failed terminal state.</td>
+                  <td data-label="Meaning">The call failed to connect, the provider rejected the request, or the provider reported a failed terminal state.</td>
                 </tr>
                 <tr>
                   <td data-label="Event"><code>transcript.ready</code></td>
@@ -927,12 +1747,16 @@ export default function DeveloperClick2CallPage() {
       <section id="developer-click2call-usage-flow" className={styles.endpointSection}>
         <h3 className={styles.anchorTitle}>Recommended Usage Flow</h3>
         <ol>
-          <li>Login to get <code>access_token</code>.</li>
+          <li>Login to get <code>access_token</code>, and refresh it with <code>POST /api/refresh_token</code> rather than logging in again on every run.</li>
+          <li>Call <code>GET /api/mobile-numbers</code> once to discover the C2C DIDs assigned to you and their channel ceilings.</li>
+          <li>Set your concurrency plan with <code>PUT /api/mobile-numbers/channel-allocation</code>, then retune individual DIDs later with <code>PATCH</code>.</li>
           <li>Create a click2call request: with <code>did</code> for provider calls, or with an <code>AGT_</code> <code>agent_number</code> and <code>agent_config</code> infields for voice-agent calls. Add an optional <code>callback_url</code>, and <code>transcript: true</code> when a transcript is needed.</li>
-          <li>Store <code>call_id</code> from the create response.</li>
+          <li>Store <code>call_id</code> from the create response, and check <code>data.warning</code> for capacity pressure.</li>
           <li>Use callbacks as the primary async notification path when <code>callback_url</code> is configured.</li>
           <li>Use <code>GET /api/calls/recent</code> to list and filter many calls efficiently.</li>
-          <li>Use <code>GET /api/calls/{'{call_id}'}/transcript</code> when you need a single call transcript payload.</li>
+          <li>Use <code>GET /api/calls/{'{call_id}'}/transcript</code> when you need a single call transcript payload, and <code>POST /api/calls/{'{call_id}'}/transcript/retry</code> if one failed.</li>
+          <li>For inbound traffic, register a webhook per DID with <code>POST /api/calls/inbound-callback-url</code>.</li>
+          <li>While running a campaign, poll <code>GET /api/mobile-numbers/channel-allocation/utilization</code> to pace dialing against free channels.</li>
         </ol>
       </section>
 
@@ -949,6 +1773,11 @@ export default function DeveloperClick2CallPage() {
           <li>Provider phone-number Click2Call requires <code>did</code>.</li>
           <li>Voice-agent (<code>AGT_</code>) calls ignore <code>did</code> and read call infields from flat keys in <code>agent_config</code>.</li>
           <li>The recent logs API is better than per-call polling when you manage multiple concurrent calls.</li>
+          <li>Channel allocation applies only to provider Click2Call. Voice-agent (<code>AGT_</code>) calls draw on the purchased channels of the agent outbound number.</li>
+          <li>Requests over your DID or pool limit are accepted with a <code>warning</code> rather than rejected. Read <code>data.warning</code> on every create response.</li>
+          <li><code>PUT</code> on channel allocation is a full replacement: any assigned DID you omit drops to zero. Use <code>PATCH</code> for partial updates.</li>
+          <li>Outbound calls use the per-call <code>callback_url</code>; inbound calls use the per-DID webhook from <code>POST /api/calls/inbound-callback-url</code>.</li>
+          <li><code>temporaryfailed</code> is provisional and can still be corrected by a late provider report.</li>
           <li>Keep tokens secure; do not expose them in frontend logs.</li>
         </ul>
       </section>
