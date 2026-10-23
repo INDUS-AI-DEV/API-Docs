@@ -7,7 +7,7 @@ import CopyableCode from "@site/src/components/CopyableCode/CopyableCode";
 import { getSidebarSections } from "@site/src/sidebarConfig";
 import styles from "./api.module.css";
 
-const SERVER_URL = "https://api.induslabs.io/mcp";
+const SERVER_URL = "https://mcp.induslabs.io/mcp";
 const CONSOLE_URL = "https://playground.induslabs.io/mcp-console";
 
 const claudeCodeCommand = `claude mcp add --transport http indus ${SERVER_URL} \\
