@@ -34,7 +34,7 @@ const tools = [
   ["Build", [
     ["create_agent", "Create agent", "A new agent (it gets no phone numbers or traffic).", "Write"],
     ["create_config_draft", "Create config draft", "A draft version; the live version is untouched.", "Write"],
-    ["update_config_draft", "Update config draft", "Change a draft: prompt, voice, language, models.", "Write"],
+    ["update_config_draft", "Update config draft", "Change a draft: prompt, voice, language, models. Overwrites the draft's current values.", "Overwrite"],
     ["validate_config", "Validate config", "Check a version for problems.", "Read"],
     ["render_preview", "Preview rendered prompt", "The prompt the agent will use, with variables filled in.", "Read"],
     ["enhance_prompt", "Suggest prompt improvements", "Suggested prompt changes for a version.", "Read"],
@@ -47,8 +47,8 @@ const tools = [
   ["Gem builder", [
     ["gem_start", "Start Gem builder", "Start a guided agent-building session.", "Write"],
     ["gem_answer", "Answer Gem question", "Answer the builder's next question.", "Write"],
-    ["gem_update_brief", "Update Gem brief", "Edit the agent brief.", "Write"],
-    ["gem_gaps", "Check Gem brief gaps", "What the brief is still missing.", "Write"],
+    ["gem_update_brief", "Update Gem brief", "Replace the agent brief with an edited copy.", "Overwrite"],
+    ["gem_gaps", "Answer Gem build gaps", "Answer the details a build is missing; starts a rebuild.", "Write"],
     ["gem_build", "Build agent with Gem", "Generate the agent from the brief.", "Write"],
     ["gem_status", "Get Gem session status", "Progress of a Gem session.", "Read"],
     ["gem_create_agent", "Create agent from Gem", "Save the generated agent to your workspace.", "Write"],
@@ -189,8 +189,9 @@ export default function McpServer() {
           <p>
             <strong>Read</strong> tools change nothing. <strong>Write</strong>{" "}
             tools create agents, drafts or Gem sessions but never change a
-            live agent. <strong>Destructive</strong> means it changes what
-            your callers hear, so your assistant asks you first.
+            live agent. <strong>Overwrite</strong> tools replace a draft or
+            brief in place, and <strong>Destructive</strong> means it changes
+            what your callers hear. Your assistant asks you before either.
           </p>
         </div>
         <div className={styles.tableWrapper}>
