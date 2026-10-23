@@ -20,6 +20,7 @@ const sections = [
     items: [
       { label: 'Agent Creation Guide', page: 'understanding-indus', id: 'understanding-indus-quick-start' },
       { label: 'LiveKit Plugin Guide', page: 'livekit-plugin', id: 'livekit-plugin-introduction' },
+      { label: 'MCP Server', page: 'mcp', id: 'mcp-introduction' },
     ],
   },
   {
