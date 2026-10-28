@@ -28,7 +28,7 @@ async def entrypoint(ctx: agents.JobContext):
     # Initialize the AgentSession with IndusLabs TTS and STT
     session = AgentSession(
         stt=STT(),
-        tts=TTS(voice="Indus-hi-Urvashi"),
+        tts=TTS(voice="Indus-hi-Inaya"),
         llm=openai.LLM(model="gpt-4o-mini"),
         vad=silero.VAD.load(),
     )
@@ -47,8 +47,8 @@ const ttsBasicCode = `import asyncio
 from livekit.plugins.induslabs import TTS
 
 async def synthesize_text():
-    # Uses default voice "Indus-hi-Urvashi"
-    tts = TTS()
+    # Always pass a voice explicitly
+    tts = TTS(voice="Indus-hi-Inaya")
     
     # Generate audio for the entire sentence
     chunk_stream = tts.synthesize("Namaste, aap kaise hain?")
@@ -63,7 +63,7 @@ const ttsStreamCode = `import asyncio
 from livekit.plugins.induslabs import TTS
 
 async def play_audio():
-    tts = TTS(voice="Indus-hi-Urvashi")
+    tts = TTS(voice="Indus-hi-Inaya")
     
     # Create an audio stream
     stream = tts.stream()
@@ -293,7 +293,7 @@ export LIVEKIT_API_SECRET="<your-livekit-secret>"`}
   -H "Content-Type: application/json" \\
   -d '{
     "text": "Namaste, IndusLabs plugin is ready.",
-    "voice": "Indus-hi-Urvashi",
+    "voice": "Indus-hi-Inaya",
     "model": "indus-tts-v1",
     "api_key": "'$INDUSLABS_API_KEY'",
     "sample_rate": 24000

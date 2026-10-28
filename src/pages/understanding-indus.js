@@ -84,7 +84,7 @@ const quickStartSteps = [
       'Intelligence Engine: Choose LLM (e.g., openai/gpt-oss-120b or groq).',
       'Adjust Temperature (focused vs creative), Max Tokens, and Context Turns.',
       'Speech To Text: Select provider (Indus.ai) and language (e.g., Hindi).',
-      'Text To Speech: Set voice model (e.g., Indus-hi-maya) for agent replies.',
+      'Text To Speech: Set voice model (e.g., Indus-hi-Inaya) for agent replies.',
     ],
     recommendation: 'Change one setting at a time (only voice, or only language, or only temperature) so you can tell exactly what improved or broke.',
     targetId: 'understanding-indus-first-agent',
@@ -346,7 +346,7 @@ export default function UnderstandingIndusPage() {
         <ul style={{ margin: '0.5rem 0', paddingLeft: '1.25rem', color: 'var(--color-text-secondary)' }}>
           <li style={{ marginBottom: '0.375rem' }}><strong>Intelligence Engine:</strong> Choose the LLM (e.g. <code>openai/gpt-oss-120b</code> or <code>groq</code>). Adjust <strong>Temperature</strong> (focused vs creative), <strong>Max Tokens</strong>, and <strong>Context Turns</strong> (conversation memory).</li>
           <li style={{ marginBottom: '0.375rem' }}><strong>Speech To Text:</strong> Select provider (e.g. Indus.ai) and model (e.g. <code>nova-2</code>), and set <strong>Language</strong> (e.g. Hindi).</li>
-          <li style={{ marginBottom: '0.375rem' }}><strong>Text To Speech:</strong> Set the voice model (e.g. <code>Indus-hi-maya</code>) that the agent uses to speak replies.</li>
+          <li style={{ marginBottom: '0.375rem' }}><strong>Text To Speech:</strong> Set the voice model (e.g. <code>Indus-hi-Inaya</code>) that the agent uses to speak replies.</li>
         </ul>
         <GuideImage
           src="/img/understanding-indus-config.png"
@@ -408,7 +408,7 @@ export default function UnderstandingIndusPage() {
 
         <h3 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>Step 1: Start a Test Call</h3>
         <p>
-          Open your agent, make sure you have saved your latest changes, and go to the <strong>Test Call</strong> tab. Under <strong>Web Call</strong>, select a <strong>Voice</strong> (for example, <code>Indus-hi-maya</code>) and click <strong>Start Web Call</strong> to begin a browser-based session.
+          Open your agent, make sure you have saved your latest changes, and go to the <strong>Test Call</strong> tab. Under <strong>Web Call</strong>, select a <strong>Voice</strong> (for example, <code>Indus-hi-Inaya</code>) and click <strong>Start Web Call</strong> to begin a browser-based session.
         </p>
         <div className={styles.callout}>
           <strong>Recommendation</strong>

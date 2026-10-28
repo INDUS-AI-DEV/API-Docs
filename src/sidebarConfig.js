@@ -33,7 +33,7 @@ const sections = [
       { label: 'audio/speech/file', page: 'tts', id: 'tts-post-v1-audio-speech-file', method: 'POST' },
       { label: 'audio/speech/preview', page: 'tts', id: 'tts-post-v1-audio-speech-preview', method: 'POST' },
 
-      { label: 'voice/get-voices', page: 'tts', id: 'tts-get-v1-voice-get-voices', method: 'GET' },
+      // { label: 'voice/get-voices', page: 'tts', id: 'tts-get-v1-voice-get-voices', method: 'GET' },
 
       {
         label: 'audio/speech_ws',

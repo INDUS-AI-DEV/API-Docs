@@ -23,7 +23,7 @@ client = Client(api_key="your_api_key_here")
 # Text-to-Speech
 response = client.tts.speak(
     text="नमस्ते, यह एक टेस्ट है",
-    voice="Indus-hi-maya",
+    voice="Indus-hi-Inaya",
     language="hi-IN"
 )
 response.save("output.wav")
@@ -48,7 +48,7 @@ async def main():
         # Async TTS
         response = await client.tts.speak_async(
             text="Async speech synthesis",
-            voice="Indus-hi-maya"
+            voice="Indus-hi-Inaya"
         )
         
         # Async STT (Streaming with Indus-STT-Hi-En Model)
@@ -124,7 +124,7 @@ client = Client()
 # Text-to-Speech
 response = client.tts.speak(
     text="Hello, this is a test",
-    voice="Indus-hi-maya"
+    voice="Indus-hi-Inaya"
 )
 response.save("output.wav")
 
@@ -196,7 +196,7 @@ client = Client(api_key="your_api_key")
 # Simple synthesis
 response = client.tts.speak(
     text="Hello, this is a test",
-    voice="Indus-hi-maya"
+    voice="Indus-hi-Inaya"
 )
 
 # Save to file
@@ -355,7 +355,7 @@ def main():
     # Create streaming response
     response = client.tts.speak(
         text=text,
-        voice="Indus-hi-maya",
+        voice="Indus-hi-Inaya",
         stream=True  # Enable streaming
     )
     
@@ -390,7 +390,7 @@ client = Client(api_key="your_api_key")
 
 response = client.tts.speak(
     text="In-memory audio",
-    voice="Indus-hi-maya"
+    voice="Indus-hi-Inaya"
 )
 
 # Get as file-like object (BytesIO)
@@ -419,21 +419,21 @@ client = Client(api_key="your_api_key")
 # WAV format (default, best quality)
 wav_response = client.tts.speak(
     text="WAV format audio",
-    voice="Indus-hi-maya",
+    voice="Indus-hi-Inaya",
     output_format="wav"
 )
 
 # MP3 format (smaller file size)
 mp3_response = client.tts.speak(
     text="MP3 format audio",
-    voice="Indus-hi-maya",
+    voice="Indus-hi-Inaya",
     output_format="mp3"
 )
 
 # PCM format (raw audio data)
 pcm_response = client.tts.speak(
     text="PCM format audio",
-    voice="Indus-hi-maya",
+    voice="Indus-hi-Inaya",
     output_format="pcm"
 )`}</CopyableCode>
         </div>
@@ -718,7 +718,7 @@ asyncio.run(main())`}</CopyableCode>
 client = Client()
 
 # Get a response object
-response = client.tts.speak(text="Hello", voice="Indus-hi-maya")
+response = client.tts.speak(text="Hello", voice="Indus-hi-Inaya")
 
 # Access Properties
 print(f"Data Size: {len(response.content)} bytes")  # bytes: Raw audio data
@@ -906,7 +906,7 @@ client = Client()
 # Solution: Use valid format
 response = client.tts.speak(
     text="Test",
-    voice="Indus-hi-maya",
+    voice="Indus-hi-Inaya",
     output_format="wav"  # Must be: wav, mp3, or pcm
 )`}</CopyableCode>
             </div>
