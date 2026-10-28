@@ -27,8 +27,8 @@ const ttsQuickIntegration = {
 url = "${TTS_BASE_URL}/v1/audio/speech"
 payload = {
     "text": "Hello from IndusLabs Voice API",
-    "voice": "Indus-hi-maya",
-    "output_format": "mp3",
+    "voice": "Indus-hi-Inaya",
+    "output_format": "wav",
     "stream": False,
     "model": "indus-tts-v1",
     "api_key": "YOUR_API_KEY"
@@ -37,9 +37,9 @@ payload = {
 response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload, timeout=30)
 response.raise_for_status()
 
-with open("output.mp3", "wb") as f:
+with open("output.wav", "wb") as f:
     f.write(response.content)
-print("Audio saved to output.mp3")`,
+print("Audio saved to output.wav")`,
         },
         {
           id: 'python-sdk',
@@ -51,13 +51,13 @@ client = Client(api_key="YOUR_API_KEY")
 
 speech = client.tts.speak(
     text="Hello from IndusLabs Voice API",
-    voice="Indus-hi-maya",
-    output_format="mp3",
+    voice="Indus-hi-Inaya",
+    output_format="wav",
     stream=False
 )
 
-speech.save("output.mp3")
-print("Audio saved to output.mp3")`,
+speech.save("output.wav")
+print("Audio saved to output.wav")`,
         },
         {
           id: 'javascript',
@@ -69,8 +69,8 @@ import fs from 'fs';
 const url = "${TTS_BASE_URL}/v1/audio/speech";
 const payload = {
   text: "Hello from IndusLabs Voice API",
-  voice: "Indus-hi-maya",
-  output_format: "mp3",
+  voice: "Indus-hi-Inaya",
+  output_format: "wav",
   stream: false,
   model: "indus-tts-v1",
   api_key: "YOUR_API_KEY",
@@ -89,8 +89,8 @@ const response = await fetch(url, {
 if (!response.ok) throw new Error(\`Request failed: \${response.status}\`);
 
 const buffer = Buffer.from(await response.arrayBuffer());
-fs.writeFileSync('output.mp3', buffer);
-console.log('Audio saved to output.mp3');`,
+fs.writeFileSync('output.wav', buffer);
+console.log('Audio saved to output.wav');`,
         },
         {
           id: 'curl',
@@ -101,8 +101,8 @@ console.log('Audio saved to output.mp3');`,
   -H "Content-Type: application/json" \\
   -d '{
   "text": "Hello from IndusLabs Voice API",
-  "voice": "Indus-hi-maya",
-  "output_format": "mp3",
+  "voice": "Indus-hi-Inaya",
+  "output_format": "wav",
   "stream": false,
   "model": "indus-tts-v1",
   "api_key": "YOUR_API_KEY",
@@ -112,7 +112,7 @@ console.log('Audio saved to output.mp3');`,
   "loudness_db": 0,
   "sample_rate": 24000
 }' \\
-  -o output.mp3`,
+  -o output.wav`,
         },
       ],
     },
@@ -130,7 +130,7 @@ console.log('Audio saved to output.mp3');`,
 url = "${TTS_BASE_URL}/v1/audio/speech/file"
 payload = {
     "text": "Hello from IndusLabs Voice API",
-    "voice": "Indus-hi-maya",
+    "voice": "Indus-hi-Inaya",
     "output_format": "wav",
     "response_format": "base64",
     "stream": False,
@@ -154,7 +154,7 @@ client = Client(api_key="YOUR_API_KEY")
 
 speech = client.tts.speak(
     text="Hello from IndusLabs Voice API",
-    voice="Indus-hi-maya",
+    voice="Indus-hi-Inaya",
     output_format="wav",
     stream=False
 )
@@ -171,7 +171,7 @@ print("Audio saved to output.wav")`,
 const url = "${TTS_BASE_URL}/v1/audio/speech/file";
 const payload = {
   text: "Hello from IndusLabs Voice API",
-  voice: "Indus-hi-maya",
+  voice: "Indus-hi-Inaya",
   output_format: "wav",
   response_format: "base64",
   stream: false,
@@ -198,7 +198,7 @@ console.log(metadata);`,
   -H "Content-Type: application/json" \\
   -d '{
   "text": "Hello from IndusLabs Voice API",
-  "voice": "Indus-hi-maya",
+  "voice": "Indus-hi-Inaya",
   "output_format": "wav",
   "response_format": "base64",
   "stream": false,
@@ -222,7 +222,7 @@ console.log(metadata);`,
 url = "${TTS_BASE_URL}/v1/audio/speech/preview"
 payload = {
     "text": "Hello from IndusLabs Voice API",
-    "voice": "Indus-hi-maya",
+    "voice": "Indus-hi-Inaya",
     "output_format": "wav",
     "stream": True,
     "model": "indus-tts-v1",
@@ -249,7 +249,7 @@ print(preview["analysis"]["estimated_duration_seconds"])`,
 const url = "${TTS_BASE_URL}/v1/audio/speech/preview";
 const payload = {
   text: "Hello from IndusLabs Voice API",
-  voice: "Indus-hi-maya",
+  voice: "Indus-hi-Inaya",
   output_format: "wav",
   stream: true,
   model: "indus-tts-v1",
@@ -280,7 +280,7 @@ console.log('Estimated duration (s):', preview.analysis.estimated_duration_secon
   -H "Content-Type: application/json" \\
   -d '{
   "text": "Hello from IndusLabs Voice API",
-  "voice": "Indus-hi-maya",
+  "voice": "Indus-hi-Inaya",
   "output_format": "wav",
   "stream": true,
   "model": "indus-tts-v1",
@@ -294,6 +294,8 @@ console.log('Estimated duration (s):', preview.analysis.estimated_duration_secon
         },
       ],
     },
+    /* GET /api/voice/get-voices is hidden from the docs for now. Re-enable this entry
+       (and its endpoint section and sidebar link) when it should be public again.
     {
       id: 'tts-get-v1-voice-get-voices',
       label: 'GET /api/voice/get-voices',
@@ -349,6 +351,7 @@ console.log('Languages:', Object.keys(voices.data));`,
         },
       ],
     },
+    */
     {
       id: 'tts-ws-v1-audio-speech',
       label: 'WS /v1/audio/speech_ws',
@@ -366,7 +369,7 @@ WS_URL = "${TTS_WS_URL}/v1/audio/speech_ws"
 
 payload = {
     "text": "Hello, this is a websocket TTS test.",
-    "voice": "Indus-en-Ember",
+    "voice": "Indus-multi-Aadhya",
     "output_format": "wav",
     "stream": True,
     "model": "indus-tts-v3",
@@ -410,7 +413,7 @@ const WS_URL = '${TTS_WS_URL}/v1/audio/speech_ws';
 
 const payload = {
   text: 'Hello, this is a websocket TTS test.',
-  voice: 'Indus-en-Ember',
+  voice: 'Indus-multi-Aadhya',
   output_format: 'wav',
   stream: true,
   model: 'indus-tts-v3',
@@ -456,7 +459,7 @@ ws.on('close', (code, reason) => console.log(\`WebSocket closed: \${code} \${rea
 
 const sharedPayload = `{
   "text": "Hello, this is a test request.",
-  "voice": "Indus-hi-maya",
+  "voice": "Indus-hi-Inaya",
   "output_format": "wav",
   "model": "indus-tts-v1",
   "api_key": "YOUR_API_KEY",
@@ -499,7 +502,7 @@ const previewResponse = `{
     }
   },
   "configuration": {
-    "voice": "Indus-hi-maya",
+    "voice": "Indus-hi-Inaya",
     "model": "indus-tts-v1",
     "output_format": "wav",
     "stream": true,
@@ -517,7 +520,7 @@ const previewResponse = `{
   },
   "output_settings": {
     "format": "wav",
-    "voice": "Indus-hi-maya",
+    "voice": "Indus-hi-Inaya",
     "model": "indus-tts-v1",
     "streaming": true,
     "sample_rate": 24000,
@@ -541,8 +544,8 @@ const previewResponse = `{
 
 const sharedInputs = [
   {name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.'},
-  {name: 'voice', type: 'string', defaultValue: 'Indus-hi-maya', description: 'The voice model to be used (e.g., "Indus-hi-maya").'},
-  {name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3", "pcm").'},
+  {name: 'voice', type: 'string', defaultValue: 'required', description: 'The voice model to be used (e.g., "Indus-hi-Inaya", "Indus-multi-Aadhya").'},
+  {name: 'output_format', type: 'string', defaultValue: 'pcm', description: 'Audio format for output: "pcm", "wav", or "mulaw" (8 kHz, for telephony). MP3 is not supported.'},
   {name: 'model', type: 'string', defaultValue: 'indus-tts-v1', description: 'The TTS model to use (e.g., "indus-tts-v1").'},
   {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
   {name: 'normalize', type: 'boolean', defaultValue: 'true', description: 'Whether to normalize text before synthesis (default: true).'},
@@ -556,8 +559,8 @@ const sharedInputs = [
 // WebSocket-specific definitions
 const wsInputs = [
   {name: 'text', type: 'string', defaultValue: 'required', description: 'The text to be synthesized into speech.'},
-  {name: 'voice', type: 'string', defaultValue: 'required', description: 'The voice model to use (e.g., "Indus-en-Ember", "Indus-hi-maya").'},
-  {name: 'output_format', type: 'string', defaultValue: 'wav', description: 'Audio format for output (e.g., "wav", "mp3").'},
+  {name: 'voice', type: 'string', defaultValue: 'required', description: 'The voice model to use (e.g., "Indus-multi-Aadhya", "Indus-hi-Inaya").'},
+  {name: 'output_format', type: 'string', defaultValue: 'pcm', description: 'Audio format for output: "pcm", "wav", or "mulaw" (8 kHz, for telephony). MP3 is not supported.'},
   {name: 'stream', type: 'boolean', defaultValue: 'true', description: 'Whether to stream the output (default: true).'},
   {name: 'model', type: 'string', defaultValue: 'indus-tts-v3', description: 'The TTS model to use (e.g., "indus-tts-v1", "indus-tts-v3").'},
   {name: 'api_key', type: 'string', defaultValue: 'required', description: 'Authentication API key.'},
@@ -570,21 +573,39 @@ const wsInputs = [
 
 const wsMessageTypes = [
   {name: 'Initial JSON Request', type: 'JSON', defaultValue: 'first', description: 'Send complete request payload as JSON string including text, voice, model, and all parameters.'},
+  {name: 'Headers Message', type: 'JSON', defaultValue: 'first reply', description: 'JSON message with type "headers" describing the audio (content type, sample rate, encoding).'},
   {name: 'Audio Chunks', type: 'binary', defaultValue: 'continuous', description: 'Raw audio data received as binary WebSocket frames (synthesized speech audio).'},
   {name: 'Status Messages', type: 'JSON', defaultValue: 'intermittent', description: 'JSON messages with type "done" (synthesis complete) or "error" (processing failed).'},
 ];
 
 const wsOutputs = [
-  {name: 'audio chunks', type: 'binary', defaultValue: '-', description: 'Raw synthesized audio data in the requested format (wav, mp3, etc.).'},
+  {name: 'headers', type: 'JSON', defaultValue: '-', description: 'Audio format details, sent before the first audio chunk.'},
+  {name: 'audio chunks', type: 'binary', defaultValue: '-', description: 'Raw synthesized audio data in the requested format (pcm, wav or mulaw).'},
   {name: 'done', type: 'JSON', defaultValue: '-', description: 'Completion message indicating synthesis is finished.'},
   {name: 'error', type: 'JSON', defaultValue: '-', description: 'Error message if synthesis fails.'},
 ];
 
 const wsResponseExamples = [
   {
+    label: 'Headers Message',
+    language: 'json',
+    code: `{
+  "type": "headers",
+  "headers": {
+    "Content-Type": "audio/wav",
+    "X-Sample-Rate": "24000",
+    "X-Audio-Encoding": "pcm_s16le",
+    "X-Channels": "1",
+    "X-Bit-Depth": "16",
+    "X-Voice": "Indus-multi-Aadhya",
+    "X-Request-ID": "f3b1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+  }
+}`,
+  },
+  {
     label: 'Audio Chunk (Binary)',
     language: 'text',
-    code: `Binary audio data (WAV/MP3 format)
+    code: `Binary audio data (PCM/WAV/mu-law format)
 Example: 4096 bytes of audio data per chunk`,
   },
   {
@@ -592,7 +613,7 @@ Example: 4096 bytes of audio data per chunk`,
     language: 'json',
     code: `{
   "type": "done",
-  "message": "Speech synthesis completed"
+  "request_id": "f3b1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
 }`,
   },
   {
@@ -613,71 +634,42 @@ const voiceListExample = `{
   "data": {
     "hindi": [
       {
-        "name": "Maya",
-        "voice_id": "Indus-hi-maya",
+        "name": "Inaya",
+        "voice_id": "Indus-hi-Inaya",
         "gender": "female"
       },
       {
-        "name": "Urvashi",
-        "voice_id": "Indus-hi-Urvashi",
-        "gender": "female"
-      },
-      {
-        "name": "Aditi",
-        "voice_id": "Indus-hi-Aditi",
-        "gender": "female"
-      },
-      {
-        "name": "Arjun",
-        "voice_id": "Indus-hi-Arjun",
+        "name": "Vihaan",
+        "voice_id": "Indus-hi-Vihaan",
         "gender": "male"
-      }
-    ],
-    "english": [
+      },
       {
-        "name": "Maya",
-        "voice_id": "Indus-en-maya",
+        "name": "Mahi",
+        "voice_id": "Indus-hi-Mahi",
         "gender": "female"
       },
       {
-        "name": "Urvashi",
-        "voice_id": "Indus-en-Urvashi",
+        "name": "Avni",
+        "voice_id": "Indus-hi-Avni",
         "gender": "female"
       }
     ],
-    "bengali": [
+    "multi": [
       {
-        "name": "Alivia",
-        "voice_id": "Indus-bn-Alivia",
+        "name": "Aadhya",
+        "voice_id": "Indus-multi-Aadhya",
         "gender": "female"
-      },
-      {
-        "name": "Sayan",
-        "voice_id": "Indus-bn-Sayan",
-        "gender": "male"
       }
     ],
-    "kannada": [
+    "telugu": [
       {
-        "name": "Aahna",
-        "voice_id": "Indus-bn-Aahna",
+        "name": "Kavya",
+        "voice_id": "Indus-te-Kavya",
         "gender": "female"
       },
       {
-        "name": "Chinmay",
-        "voice_id": "Indus-bn-Chinmay",
-        "gender": "male"
-      }
-    ],
-    "arabic": [
-      {
-        "name": "Fatima",
-        "voice_id": "Indus-ar-Fatima",
-        "gender": "female"
-      },
-      {
-        "name": "Hamdan",
-        "voice_id": "Indus-ar-Hamdan",
+        "name": "Raman",
+        "voice_id": "Indus-te-Raman",
         "gender": "male"
       }
     ]
@@ -763,9 +755,11 @@ const endpoints = [
     ],
     outputFormat: 'json',
   },
+  /* GET /api/voice/get-voices is hidden from the docs for now.
   {
     anchor: 'tts-get-v1-voice-get-voices',
     method: 'GET',
+    baseUrl: 'https://api.indusai.app',
     path: '/api/voice/get-voices',
     title: 'List Available Voices',
     description:
@@ -773,7 +767,7 @@ const endpoints = [
     notes: [
       'Returns a comprehensive list of available voices organized by language.',
       'Each voice includes name, voice_id, and gender information.',
-      'Supports multiple languages including Hindi, English, Bengali, Kannada, Marathi, Telugu, Arabic, and regional languages.',
+      'Voices are grouped by language key (for example hindi, multi, telugu).',
       'No authentication required for this endpoint.',
     ],
     inputs: null,
@@ -788,6 +782,7 @@ const endpoints = [
     outputFormat: 'json',
     isVoiceEndpoint: true,
   },
+  */
   {
     anchor: 'tts-ws-v1-audio-speech',
     method: 'WS',
@@ -800,7 +795,7 @@ const endpoints = [
       '🎯 **Low Latency**: Optimized for live speech generation and real-time voice applications.',
       '📊 **Streaming Output**: Get audio data progressively as binary chunks for immediate playback.',
       '🔄 **Bidirectional**: Send synthesis request and receive audio chunks continuously.',
-      '🎵 **Multiple Formats**: Supports WAV, MP3, and other audio formats with configurable parameters.',
+      '🎵 **Multiple Formats**: Supports raw PCM, WAV, and 8 kHz mu-law audio with configurable parameters.',
     ],
     models: [
       {name: 'indus-tts-v1', description: 'Standard TTS model with broad language support.'},
@@ -921,9 +916,9 @@ function MessageTypeCard({rows}) {
 function EndpointSection({endpoint}) {
   const [copied, setCopied] = useState(false);
   const isWebSocket = endpoint.isWebSocket || endpoint.method === 'WS';
-  const copyValue = isWebSocket 
+  const copyValue = isWebSocket
     ? `${TTS_WS_URL}${endpoint.path}`
-    : `${TTS_BASE_URL}${endpoint.path}`;
+    : `${endpoint.baseUrl || TTS_BASE_URL}${endpoint.path}`;
 
   const handleCopy = async () => {
     try {

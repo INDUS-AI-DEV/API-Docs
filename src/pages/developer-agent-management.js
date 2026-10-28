@@ -95,7 +95,7 @@ const agentConfigObjectJson = `{
   ],
   "notes": "Initial config",
   "tts_config": {
-    "voice_id": "Indus-hi-maya"
+    "voice_id": "Indus-hi-Inaya"
   },
   "llm_config": {
     "provider": "groq",
@@ -281,7 +281,7 @@ const createAgentRequestJson = `{
     },
     "notes": "Initial production config",
     "tts_config": {
-      "voice_id": "Indus-hi-maya"
+      "voice_id": "Indus-hi-Inaya"
     },
     "stt_config": {
       "provider": "deepgram",
